@@ -19,7 +19,7 @@
 /*global Audio: false */
 var LunaticFringe = function (canvas) {
     "use strict";
-    var objectManager, mediaManager, Key, DEBUG = false, numEnemiesKilled = 0, score = 0;
+    var animationLoop, objectManager, mediaManager, Key, DEBUG = false, numEnemiesKilled = 0, score = 0;
 
     if (typeof canvas !== 'object') {
         canvas = document.getElementById(canvas);
@@ -969,12 +969,17 @@ var LunaticFringe = function (canvas) {
         } ());
 
         this.initializeGame();
-
-        // Start the game loop
-        setInterval(this.gameLoop, 0);
     }
 
     objectManager = new ObjectManager(canvas.getContext("2d"));
+
+    animationLoop = function() {
+      // Start the game loop
+      objectManager.gameLoop();
+      requestAnimationFrame(animationLoop);
+    };
+
+    animationLoop();
 
     window.addEventListener('resize', function (event) { objectManager.handleResize(event); }, false);
     window.addEventListener('keyup', function (event) { Key.onKeyup(event); }, false);
