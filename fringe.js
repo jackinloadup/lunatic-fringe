@@ -391,15 +391,10 @@ var LunaticFringe = function (canvas) {
                 this.updateHealth(-5);
                 return;
             }
-
-            //alert("Dying is for losers!");
-
-
-
         }
 
         this.updateHealth = function (healthChange) {
-          log(health + healthChange);
+          log("ship Health: " + health + healthChange);
           health = health + healthChange;
 
           if(health <= 0) {
@@ -767,7 +762,9 @@ var LunaticFringe = function (canvas) {
 
     function ObjectManager(canvasContext) {
         var objects, collidables, newObject, i, context, playerShip, moveObject, updateObjects, detectCollisions, drawObjects,
-                    GameBounds, checkBounds, handleCollision, setupPositions, numMessageTicks, numMessageTicksMax, message, running;
+                    GameBounds, checkBounds, handleCollision, setupPositions, numMessageTicks, numMessageTicksMax, message,
+                    running, isPaused;
+
         context = canvasContext;
 
         this.GameBounds = GameBounds = {
@@ -976,11 +973,28 @@ var LunaticFringe = function (canvas) {
             objectManager.removeObject(playerShip)
         };
 
+        this.pauseGame = function () {
+          isPaused = true;
+          console.log('paused')
+        }
+
+        this.resumeGame = function () {
+          isPaused = false;
+          objectManager.gameLoop(true);
+          animationLoop();
+          console.log('resume')
+        }
+
+
         this.gameLoop = (function () {
             var i = 0, loops = 0, skipTicks = 1000 / 60, maxFrameSkip = 10, nextGameTick = (new Date()).getTime();
 
-            return function () {
+            return function (resetGameTick) {
                 loops = 0;
+
+                if (resetGameTick === true) {
+                    nextGameTick = (new Date()).getTime();
+                }
 
                 while ((new Date()).getTime() > nextGameTick && loops < maxFrameSkip) {
                     updateObjects(objects);
@@ -1001,12 +1015,25 @@ var LunaticFringe = function (canvas) {
     objectManager = new ObjectManager(canvas.getContext("2d"));
 
     animationLoop = function() {
+      // stop loop if paused
+      if (objectManager.isPaused == true) return;
+
       // Start the game loop
       objectManager.gameLoop();
       requestAnimationFrame(animationLoop);
     };
 
     animationLoop();
+
+    function handleVisibilityChange() {
+        if (document[hidden]) {
+          objectManager.pauseGame();
+        } else {
+          objectManager.resumeGame();
+        }
+    }
+
+    document.addEventListener(visibilityChange, handleVisibilityChange, false);
 
     window.addEventListener('resize', function (event) { objectManager.handleResize(event); }, false);
     window.addEventListener('keyup', function (event) { Key.onKeyup(event); }, false);
@@ -1029,3 +1056,18 @@ var LunaticFringe = function (canvas) {
     Vector.prototype.Normalize = function (other) { return this.Copy().Scale(1 / this.Magnitude()); }
     Vector.prototype.Magnitude = function () { return Math.sqrt(this.SelfDotProduct()); }
 };
+
+var hidden, visibilityChange; 
+if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
+  hidden = "hidden";
+  visibilityChange = "visibilitychange";
+} else if (typeof document.mozHidden !== "undefined") {
+  hidden = "mozHidden";
+  visibilityChange = "mozvisibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+  hidden = "msHidden";
+  visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+  hidden = "webkitHidden";
+  visibilityChange = "webkitvisibilitychange";
+}
