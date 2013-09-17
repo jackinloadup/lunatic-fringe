@@ -1,0 +1,20 @@
+html, body {
+    color: White;
+    background-color: Black;
+    margin: 0px;
+    padding: 0px;
+}
+
+#hud {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#hud > * {
+    margin: 1em;
+}
+
+progress {
+  background: green;
+}

@@ -21,15 +21,7 @@
     <title>Lunatic Fringe</title>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
     <link rel="shortcut icon" href="favicon.ico" />
-    <style type="text/css">
-        html, body
-        {
-            color: White;
-            background-color: Black;
-            margin: 0px;
-            padding: 0px;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="main.css">
     <script src="fringe.js" type="text/javascript"></script>
     <script type="text/javascript">
         window.onload = Initialize;
@@ -43,5 +35,8 @@
 </head>
 <body>
     <canvas id="fringeCanvas" style="position: absolute; top: 0px; left: 0px;"></canvas>
+    <div id="hud">
+       <progress id="health" value="100" max="100"></progress>
+    </div>
 </body>
 </html>

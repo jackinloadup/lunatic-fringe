@@ -405,6 +405,8 @@ var LunaticFringe = function (canvas) {
           if(health <= 0) {
              this.die();
           }
+
+          document.getElementById('health').setAttribute('value', health);
         }
 
         this.die = function () {
@@ -429,7 +431,7 @@ var LunaticFringe = function (canvas) {
                 objectManager.movePlayerShipTo(Math.random() * (objectManager.GameBounds.Right - objectManager.GameBounds.Left + 1) + objectManager.GameBounds.Left, Math.random() * (objectManager.GameBounds.Bottom - objectManager.GameBounds.Top + 1) + objectManager.GameBounds.Top);
 
                 // reset health to full
-                health = this.maxHealth;
+                this.updateHealth(this.maxHealth);
             }
         }
 
@@ -604,7 +606,7 @@ var LunaticFringe = function (canvas) {
             }
 
             mediaManager.Audio.SludgerDeath.play();
-            
+
             objectManager.removeObject(this);
         };
 
