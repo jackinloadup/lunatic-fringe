@@ -19,7 +19,7 @@
 /*global Audio: false */
 var LunaticFringe = function (canvas) {
     "use strict";
-    var animationLoop, objectManager, mediaManager, Key, DEBUG = false, numEnemiesKilled = 0, score = 0;
+    var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
 
     if (typeof canvas !== 'object') {
         canvas = document.getElementById(canvas);
@@ -341,9 +341,11 @@ var LunaticFringe = function (canvas) {
     PhotonSmall.prototype.constructor = PhotonSmall;
 
     function PlayerShip(context) {
-        var spriteX, spriteY, debugSritePos = 0, rotationAmount, accel, numFramesSince, lives, maxSpeed;
+        var spriteX, spriteY, debugSritePos = 0, rotationAmount, accel, numFramesSince, lives, health, maxSpeed;
         GameObject.call(this);
         lives = 3;
+        health = 100;
+        this.maxHealth = 100;
         this.Width = 42;
         this.Height = 37;
         this.Mass = 10;
@@ -376,17 +378,37 @@ var LunaticFringe = function (canvas) {
             var oldX, oldY;
             PlayerShip.prototype.handleCollision.call(this, otherObject);
 
+            log('ship health ' + health);
+
             // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
             if (otherObject instanceof Asteroid) {
+                this.updateHealth(-30);
                 return;
             }
 
             if (otherObject instanceof SludgerMine) {
                 log("Player hit a SludgerMine");
+                this.updateHealth(-5);
+                return;
             }
 
-            mediaManager.Audio.PlayerDeath.play();
             //alert("Dying is for losers!");
+
+
+
+        }
+
+        this.updateHealth = function (healthChange) {
+          log(health + healthChange);
+          health = health + healthChange;
+
+          if(health <= 0) {
+             this.die();
+          }
+        }
+
+        this.die = function () {
+            mediaManager.Audio.PlayerDeath.play();
 
             this.VelocityX = 0;
             this.VelocityY = 0;
@@ -395,6 +417,7 @@ var LunaticFringe = function (canvas) {
             spriteY = 0;
 
             lives--;
+
             if (lives <= 0) {
                 objectManager.endGame();
             } else {
@@ -404,10 +427,11 @@ var LunaticFringe = function (canvas) {
                     objectManager.displayMessage(lives + " lives left", 60 * 5)
                 }
                 objectManager.movePlayerShipTo(Math.random() * (objectManager.GameBounds.Right - objectManager.GameBounds.Left + 1) + objectManager.GameBounds.Left, Math.random() * (objectManager.GameBounds.Bottom - objectManager.GameBounds.Top + 1) + objectManager.GameBounds.Top);
+
+                // reset health to full
+                health = this.maxHealth;
             }
-
-
-        };
+        }
 
 
         this.updateState = function () {
@@ -509,9 +533,9 @@ var LunaticFringe = function (canvas) {
 
             if (otherObject instanceof PlayerShip) {
                 log("SludgerMined the player");
-            } else {
-                mediaManager.Audio.SludgerMinePop.play();
             }
+
+            mediaManager.Audio.SludgerMinePop.play();
 
             objectManager.removeObject(this);
         };
@@ -580,6 +604,7 @@ var LunaticFringe = function (canvas) {
             }
 
             mediaManager.Audio.SludgerDeath.play();
+            
             objectManager.removeObject(this);
         };
 
