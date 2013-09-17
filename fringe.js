@@ -871,7 +871,7 @@ var LunaticFringe = function (canvas) {
             var i, numEnemies = 0;
 
             for (i = 0; i < objects.length; i += 1) {
-                if (objects[i] instanceof AIGameObject) {
+                if (objects[i] instanceof AIGameObject && !(objects[i]   instanceof EnemyBase)) {
                     numEnemies++;
                 }
             }
