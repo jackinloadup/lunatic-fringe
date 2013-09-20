@@ -1,5 +1,5 @@
 ﻿/*  Lunatic Fringe - http://code.google.com/p/lunatic-fringe/
-    Copyright (C) 2011-2012 James Carnley
+    Copyright (C) 2011-2013 James Carnley, Lucas Riutzel, 
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as
@@ -19,7 +19,7 @@
 /*global Audio: false */
 var LunaticFringe = function (canvas) {
     "use strict";
-    var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
+    var animationLoop, objectManager, mediaManager, Key, DEBUG = false, numEnemiesKilled = 0, score = 0;
 
     if (typeof canvas !== 'object') {
         canvas = document.getElementById(canvas);
