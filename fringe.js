@@ -343,8 +343,8 @@ var LunaticFringe = function (canvas) {
     function PlayerShip(context) {
         var spriteX, spriteY, debugSritePos = 0, rotationAmount, accel, numFramesSince, lives, health, maxSpeed;
         GameObject.call(this);
-        lives = 3;
-        health = 100;
+        this.lives = 3;
+        this.health = 100;
         this.maxHealth = 100;
         this.Width = 42;
         this.Height = 37;
@@ -394,14 +394,14 @@ var LunaticFringe = function (canvas) {
         }
 
         this.updateHealth = function (healthChange) {
-          log("ship Health: " + health + healthChange);
-          health = health + healthChange;
+          log("ship Health: " + this.health + healthChange);
+          this.health = this.health + healthChange;
 
-          if(health <= 0) {
+          if(this.health <= 0) {
              this.die();
           }
 
-          document.getElementById('health').setAttribute('value', health);
+          document.getElementById('health').setAttribute('value', this.health);
         }
 
         this.die = function () {
@@ -413,15 +413,15 @@ var LunaticFringe = function (canvas) {
             spriteX = 0;
             spriteY = 0;
 
-            lives--;
+            this.lives--;
 
-            if (lives <= 0) {
+            if (this.lives <= 0) {
                 objectManager.endGame();
             } else {
-                if (lives === 1) {
+                if (this.lives === 1) {
                     objectManager.displayMessage("1 life left", 60 * 5)
                 } else {
-                    objectManager.displayMessage(lives + " lives left", 60 * 5)
+                    objectManager.displayMessage(this.lives + " lives left", 60 * 5)
                 }
                 objectManager.movePlayerShipTo(Math.random() * (objectManager.GameBounds.Right - objectManager.GameBounds.Left + 1) + objectManager.GameBounds.Left, Math.random() * (objectManager.GameBounds.Bottom - objectManager.GameBounds.Top + 1) + objectManager.GameBounds.Top);
 
