@@ -20,6 +20,7 @@
 var LunaticFringe = function (canvas) {
     "use strict";
     var animationLoop, objectManager, mediaManager, Key, DEBUG = false, numEnemiesKilled = 0, score = 0;
+    var game = this;
 
     if (typeof canvas !== 'object') {
         canvas = document.getElementById(canvas);
@@ -938,7 +939,7 @@ var LunaticFringe = function (canvas) {
             objects = [];
             collidables = [];
 
-            this.PlayerShip = playerShip = new PlayerShip(context);
+            game.PlayerShip = playerShip = new PlayerShip(context);
 
             for (i = 0; i < 300; i += 1) {
                 this.addObject(new Star(GameBounds));
@@ -946,7 +947,7 @@ var LunaticFringe = function (canvas) {
 
             this.addObject(new Base(context));
 
-            this.addObject(new EnemyBase(GameBounds, playerShip), true);
+            this.addObject(new EnemyBase(GameBounds, game.PlayerShip), true);
 
             for (i = 0; i < 6; i += 1) {
                 this.addObject(new Pebbles(GameBounds), true);
@@ -957,13 +958,13 @@ var LunaticFringe = function (canvas) {
             }
 
             for (i = 0; i < 4; i += 1) {
-                this.addObject(new Sludger(GameBounds, playerShip), true);
+                this.addObject(new Sludger(GameBounds, game.PlayerShip), true);
             }
 
-            //this.addObject(new SludgerMine(GameBounds, playerShip), true);
+            //this.addObject(new SludgerMine(GameBounds, game.PlayerShip), true);
 
             // Add ship last so it draws on top of most objects
-            this.addObject(playerShip, true);
+            this.addObject(game.PlayerShip, true);
             mediaManager.Audio.StartUp.play();
         };
 
