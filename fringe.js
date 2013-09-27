@@ -88,14 +88,12 @@ var LunaticFringe = function (canvas) {
 
             this.Audio[name] = new Audio();
 
-            if (this.Audio[name].canPlayType("audio/mpeg") === "probably" || this.Audio[name].canPlayType("audio/mpeg") === "maybe") {
+            if (this.Audio[name].canPlayType("audio/ogg") === "probably" || this.Audio[name].canPlayType("audio/ogg") === "maybe") {
+                ext = ".ogg";
+            } else if (this.Audio[name].canPlayType("audio/mpeg") === "probably" || this.Audio[name].canPlayType("audio/mped") === "maybe") {
                 ext = ".mp3";
             } else {
-                if (this.Audio[name].canPlayType("audio/ogg") === "probably" || this.Audio[name].canPlayType("audio/ogg") === "maybe") {
-                    ext = ".ogg";
-                } else {
-                    log("No supported audio format detected.");
-                }
+                log("No supported audio format detected.");
             }
 
             this.Audio[name].src = fileName + ext;
