@@ -635,23 +635,32 @@ var LunaticFringe = function (canvas) {
     Sludger.prototype.constructor = Sludger;
 
     function Star(bounds) {
-        var color, numTicksForColor = 0;
+        var color, currentColor, hasColor, numTicksForColor = 0, twinkleMax, twinkleMin;
         GameObject.call(this);
+        twinkleMax = 1 * 60; // in seconds
+        twinkleMin = 0.2 * 60; // in seconds
         this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
         this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
-        color = ("rgb(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + ")");
+        color = currentColor = ("rgb(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + ")");
 
         this.draw = function (context) {
-            context.fillStyle = color;
-            context.fillRect(this.X, this.Y, 2, 2);
+            context.fillStyle = currentColor;
+            context.fillRect(this.X, this.Y, 1, 1);
         };
 
         this.updateState = function () {
-            numTicksForColor += 1;
-            if (numTicksForColor >= 8) {
-                color = ("rgb(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + ")");
-                numTicksForColor = 0;
+          if (numTicksForColor <= 0) {
+            if (hasColor) {
+              currentColor = "rgb(0,0,0)";
+            } else {
+              currentColor = color;
             }
+            hasColor = !hasColor; // toggle
+
+            numTicksForColor = (Math.random() * twinkleMax) + twinkleMin;
+          }
+
+          numTicksForColor--;
         };
     }
     Star.prototype = Object.create(GameObject.prototype);
