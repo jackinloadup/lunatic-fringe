@@ -20,6 +20,7 @@
 var LunaticFringe = function (canvas) {
     "use strict";
     var animationLoop, objectManager, mediaManager, Key, DEBUG = false, numEnemiesKilled = 0, score = 0;
+    var game = this;
 
     if (typeof canvas !== 'object') {
         canvas = document.getElementById(canvas);
@@ -87,14 +88,12 @@ var LunaticFringe = function (canvas) {
 
             this.Audio[name] = new Audio();
 
-            if (this.Audio[name].canPlayType("audio/mpeg") === "probably" || this.Audio[name].canPlayType("audio/mpeg") === "maybe") {
+            if (this.Audio[name].canPlayType("audio/ogg") === "probably" || this.Audio[name].canPlayType("audio/ogg") === "maybe") {
+                ext = ".ogg";
+            } else if (this.Audio[name].canPlayType("audio/mpeg") === "probably" || this.Audio[name].canPlayType("audio/mped") === "maybe") {
                 ext = ".mp3";
             } else {
-                if (this.Audio[name].canPlayType("audio/ogg") === "probably" || this.Audio[name].canPlayType("audio/ogg") === "maybe") {
-                    ext = ".ogg";
-                } else {
-                    log("No supported audio format detected.");
-                }
+                log("No supported audio format detected.");
             }
 
             this.Audio[name].src = fileName + ext;
@@ -344,8 +343,8 @@ var LunaticFringe = function (canvas) {
     function PlayerShip(context) {
         var spriteX, spriteY, debugSritePos = 0, rotationAmount, accel, numFramesSince, lives, health, maxSpeed;
         GameObject.call(this);
-        lives = 3;
-        health = 100;
+        this.lives = 3;
+        this.health = 100;
         this.maxHealth = 100;
         this.Width = 42;
         this.Height = 37;
@@ -395,14 +394,14 @@ var LunaticFringe = function (canvas) {
         }
 
         this.updateHealth = function (healthChange) {
-          log("ship Health: " + health + healthChange);
-          health = health + healthChange;
+          log("ship Health: " + this.health + healthChange);
+          this.health = this.health + healthChange;
 
-          if(health <= 0) {
+          if(this.health <= 0) {
              this.die();
           }
 
-          document.getElementById('health').setAttribute('value', health);
+          document.getElementById('health').setAttribute('value', this.health);
         }
 
         this.die = function () {
@@ -414,15 +413,15 @@ var LunaticFringe = function (canvas) {
             spriteX = 0;
             spriteY = 0;
 
-            lives--;
+            this.lives--;
 
-            if (lives <= 0) {
+            if (this.lives <= 0) {
                 objectManager.endGame();
             } else {
-                if (lives === 1) {
+                if (this.lives === 1) {
                     objectManager.displayMessage("1 life left", 60 * 5)
                 } else {
-                    objectManager.displayMessage(lives + " lives left", 60 * 5)
+                    objectManager.displayMessage(this.lives + " lives left", 60 * 5)
                 }
                 objectManager.movePlayerShipTo(Math.random() * (objectManager.GameBounds.Right - objectManager.GameBounds.Left + 1) + objectManager.GameBounds.Left, Math.random() * (objectManager.GameBounds.Bottom - objectManager.GameBounds.Top + 1) + objectManager.GameBounds.Top);
 
@@ -637,23 +636,32 @@ var LunaticFringe = function (canvas) {
     Sludger.prototype.constructor = Sludger;
 
     function Star(bounds) {
-        var color, numTicksForColor = 0;
+        var color, currentColor, hasColor, numTicksForColor = 0, twinkleMax, twinkleMin;
         GameObject.call(this);
+        twinkleMax = 1 * 60; // in seconds
+        twinkleMin = 0.2 * 60; // in seconds
         this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
         this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
-        color = ("rgb(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + ")");
+        color = currentColor = ("rgb(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + ")");
 
         this.draw = function (context) {
-            context.fillStyle = color;
-            context.fillRect(this.X, this.Y, 2, 2);
+            context.fillStyle = currentColor;
+            context.fillRect(this.X, this.Y, 1, 1);
         };
 
         this.updateState = function () {
-            numTicksForColor += 1;
-            if (numTicksForColor >= 8) {
-                color = ("rgb(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + ")");
-                numTicksForColor = 0;
+          if (numTicksForColor <= 0) {
+            if (hasColor) {
+              currentColor = "rgb(0,0,0)";
+            } else {
+              currentColor = color;
             }
+            hasColor = !hasColor; // toggle
+
+            numTicksForColor = (Math.random() * twinkleMax) + twinkleMin;
+          }
+
+          numTicksForColor--;
         };
     }
     Star.prototype = Object.create(GameObject.prototype);
@@ -939,7 +947,7 @@ var LunaticFringe = function (canvas) {
             objects = [];
             collidables = [];
 
-            this.PlayerShip = playerShip = new PlayerShip(context);
+            game.PlayerShip = playerShip = new PlayerShip(context);
 
             for (i = 0; i < 300; i += 1) {
                 this.addObject(new Star(GameBounds));
@@ -947,7 +955,7 @@ var LunaticFringe = function (canvas) {
 
             this.addObject(new Base(context));
 
-            this.addObject(new EnemyBase(GameBounds, playerShip), true);
+            this.addObject(new EnemyBase(GameBounds, game.PlayerShip), true);
 
             for (i = 0; i < 6; i += 1) {
                 this.addObject(new Pebbles(GameBounds), true);
@@ -958,13 +966,13 @@ var LunaticFringe = function (canvas) {
             }
 
             for (i = 0; i < 4; i += 1) {
-                this.addObject(new Sludger(GameBounds, playerShip), true);
+                this.addObject(new Sludger(GameBounds, game.PlayerShip), true);
             }
 
-            //this.addObject(new SludgerMine(GameBounds, playerShip), true);
+            //this.addObject(new SludgerMine(GameBounds, game.PlayerShip), true);
 
             // Add ship last so it draws on top of most objects
-            this.addObject(playerShip, true);
+            this.addObject(game.PlayerShip, true);
             mediaManager.Audio.StartUp.play();
         };
 
