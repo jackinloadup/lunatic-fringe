@@ -102,15 +102,18 @@ var LunaticFringe = function (canvas) {
             this.Audio[name].onload = function () { mediaManager.Audio[name].Loaded = true; };
         };
 
-        this.LoadSprite("PlayerShip", "images/PlayerShip.png");
         this.LoadSprite("Base", "images/Base.png");
         this.LoadSprite("EnemyBase", "images/EnemyBase.png");
         this.LoadSprite("Pebbles", "images/Pebbles.png");
-        this.LoadSprite("Rocko", "images/Rocko.png");
         this.LoadSprite("PhotonSmall", "images/PhotonSmall.png");
+        this.LoadSprite("PlayerShip", "images/PlayerShip.png");
+        this.LoadSprite("QuadBlaster", "images/Quadblaster.png");
+        this.LoadSprite("Rocko", "images/Rocko.png");
         this.LoadSprite("Sludger", "images/Sludger.png");
         this.LoadSprite("SludgerMine", "images/SludgerMine.png");
 
+        this.LoadAudio("CollisionGeneral", "audio/collision_general");
+        this.LoadAudio("CollisionSpreadshot", "audio/collision_spreadshot");
         this.LoadAudio("PhotonSmall", "audio/PhotonSmall");
         this.LoadAudio("StartUp", "audio/StartUp");
         this.LoadAudio("SludgerMinePop", "audio/SludgerMinePop");
@@ -270,6 +273,17 @@ var LunaticFringe = function (canvas) {
     // All AI inherit from this
     function AIGameObject(playerShip) {
         GameObject.call(this);
+
+        this.relativePositionTo = function (object) {
+          var X = object.X - this.X;
+          var Y = object.Y - this.Y;
+          return {x: X, y: Y};
+        };
+
+        this.angleTo = function (object) {
+          var rel = this.relativePositionTo(object);
+          return Math.atan2(rel.y, rel.x);
+        }
     }
     AIGameObject.prototype = Object.create(GameObject.prototype);
     AIGameObject.prototype.constructor = AIGameObject;
@@ -339,6 +353,29 @@ var LunaticFringe = function (canvas) {
     PhotonSmall.prototype = Object.create(Projectile.prototype);
     PhotonSmall.prototype.constructor = PhotonSmall;
 
+    function QuadBlasterProjectile(ship, angle) {
+        Projectile.call(this, ship);
+        this.Width = 7;
+        this.Height = 7;
+        this.CollisionRadius = 4;
+        this.VelocityX += Math.cos(angle) * 10;
+        this.VelocityY += Math.sin(angle) * 10;
+        this.Sprite = mediaManager.Sprites.PhotonSmall;
+        this.Lifetime = 50;
+
+        this.handleCollision = function (otherObject) {
+            //Projectile.prototype.handleCollision.call(this, otherObject);
+            if (otherObject instanceof PlayerShip) {
+                log("QuadBlaster hit PlayerShip!");
+                mediaManager.Audio.CollisionSpreadshot.play();
+                objectManager.removeObject(this);
+            }
+        };
+
+    }
+    QuadBlasterProjectile.prototype = Object.create(Projectile.prototype);
+    QuadBlasterProjectile.prototype.constructor = QuadBlasterProjectile;
+
     function PlayerShip(context) {
         var spriteX, spriteY, debugSritePos = 0, rotationAmount, accel, numFramesSince, lives, health, maxSpeed;
         GameObject.call(this);
@@ -387,6 +424,11 @@ var LunaticFringe = function (canvas) {
 
             if (otherObject instanceof SludgerMine) {
                 log("Player hit a SludgerMine");
+                this.updateHealth(-5);
+                return;
+            }
+
+            if (otherObject instanceof QuadBlasterProjectile) {
                 this.updateHealth(-5);
                 return;
             }
@@ -548,7 +590,7 @@ var LunaticFringe = function (canvas) {
                 }
             }
 
-            angleToPlayer = Math.atan2(player.Y - this.Y, player.X - this.X);
+            angleToPlayer = this.angleTo(player);
 
             angleDiff = angleToPlayer - this.Angle;
 
@@ -633,6 +675,155 @@ var LunaticFringe = function (canvas) {
     }
     Sludger.prototype = Object.create(AIGameObject.prototype);
     Sludger.prototype.constructor = Sludger;
+
+    function QuadBlaster(bounds, playerShip) {
+        var animationFrames, maxFireRate, minFireRate, numTicks = 0, spriteX, player, rotationAmount, ticksToSpawnPhotons = 0;
+        AIGameObject.call(this, playerShip);
+        this.Width = 40;
+        this.Height = 50;
+        this.CollisionRadius = 16;
+        this.Mass = 8;
+        this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
+        this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
+        this.VelocityX = (Math.random() - Math.random()) * 1;
+        this.VelocityY = (Math.random() - Math.random()) * 1;
+        this.Angle = 0;
+        animationFrames = 8 ; // number of frames in the sprite, the sprite only has 1/4th of the whole rotation
+        rotationAmount = (Math.PI * 2) / (animationFrames * 4); // multiply by 4 to account for sprite being only a 1/4th
+        this.Sprite = mediaManager.Sprites.QuadBlaster;
+        maxFireRate = 3 * 60; // in seconds
+        minFireRate = 0.3 * 60; // in seconds
+        spriteX = 10; // sprite starts 10 px in for some 
+        player = playerShip;
+        this.inScene = false;
+
+        this.getAngleOfBarrelToward = function (object) {
+          var angle = this.angleTo(player);
+
+          var quadrant = [
+            0,
+            1.55,
+            -1.55,
+            3.15
+          ];
+          var quadrantAdjusted = [];
+
+          var i = 0;
+          for (i = 0;i < 4; i++) {
+            quadrantAdjusted[i] = quadrant[i] + this.Angle;
+            if (quadrantAdjusted[i] > Math.PI) {
+              quadrantAdjusted[i] -= Math.PI *2;
+            }
+          }
+
+          var closest;
+          for (i = 0;i < 4; i++) {
+            //ang = quadrantAdjusted[i];
+            if (closest == null || Math.abs(quadrantAdjusted[i] - angle) < Math.abs(closest - angle)) {
+              closest = quadrantAdjusted[i];
+            }
+          }
+
+          var quadrantNum = quadrantAdjusted.indexOf(closest);
+
+          return quadrantAdjusted[quadrantNum];
+        }
+
+        this.draw = function (context) {
+            Sludger.prototype.draw.call(this, context);
+            context.drawImage(this.Sprite, spriteX, 0, this.Width, this.Height, this.X - this.Width / 2, this.Y - this.Height / 2, this.Width, this.Height);
+            this.inScene = true;
+
+            if (DEBUG) {
+
+                // uncoment to show quadrants
+                //for (i = 0; i < 4; i++) {
+                //  context.beginPath();
+                //  if (i == 0) context.strokeStyle = "red";
+                //  else context.strokeStyle = "purple";
+                //  context.moveTo(this.X, this.Y);
+                //  context.lineTo(this.X + Math.cos(quadrant[i] + this.Angle) * this.CollisionRadius * 2, this.Y + Math.sin(quadrant[i] + this.Angle) * this.CollisionRadius * 2);
+                //  context.stroke();
+                //}
+
+                var barrelAngle = this.getAngleOfBarrelToward(player);
+                context.beginPath();
+                context.strokeStyle = "green";
+                context.moveTo(this.X, this.Y);
+                context.lineTo(this.X + Math.cos(barrelAngle) * this.CollisionRadius * 2, this.Y + Math.sin(barrelAngle) * this.CollisionRadius * 2);
+                context.stroke();
+
+                context.beginPath();
+                context.strokeStyle = "red";
+                context.arc(this.X, this.Y, this.CollisionRadius + 2, barrelAngle-0.775, barrelAngle+0.775);
+                context.lineWidth = 2;
+                context.stroke();
+
+            }
+        };
+
+        this.handleCollision = function (otherObject) {
+
+            if (otherObject instanceof QuadBlasterProjectile) {
+                return;
+            }
+
+            QuadBlaster.prototype.handleCollision.call(this, otherObject);
+            if (otherObject instanceof Projectile) {
+                log("Sludger blown up by projectile");
+                numEnemiesKilled++;
+                score += 50;
+            }
+
+            mediaManager.Audio.SludgerDeath.play();
+
+            objectManager.removeObject(this);
+        };
+
+        this.updateState = function () {
+            var barrelToPlayer, angleToPlayer, angleRatio;
+
+            this.X += this.VelocityX;
+            this.Y += this.VelocityY;
+
+            if (!this.inScene) return;
+            this.inScene = false;
+
+            if (numTicks >= 10) { // rotate every 10 ticks / 1/6th second / 166ms
+              numTicks = 0;
+              spriteX += this.Width;
+              this.Angle += rotationAmount;
+              if (this.Angle > Math.PI) {
+                this.Angle -= Math.PI *2;
+              }
+
+              if (spriteX >= this.Width * animationFrames) {
+                  spriteX = 10;
+              }
+            }
+            numTicks++;
+
+            if (ticksToSpawnPhotons <= 0) {
+              barrelToPlayer = this.getAngleOfBarrelToward(player);
+              angleToPlayer = this.angleTo(player);
+              angleRatio = angleToPlayer/barrelToPlayer;
+
+              if (angleRatio < 1.15 && angleRatio > 0.85) {
+
+                var projectile = new QuadBlasterProjectile(this, barrelToPlayer);
+                objectManager.addObject(projectile, true);
+                projectile.X = this.X;
+                projectile.Y = this.Y;
+                ticksToSpawnPhotons = (Math.random() * maxFireRate) + minFireRate;
+              }
+            }
+
+            ticksToSpawnPhotons--;
+        };
+
+    }
+    QuadBlaster.prototype = Object.create(AIGameObject.prototype);
+    QuadBlaster.prototype.constructor = QuadBlaster;
 
     function Star(bounds) {
         var color, currentColor, hasColor, numTicksForColor = 0, twinkleMax, twinkleMin;
@@ -966,6 +1157,10 @@ var LunaticFringe = function (canvas) {
 
             for (i = 0; i < 4; i += 1) {
                 this.addObject(new Sludger(GameBounds, game.PlayerShip), true);
+            }
+
+            for (i = 0; i < 5; i += 1) {
+                this.addObject(new QuadBlaster(GameBounds, game.PlayerShip), true);
             }
 
             //this.addObject(new SludgerMine(GameBounds, game.PlayerShip), true);
