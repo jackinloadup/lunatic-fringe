@@ -19,6 +19,7 @@
 /*global Audio: false */
 var LunaticFringe = function (canvas) {
     "use strict";
+
     var animationLoop, objectManager, mediaManager, Key, DEBUG = false, numEnemiesKilled = 0, score = 0;
     var game = this;
 
@@ -186,14 +187,6 @@ var LunaticFringe = function (canvas) {
 
         GameObject.prototype.handleCollision = function (otherObject) {
             var i, j, dx, dy, phi, magnitude_1, magnitude_2, direction_1, direction_2, new_xspeed_1, new_xspeed_2, new_yspeed_1, new_yspeed_2, final_xspeed_1, final_yspeed_1, final_xspeed_2, final_yspeed_2;
-
-            /*if (this instanceof SludgerMine) {
-            log("handleCollision called by SludgerMine");
-            }
-			
-            if (this instanceof Projectile) {
-            log("handleCollision called by Projectile");
-            }*/
 
             dx = this.X - otherObject.X;
             dy = this.Y - otherObject.Y;
@@ -377,7 +370,7 @@ var LunaticFringe = function (canvas) {
     QuadBlasterProjectile.prototype.constructor = QuadBlasterProjectile;
 
     function PlayerShip(context) {
-        var spriteX, spriteY, debugSritePos = 0, rotationAmount, accel, numFramesSince, lives, health, maxSpeed;
+        var animationFrames, spriteX, spriteY, rotationAmount, accel, numFramesSince, lives, health, maxSpeed;
         GameObject.call(this);
         this.lives = 3;
         this.health = 100;
@@ -391,7 +384,8 @@ var LunaticFringe = function (canvas) {
         this.VelocityX = 0;
         this.VelocityY = 0;
         this.Angle = Math.PI / 2; // Straight up
-        rotationAmount = (Math.PI * 2) / 32; // 32 frames of animation in the sprite
+        animationFrames = 32;
+        rotationAmount = (Math.PI * 2) / animationFrames; // 32 frames of animation in the sprite
         // accel = 0.1;
         this.Acceleration = 0.1;
         numFramesSince = {
@@ -414,10 +408,9 @@ var LunaticFringe = function (canvas) {
             var oldX, oldY;
             PlayerShip.prototype.handleCollision.call(this, otherObject);
 
-            log('ship health ' + health);
-
             // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
             if (otherObject instanceof Asteroid) {
+                log("Player hit a Asteroid");
                 this.updateHealth(-30);
                 return;
             }
@@ -471,9 +464,7 @@ var LunaticFringe = function (canvas) {
             }
         }
 
-
         this.updateState = function () {
-            //log("Enemies alive: " + objectManager.enemiesRemaining());
             if (objectManager.enemiesRemaining() == 0) {
                 objectManager.displayMessage("You conquered the fringe with a score of " + score, 99999999);
                 this.VelocityX = 0;
@@ -511,7 +502,7 @@ var LunaticFringe = function (canvas) {
                 numFramesSince.Right = 0;
                 spriteX += this.Width;
                 this.Angle += rotationAmount;
-                if (spriteX >= this.Width * 32) {
+                if (spriteX >= this.Width * animationFrames) {
                     spriteX = 0;
                 }
             }
@@ -535,8 +526,6 @@ var LunaticFringe = function (canvas) {
         this.Height = 21;
         this.CollisionRadius = 11;
         this.Mass = 4;
-        //this.X = 100;  //context.canvas.width / 2 - (this.Width / 2);
-        //this.Y = 100;  //context.canvas.height / 2 - (this.Height / 2);
         this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
         this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
         this.VelocityX = 0;
