@@ -1128,7 +1128,7 @@ var LunaticFringe = function (canvas) {
 
             game.PlayerShip = playerShip = new PlayerShip(context);
 
-            for (i = 0; i < 300; i += 1) {
+            for (i = 0; i < 600; i += 1) {
                 this.addObject(new Star(GameBounds));
             }
 
