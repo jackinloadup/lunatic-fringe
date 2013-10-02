@@ -112,6 +112,7 @@ var LunaticFringe = function (canvas) {
         this.LoadSprite("Rocko", "images/Rocko.png");
         this.LoadSprite("Sludger", "images/Sludger.png");
         this.LoadSprite("SludgerMine", "images/SludgerMine.png");
+        this.LoadSprite("Puffer", "images/Puffer.png");
 
         this.LoadAudio("CollisionGeneral", "audio/collision_general");
         this.LoadAudio("CollisionSpreadshot", "audio/collision_spreadshot");
