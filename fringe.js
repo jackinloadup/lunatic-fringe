@@ -70,6 +70,23 @@ var LunaticFringe = function (canvas) {
             delete this.keysPressed[event.keyCode];
         }
     };
+    //
+    // Vector helper class
+    var Vector = function (x, y) {
+        this.X = x || 0;
+        this.Y = y || 0;
+    }
+    Vector.prototype.Copy = function () { return new Vector(this.X, this.Y); }
+    Vector.prototype.Add = function (other) { return this.Copy()._Add(other); }
+    Vector.prototype._Add = function (other) { this.X += other.X; this.Y += other.Y; return this; }
+    Vector.prototype.Subtract = function (other) { return this.Copy()._Subtract(other); }
+    Vector.prototype._Subtract = function (other) { this.X -= other.X; this.Y -= other.Y; return this; }
+    Vector.prototype.Scale = function (scalar) { return this.Copy()._Scale(scalar); }
+    Vector.prototype._Scale = function (scalar) { this.X *= scalar; this.Y *= scalar; return this; }
+    Vector.prototype.DotProduct = function (other) { return this.X * other.X + this.Y * other.Y; }
+    Vector.prototype.SelfDotProduct = function () { return this.DotProduct(this); }
+    Vector.prototype.Normalize = function (other) { return this.Copy().Scale(1 / this.Magnitude()); }
+    Vector.prototype.Magnitude = function () { return Math.sqrt(this.SelfDotProduct()); }
 
     // This is primarily to make sure media is preloaded, otherwise projectiles only load when fire is pressed and looks funky
     function MediaManager() {
@@ -108,6 +125,7 @@ var LunaticFringe = function (canvas) {
         this.LoadSprite("Pebbles", "images/Pebbles.png");
         this.LoadSprite("PhotonSmall", "images/PhotonSmall.png");
         this.LoadSprite("PlayerShip", "images/PlayerShip.png");
+        this.LoadSprite("Puffer", "images/Puffer.png");
         this.LoadSprite("QuadBlaster", "images/Quadblaster.png");
         this.LoadSprite("Rocko", "images/Rocko.png");
         this.LoadSprite("Sludger", "images/Sludger.png");
@@ -277,7 +295,27 @@ var LunaticFringe = function (canvas) {
         this.angleTo = function (object) {
           var rel = this.relativePositionTo(object);
           return Math.atan2(rel.y, rel.x);
-        }
+        };
+
+        this.angleDiffTo = function (object) {
+          var angleDiff, angleToObject;
+          angleToObject = this.angleTo(object);
+          angleDiff = angleToObject - this.Angle;
+
+          // when calculating angle diff compensate when the angle swiches to the opposite side
+          // of the angle spectrem. eg: a ship flys from 10deg->0deg->350deg
+          // this is important when doing gradual shifts to angles and not cause
+          // the shift to loop around the circle long ways
+          if ( Math.abs(angleDiff) > Math.PI ) {
+            if (angleDiff > 0) this.Angle += (Math.PI*2);
+            else this.Angle -= (Math.PI*2);
+
+            // recalculate diff now that we have adjusted the angle
+            angleDiff = angleToObject - this.Angle;
+          }
+
+          return angleDiff;
+        };
     }
     AIGameObject.prototype = Object.create(GameObject.prototype);
     AIGameObject.prototype.constructor = AIGameObject;
@@ -666,6 +704,76 @@ var LunaticFringe = function (canvas) {
     Sludger.prototype = Object.create(AIGameObject.prototype);
     Sludger.prototype.constructor = Sludger;
 
+    function Puffer(bounds, playerShip) {
+        var animationFrames, player, rotationAmount, spriteX, turnAbility;
+        AIGameObject.call(this, playerShip);
+        this.Width = 42;
+        this.Height = 49;
+        this.Mass = 10;
+        this.CollisionRadius = 14; // Good balance between wings sticking out and body taking up the whole circle
+        this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
+        this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
+        this.VelocityX = (Math.random() - Math.random()) * 1;
+        this.VelocityY = (Math.random() - Math.random()) * 1;
+        this.Angle = 0; // Straight up
+        spriteX = 0;
+        animationFrames = 32;
+        rotationAmount = (Math.PI * 2) / animationFrames; // 32 frames of animation in the sprite
+        player = playerShip;
+        turnAbility = 0.015;
+        this.MaxSpeed = 1;
+        this.Acceleration = 0.1;
+
+        this.Sprite = mediaManager.Sprites.Puffer;
+
+        this.draw = function (context) {
+            Puffer.prototype.draw.call(this, context);
+            // Draw the ship 2 pixels higher to make it better fit inside of the collision circle
+            context.drawImage(this.Sprite, spriteX, 0, this.Width, this.Height, this.X - this.Width / 2, this.Y - this.Height / 2 - 2, this.Width, this.Height);
+        };
+
+        this.handleCollision = function (otherObject) {
+            var oldX, oldY;
+            Puffer.prototype.handleCollision.call(this, otherObject);
+
+            // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
+            if (otherObject instanceof PlayerShip) {
+              mediaManager.Audio.CollisionGeneral.play();
+              //return;
+            }
+
+            mediaManager.Audio.SludgerMinePop.play();
+
+            objectManager.removeObject(this);
+        };
+
+        this.updateState = function () {
+          var angleToPlayer, angleDiff, frame, frameAngle;
+
+          angleDiff = this.angleDiffTo(player);
+
+          // only move the ship angle toward player as fast as the turn ability will allow.
+          if ( angleDiff > 0 ) this.Angle += turnAbility;
+          else this.Angle -= turnAbility;
+
+          frameAngle = this.Angle-Math.PI/2;
+
+          frame = Math.floor((frameAngle+Math.PI)/rotationAmount);
+          if (frame < 0) frame += animationFrames;
+
+          spriteX = this.Width * frame;
+
+          if (angleDiff <= this.Angle + 0.1 || angleDiff > this.Angle - 0.1) {
+              this.calculateAcceleration();
+          }
+
+          this.X += this.VelocityX;
+          this.Y += this.VelocityY;
+        };
+    }
+    Puffer.prototype = Object.create(AIGameObject.prototype);
+    Puffer.prototype.constructor = Puffer;
+
     function QuadBlaster(bounds, playerShip) {
         var animationFrames, maxFireRate, minFireRate, numTicks = 0, spriteX, player, rotationAmount, ticksToSpawnPhotons = 0;
         AIGameObject.call(this, playerShip);
@@ -708,7 +816,6 @@ var LunaticFringe = function (canvas) {
 
           var closest;
           for (i = 0;i < 4; i++) {
-            //ang = quadrantAdjusted[i];
             if (closest == null || Math.abs(quadrantAdjusted[i] - angle) < Math.abs(closest - angle)) {
               closest = quadrantAdjusted[i];
             }
@@ -748,7 +855,6 @@ var LunaticFringe = function (canvas) {
                 context.arc(this.X, this.Y, this.CollisionRadius + 2, barrelAngle-0.775, barrelAngle+0.775);
                 context.lineWidth = 2;
                 context.stroke();
-
             }
         };
 
@@ -1153,6 +1259,10 @@ var LunaticFringe = function (canvas) {
                 this.addObject(new QuadBlaster(GameBounds, game.PlayerShip), true);
             }
 
+            for (i = 0; i < 4; i += 1) {
+                this.addObject(new Puffer(GameBounds, game.PlayerShip), true);
+            }
+
             //this.addObject(new SludgerMine(GameBounds, game.PlayerShip), true);
 
             // Add ship last so it draws on top of most objects
@@ -1232,25 +1342,9 @@ var LunaticFringe = function (canvas) {
     window.addEventListener('keyup', function (event) { Key.onKeyup(event); }, false);
     window.addEventListener('keydown', function (event) { Key.onKeydown(event); }, false);
 
-    // Vector helper class
-    var Vector = function (x, y) {
-        this.X = x || 0;
-        this.Y = y || 0;
-    }
-    Vector.prototype.Copy = function () { return new Vector(this.X, this.Y); }
-    Vector.prototype.Add = function (other) { return this.Copy()._Add(other); }
-    Vector.prototype._Add = function (other) { this.X += other.X; this.Y += other.Y; return this; }
-    Vector.prototype.Subtract = function (other) { return this.Copy()._Subtract(other); }
-    Vector.prototype._Subtract = function (other) { this.X -= other.X; this.Y -= other.Y; return this; }
-    Vector.prototype.Scale = function (scalar) { return this.Copy()._Scale(scalar); }
-    Vector.prototype._Scale = function (scalar) { this.X *= scalar; this.Y *= scalar; return this; }
-    Vector.prototype.DotProduct = function (other) { return this.X * other.X + this.Y * other.Y; }
-    Vector.prototype.SelfDotProduct = function () { return this.DotProduct(this); }
-    Vector.prototype.Normalize = function (other) { return this.Copy().Scale(1 / this.Magnitude()); }
-    Vector.prototype.Magnitude = function () { return Math.sqrt(this.SelfDotProduct()); }
 };
 
-var hidden, visibilityChange; 
+var hidden, visibilityChange;
 if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
   hidden = "hidden";
   visibilityChange = "visibilitychange";
