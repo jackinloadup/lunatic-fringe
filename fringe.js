@@ -130,7 +130,7 @@ var LunaticFringe = function (canvas) {
         this.LoadSprite("Rocko", "images/Rocko.png");
         this.LoadSprite("Sludger", "images/Sludger.png");
         this.LoadSprite("SludgerMine", "images/SludgerMine.png");
-        this.LoadSprite("Puffer", "images/Puffer.png");
+        this.LoadSprite("PufferShot", "images/PufferShot.png");
 
         this.LoadAudio("CollisionGeneral", "audio/collision_general");
         this.LoadAudio("CollisionSpreadshot", "audio/collision_spreadshot");
@@ -385,6 +385,31 @@ var LunaticFringe = function (canvas) {
     PhotonSmall.prototype = Object.create(Projectile.prototype);
     PhotonSmall.prototype.constructor = PhotonSmall;
 
+    function PufferProjectile(ship) {
+        Projectile.call(this, ship);
+        this.Width = 17;
+        this.Height = 15;
+        this.CollisionRadius = 10;
+        this.VelocityX += Math.cos(ship.Angle) * 10;
+        this.VelocityY += Math.sin(ship.Angle) * 10;
+        this.Sprite = mediaManager.Sprites.PufferShot;
+        this.Lifetime = 50;
+
+        this.handleCollision = function (otherObject) {
+            if (otherObject instanceof Puffer
+             || otherObject instanceof PufferProjectile) {
+               return;
+            }
+
+            if (otherObject instanceof PlayerShip) {
+                log("PufferShot hit player!");
+                objectManager.removeObject(this);
+            }
+        };
+    }
+    PufferProjectile.prototype = Object.create(Projectile.prototype);
+    PufferProjectile.prototype.constructor = PufferProjectile;
+
     function QuadBlasterProjectile(ship, angle) {
         Projectile.call(this, ship);
         this.Width = 7;
@@ -462,6 +487,11 @@ var LunaticFringe = function (canvas) {
 
             if (otherObject instanceof QuadBlasterProjectile) {
                 this.updateHealth(-5);
+                return;
+            }
+
+            if (otherObject instanceof PufferProjectile) {
+                this.updateHealth(-20);
                 return;
             }
         }
@@ -705,7 +735,8 @@ var LunaticFringe = function (canvas) {
     Sludger.prototype.constructor = Sludger;
 
     function Puffer(bounds, playerShip) {
-        var animationFrames, player, rotationAmount, spriteX, turnAbility;
+        var animationFrames, player, rotationAmount, maxFireRate, minFireRate, numFramesSince, spriteX, turnAbility, ticksToSpawnPhotons = 0;
+
         AIGameObject.call(this, playerShip);
         this.Width = 42;
         this.Height = 49;
@@ -719,8 +750,13 @@ var LunaticFringe = function (canvas) {
         spriteX = 0;
         animationFrames = 32;
         rotationAmount = (Math.PI * 2) / animationFrames; // 32 frames of animation in the sprite
+        numFramesSince = {
+            Shooting: 0
+        };
         player = playerShip;
         turnAbility = 0.015;
+        maxFireRate = 3 * 60; // in seconds
+        minFireRate = 0.3 * 60; // in seconds
         this.MaxSpeed = 1;
         this.Acceleration = 0.1;
 
@@ -733,8 +769,12 @@ var LunaticFringe = function (canvas) {
         };
 
         this.handleCollision = function (otherObject) {
-            var oldX, oldY;
             Puffer.prototype.handleCollision.call(this, otherObject);
+
+            if (otherObject instanceof PufferProjectile) {
+              return;
+            }
+
 
             // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
             if (otherObject instanceof PlayerShip) {
@@ -748,7 +788,7 @@ var LunaticFringe = function (canvas) {
         };
 
         this.updateState = function () {
-          var angleToPlayer, angleDiff, frame, frameAngle;
+          var angleToPlayer, angleDiff, frame, frameAngle, i, photon;
 
           angleDiff = this.angleDiffTo(player);
 
@@ -769,6 +809,24 @@ var LunaticFringe = function (canvas) {
 
           this.X += this.VelocityX;
           this.Y += this.VelocityY;
+
+          for (i in numFramesSince) {
+            if (numFramesSince.hasOwnProperty(i)) {
+              numFramesSince[i] += 1;
+            }
+          }
+
+
+          if (ticksToSpawnPhotons <= 0) {
+            if (angleDiff < 0.85 && angleDiff > -0.85) {
+              photon = new PufferProjectile(this);
+              objectManager.addObject(photon, true);
+              ticksToSpawnPhotons = (Math.random() * maxFireRate) + minFireRate;
+              mediaManager.Audio.PhotonSmall.play();
+            }
+          }
+
+          ticksToSpawnPhotons--;
         };
     }
     Puffer.prototype = Object.create(AIGameObject.prototype);
@@ -832,17 +890,6 @@ var LunaticFringe = function (canvas) {
             this.inScene = true;
 
             if (DEBUG) {
-
-                // uncoment to show quadrants
-                //for (i = 0; i < 4; i++) {
-                //  context.beginPath();
-                //  if (i == 0) context.strokeStyle = "red";
-                //  else context.strokeStyle = "purple";
-                //  context.moveTo(this.X, this.Y);
-                //  context.lineTo(this.X + Math.cos(quadrant[i] + this.Angle) * this.CollisionRadius * 2, this.Y + Math.sin(quadrant[i] + this.Angle) * this.CollisionRadius * 2);
-                //  context.stroke();
-                //}
-
                 var barrelAngle = this.getAngleOfBarrelToward(player);
                 context.beginPath();
                 context.strokeStyle = "green";
