@@ -825,7 +825,6 @@ var LunaticFringe = function (canvas) {
               photon = new PufferProjectile(this);
               objectManager.addObject(photon, true);
               ticksToSpawnPhotons = (Math.random() * maxFireRate) + minFireRate;
-              mediaManager.Audio.PhotonSmall.play();
             }
           }
 
