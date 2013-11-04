@@ -134,6 +134,8 @@ var LunaticFringe = function (canvas) {
 
         this.LoadAudio("CollisionGeneral", "audio/collision_general");
         this.LoadAudio("CollisionSpreadshot", "audio/collision_spreadshot");
+        this.LoadAudio("CollisionQuad", "audio/collision_quad");
+        this.LoadAudio("CollisionDefaultWeapon", "audio/collision_defaultweapon");
         this.LoadAudio("PhotonSmall", "audio/PhotonSmall");
         this.LoadAudio("StartUp", "audio/StartUp");
         this.LoadAudio("SludgerMinePop", "audio/SludgerMinePop");
