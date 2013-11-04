@@ -426,7 +426,7 @@ var LunaticFringe = function (canvas) {
             //Projectile.prototype.handleCollision.call(this, otherObject);
             if (otherObject instanceof PlayerShip) {
                 log("QuadBlaster hit PlayerShip!");
-                mediaManager.Audio.CollisionSpreadshot.play();
+                mediaManager.Audio.CollisionQuad.play();
                 objectManager.removeObject(this);
             }
         };
