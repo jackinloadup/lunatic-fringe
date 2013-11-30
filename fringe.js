@@ -134,6 +134,8 @@ var LunaticFringe = function (canvas) {
 
         this.LoadAudio("CollisionGeneral", "audio/collision_general");
         this.LoadAudio("CollisionSpreadshot", "audio/collision_spreadshot");
+        this.LoadAudio("CollisionQuad", "audio/collision_quad");
+        this.LoadAudio("CollisionDefaultWeapon", "audio/collision_defaultweapon");
         this.LoadAudio("PhotonSmall", "audio/PhotonSmall");
         this.LoadAudio("StartUp", "audio/StartUp");
         this.LoadAudio("SludgerMinePop", "audio/SludgerMinePop");
@@ -403,6 +405,7 @@ var LunaticFringe = function (canvas) {
 
             if (otherObject instanceof PlayerShip) {
                 log("PufferShot hit player!");
+                mediaManager.Audio.CollisionGeneral.play();
                 objectManager.removeObject(this);
             }
         };
@@ -424,7 +427,7 @@ var LunaticFringe = function (canvas) {
             //Projectile.prototype.handleCollision.call(this, otherObject);
             if (otherObject instanceof PlayerShip) {
                 log("QuadBlaster hit PlayerShip!");
-                mediaManager.Audio.CollisionSpreadshot.play();
+                mediaManager.Audio.CollisionQuad.play();
                 objectManager.removeObject(this);
             }
         };
@@ -474,6 +477,7 @@ var LunaticFringe = function (canvas) {
 
             // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
             if (otherObject instanceof Asteroid) {
+                mediaManager.Audio.CollisionGeneral.play();
                 log("Player hit a Asteroid");
                 this.updateHealth(-30);
                 return;
@@ -822,7 +826,6 @@ var LunaticFringe = function (canvas) {
               photon = new PufferProjectile(this);
               objectManager.addObject(photon, true);
               ticksToSpawnPhotons = (Math.random() * maxFireRate) + minFireRate;
-              mediaManager.Audio.PhotonSmall.play();
             }
           }
 
