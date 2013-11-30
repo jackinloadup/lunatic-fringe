@@ -405,6 +405,7 @@ var LunaticFringe = function (canvas) {
 
             if (otherObject instanceof PlayerShip) {
                 log("PufferShot hit player!");
+                mediaManager.Audio.CollisionGeneral.play();
                 objectManager.removeObject(this);
             }
         };
