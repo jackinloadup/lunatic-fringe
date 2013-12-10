@@ -1120,6 +1120,7 @@ var LunaticFringe = function (canvas) {
         };
 
         this.addObject = function (object, collidable) {
+            collidable = typeof collidable !== 'undefined' ? collidable : true;
             objects.push(object);
             if (collidable) {
                 collidables.push(object);
@@ -1286,34 +1287,34 @@ var LunaticFringe = function (canvas) {
             game.PlayerShip = playerShip = new PlayerShip(context);
 
             for (i = 0; i < 600; i += 1) {
-                this.addObject(new Star(GameBounds));
+                this.addObject(new Star(GameBounds), false);
             }
 
             this.addObject(new Base(context));
 
-            this.addObject(new EnemyBase(GameBounds, game.PlayerShip), true);
+            this.addObject(new EnemyBase(GameBounds, game.PlayerShip));
 
             for (i = 0; i < 6; i += 1) {
-                this.addObject(new Pebbles(GameBounds), true);
+                this.addObject(new Pebbles(GameBounds));
             }
 
             for (i = 0; i < 3; i += 1) {
-                this.addObject(new Rocko(GameBounds), true);
+                this.addObject(new Rocko(GameBounds));
             }
 
             for (i = 0; i < 4; i += 1) {
-                this.addObject(new Sludger(GameBounds, game.PlayerShip), true);
+                this.addObject(new Sludger(GameBounds, game.PlayerShip));
             }
 
             for (i = 0; i < 5; i += 1) {
-                this.addObject(new QuadBlaster(GameBounds, game.PlayerShip), true);
+                this.addObject(new QuadBlaster(GameBounds, game.PlayerShip));
             }
 
             for (i = 0; i < 4; i += 1) {
-                this.addObject(new Puffer(GameBounds, game.PlayerShip), true);
+                this.addObject(new Puffer(GameBounds, game.PlayerShip));
             }
 
-            //this.addObject(new SludgerMine(GameBounds, game.PlayerShip), true);
+            //this.addObject(new SludgerMine(GameBounds, game.PlayerShip));
 
             // Add ship last so it draws on top of most objects
             this.addObject(game.PlayerShip, true);
