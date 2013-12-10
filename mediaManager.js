@@ -37,6 +37,7 @@ LunaticFringe.MediaManager = function () {
   this.LoadSprite("Puffer", "images/Puffer.png");
   this.LoadSprite("QuadBlaster", "images/Quadblaster.png");
   this.LoadSprite("Rocko", "images/Rocko.png");
+  this.LoadSprite("Slicer", "images/Slicer.png");
   this.LoadSprite("Sludger", "images/Sludger.png");
   this.LoadSprite("SludgerMine", "images/SludgerMine.png");
   this.LoadSprite("PufferShot", "images/PufferShot.png");
