@@ -365,7 +365,9 @@ var LunaticFringe = function (canvas) {
         this.lives = 3;
         this.health = 100;
         this.maxHealth = 100;
-        this.Width = 42;
+        //this.Width = 42;
+        //this.Height = 37;
+        this.Width = 50;
         this.Height = 37;
         this.Mass = 10;
         this.CollisionRadius = 12; // Good balance between wings sticking out and body taking up the whole circle
@@ -374,7 +376,8 @@ var LunaticFringe = function (canvas) {
         this.VelocityX = 0;
         this.VelocityY = 0;
         this.Angle = Math.PI / 2; // Straight up
-        animationFrames = 32;
+        //animationFrames = 32;
+        animationFrames = 26;
         rotationAmount = (Math.PI * 2) / animationFrames; // 32 frames of animation in the sprite
         // accel = 0.1;
         this.Acceleration = 0.1;
@@ -383,7 +386,8 @@ var LunaticFringe = function (canvas) {
             Right: 0,
             Shooting: 0
         };
-        this.Sprite = game.mediaManager.Sprites.PlayerShip;
+        //this.Sprite = game.mediaManager.Sprites.PlayerShip;
+        this.Sprite = game.mediaManager.Sprites.Slicer;
         spriteX = 0;
         spriteY = 0;
         this.MaxSpeed = 12;
@@ -490,7 +494,7 @@ var LunaticFringe = function (canvas) {
                 spriteX -= this.Width;
                 this.Angle -= rotationAmount;
                 if (spriteX < 0) {
-                    spriteX = this.Width * 32 - this.Width;
+                    spriteX = this.Width * animationFrames - this.Width;
                 }
             }
 
@@ -1242,6 +1246,7 @@ var LunaticFringe = function (canvas) {
                 }
             }
 
+            return 1;
             return numEnemies;
         };
 
@@ -1313,26 +1318,30 @@ var LunaticFringe = function (canvas) {
             this.addObject(new Base(context));
 
             this.addObject(new EnemyBase(GameBounds, game.PlayerShip));
+            
+            //for (i = 0; i < 15; i += 1) {
+            //    this.addObject(new Slicer(GameBounds, game.PlayerShip));
+            //}
 
-            for (i = 0; i < 6; i += 1) {
-                this.addObject(new Pebbles(GameBounds));
-            }
+            //for (i = 0; i < 6; i += 1) {
+            //    this.addObject(new Pebbles(GameBounds));
+            //}
 
-            for (i = 0; i < 3; i += 1) {
-                this.addObject(new Rocko(GameBounds));
-            }
+            //for (i = 0; i < 3; i += 1) {
+            //    this.addObject(new Rocko(GameBounds));
+            //}
 
-            for (i = 0; i < 4; i += 1) {
-                this.addObject(new Sludger(GameBounds, game.PlayerShip));
-            }
+            //for (i = 0; i < 4; i += 1) {
+            //    this.addObject(new Sludger(GameBounds, game.PlayerShip));
+            //}
 
-            for (i = 0; i < 5; i += 1) {
-                this.addObject(new QuadBlaster(GameBounds, game.PlayerShip));
-            }
+            //for (i = 0; i < 5; i += 1) {
+            //    this.addObject(new QuadBlaster(GameBounds, game.PlayerShip));
+            //}
 
-            for (i = 0; i < 4; i += 1) {
-                this.addObject(new Puffer(GameBounds, game.PlayerShip));
-            }
+            //for (i = 0; i < 4; i += 1) {
+            //    this.addObject(new Puffer(GameBounds, game.PlayerShip));
+            //}
 
             //this.addObject(new SludgerMine(GameBounds, game.PlayerShip));
 
