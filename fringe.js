@@ -89,75 +89,7 @@ var LunaticFringe = function (canvas) {
     Vector.prototype.Magnitude = function () { return Math.sqrt(this.SelfDotProduct()); }
 
     // This is primarily to make sure media is preloaded, otherwise projectiles only load when fire is pressed and looks funky
-    function MediaManager() {
-        this.Sprites = {};
-        this.Audio = {};
-
-        this.LoadSprite = function (name, file) {
-            this.Sprites[name] = new Image();
-            this.Sprites[name].src = file;
-            this.Sprites[name].Loaded = false;
-            this.Sprites[name].onload = function () { mediaManager.Sprites[name].Loaded = true; };
-        };
-
-        // Leave off the extension. MP3 or OGG will be used depending on browser. You must supply both and they must share the same file name. Ugh, this could be better.
-        this.LoadAudio = function (name, fileName) {
-            var ext;
-
-            this.Audio[name] = new Audio();
-
-            if (this.Audio[name].canPlayType("audio/ogg") === "probably" || this.Audio[name].canPlayType("audio/ogg") === "maybe") {
-                ext = ".ogg";
-            } else if (this.Audio[name].canPlayType("audio/mpeg") === "probably" || this.Audio[name].canPlayType("audio/mped") === "maybe") {
-                ext = ".mp3";
-            } else {
-                log("No supported audio format detected.");
-            }
-
-            this.Audio[name].src = fileName + ext;
-            this.Audio[name].preload = "auto";
-            this.Audio[name].Loaded = false;
-            this.Audio[name].onload = function () { mediaManager.Audio[name].Loaded = true; };
-        };
-
-        this.LoadSprite("Base", "images/Base.png");
-        this.LoadSprite("EnemyBase", "images/EnemyBase.png");
-        this.LoadSprite("Pebbles", "images/Pebbles.png");
-        this.LoadSprite("PhotonSmall", "images/PhotonSmall.png");
-        this.LoadSprite("PlayerShip", "images/PlayerShip.png");
-        this.LoadSprite("Puffer", "images/Puffer.png");
-        this.LoadSprite("QuadBlaster", "images/Quadblaster.png");
-        this.LoadSprite("Rocko", "images/Rocko.png");
-        this.LoadSprite("Sludger", "images/Sludger.png");
-        this.LoadSprite("SludgerMine", "images/SludgerMine.png");
-        this.LoadSprite("PufferShot", "images/PufferShot.png");
-
-        this.LoadAudio("CollisionGeneral", "audio/collision_general");
-        this.LoadAudio("CollisionSpreadshot", "audio/collision_spreadshot");
-        this.LoadAudio("CollisionQuad", "audio/collision_quad");
-        this.LoadAudio("CollisionDefaultWeapon", "audio/collision_defaultweapon");
-        this.LoadAudio("PhotonSmall", "audio/PhotonSmall");
-        this.LoadAudio("StartUp", "audio/StartUp");
-        this.LoadAudio("SludgerMinePop", "audio/SludgerMinePop");
-        this.LoadAudio("PlayerDeath", "audio/PlayerDeath");
-        this.LoadAudio("SludgerDeath", "audio/SludgerDeath");
-
-        this.loaded = function () {
-            var sprite, numLoaded = 0, total = 0;
-            for (sprite in this.Sprites) {
-                if (this.Sprites.hasOwnProperty(sprite)) {
-                    if (this.Sprites[sprite].Loaded) {
-                        numLoaded += 1;
-                    }
-                    total += 1;
-                }
-            }
-            /*log(numLoaded + " of " + total + " sprites loaded");
-            log(numLoaded / total * 100 + "%");*/
-            return numLoaded / total * 100;
-        };
-    }
-    mediaManager = new MediaManager();
+    this.mediaManager = new LunaticFringe.MediaManager();
 
     /*mediaManager.loaded();
     var isloaded = function () {
@@ -381,7 +313,7 @@ var LunaticFringe = function (canvas) {
         this.CollisionRadius = 4;
         this.VelocityX += -Math.cos(ship.Angle) * 10;
         this.VelocityY += -Math.sin(ship.Angle) * 10;
-        this.Sprite = mediaManager.Sprites.PhotonSmall;
+        this.Sprite = game.mediaManager.Sprites.PhotonSmall;
         this.Lifetime = 50;
     }
     PhotonSmall.prototype = Object.create(Projectile.prototype);
@@ -394,7 +326,7 @@ var LunaticFringe = function (canvas) {
         this.CollisionRadius = 10;
         this.VelocityX += Math.cos(ship.Angle) * 10;
         this.VelocityY += Math.sin(ship.Angle) * 10;
-        this.Sprite = mediaManager.Sprites.PufferShot;
+        this.Sprite = game.mediaManager.Sprites.PufferShot;
         this.Lifetime = 50;
 
         this.handleCollision = function (otherObject) {
@@ -405,7 +337,7 @@ var LunaticFringe = function (canvas) {
 
             if (otherObject instanceof PlayerShip) {
                 log("PufferShot hit player!");
-                mediaManager.Audio.CollisionGeneral.play();
+                game.mediaManager.Audio.CollisionGeneral.play();
                 objectManager.removeObject(this);
             }
         };
@@ -420,14 +352,14 @@ var LunaticFringe = function (canvas) {
         this.CollisionRadius = 4;
         this.VelocityX += Math.cos(angle) * 10;
         this.VelocityY += Math.sin(angle) * 10;
-        this.Sprite = mediaManager.Sprites.PhotonSmall;
+        this.Sprite = game.mediaManager.Sprites.PhotonSmall;
         this.Lifetime = 50;
 
         this.handleCollision = function (otherObject) {
             //Projectile.prototype.handleCollision.call(this, otherObject);
             if (otherObject instanceof PlayerShip) {
                 log("QuadBlaster hit PlayerShip!");
-                mediaManager.Audio.CollisionQuad.play();
+                game.mediaManager.Audio.CollisionQuad.play();
                 objectManager.removeObject(this);
             }
         };
@@ -460,7 +392,7 @@ var LunaticFringe = function (canvas) {
             Right: 0,
             Shooting: 0
         };
-        this.Sprite = mediaManager.Sprites.PlayerShip;
+        this.Sprite = game.mediaManager.Sprites.PlayerShip;
         spriteX = 0;
         spriteY = 0;
         this.MaxSpeed = 12;
@@ -477,7 +409,7 @@ var LunaticFringe = function (canvas) {
 
             // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
             if (otherObject instanceof Asteroid) {
-                mediaManager.Audio.CollisionGeneral.play();
+                game.mediaManager.Audio.CollisionGeneral.play();
                 log("Player hit a Asteroid");
                 this.updateHealth(-30);
                 return;
@@ -512,7 +444,7 @@ var LunaticFringe = function (canvas) {
         }
 
         this.die = function () {
-            mediaManager.Audio.PlayerDeath.play();
+            game.mediaManager.Audio.PlayerDeath.play();
 
             this.VelocityX = 0;
             this.VelocityY = 0;
@@ -584,7 +516,7 @@ var LunaticFringe = function (canvas) {
                 if (numFramesSince.Shooting >= 13) { // 13 matches up best with the original game's rate of fire at 60fps
                     photon = new PhotonSmall(this);
                     numFramesSince.Shooting = 0;
-                    mediaManager.Audio.PhotonSmall.play();
+                    game.mediaManager.Audio.PhotonSmall.play();
                 }
             }
         };
@@ -604,7 +536,7 @@ var LunaticFringe = function (canvas) {
         this.VelocityX = 0;
         this.VelocityY = 0;
         this.Angle = 0;
-        this.Sprite = mediaManager.Sprites.SludgerMine;
+        this.Sprite = game.mediaManager.Sprites.SludgerMine;
         spriteX = (Math.floor(Math.random() * 7)) * this.Width;
         log("Started at " + spriteX);
         player = playerShip;
@@ -635,7 +567,7 @@ var LunaticFringe = function (canvas) {
                 log("SludgerMined the player");
             }
 
-            mediaManager.Audio.SludgerMinePop.play();
+            game.mediaManager.Audio.SludgerMinePop.play();
 
             objectManager.removeObject(this);
         };
@@ -681,7 +613,7 @@ var LunaticFringe = function (canvas) {
         this.VelocityX = (Math.random() - Math.random()) * 3;
         this.VelocityY = (Math.random() - Math.random()) * 3;
         this.Angle = 0;
-        this.Sprite = mediaManager.Sprites.Sludger;
+        this.Sprite = game.mediaManager.Sprites.Sludger;
         spriteX = 0;
         player = playerShip;
 
@@ -703,7 +635,7 @@ var LunaticFringe = function (canvas) {
                 score += 50;
             }
 
-            mediaManager.Audio.SludgerDeath.play();
+            game.mediaManager.Audio.SludgerDeath.play();
 
             objectManager.removeObject(this);
         };
@@ -764,7 +696,7 @@ var LunaticFringe = function (canvas) {
         this.MaxSpeed = 1;
         this.Acceleration = 0.1;
 
-        this.Sprite = mediaManager.Sprites.Puffer;
+        this.Sprite = game.mediaManager.Sprites.Puffer;
 
         this.draw = function (context) {
             Puffer.prototype.draw.call(this, context);
@@ -782,11 +714,11 @@ var LunaticFringe = function (canvas) {
 
             // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
             if (otherObject instanceof PlayerShip) {
-              mediaManager.Audio.CollisionGeneral.play();
+              game.mediaManager.Audio.CollisionGeneral.play();
               //return;
             }
 
-            mediaManager.Audio.SludgerMinePop.play();
+            game.mediaManager.Audio.SludgerMinePop.play();
 
             objectManager.removeObject(this);
         };
@@ -849,7 +781,7 @@ var LunaticFringe = function (canvas) {
         this.Angle = 0;
         animationFrames = 8 ; // number of frames in the sprite, the sprite only has 1/4th of the whole rotation
         rotationAmount = (Math.PI * 2) / (animationFrames * 4); // multiply by 4 to account for sprite being only a 1/4th
-        this.Sprite = mediaManager.Sprites.QuadBlaster;
+        this.Sprite = game.mediaManager.Sprites.QuadBlaster;
         maxFireRate = 3 * 60; // in seconds
         minFireRate = 0.3 * 60; // in seconds
         spriteX = 10; // sprite starts 10 px in for some 
@@ -921,7 +853,7 @@ var LunaticFringe = function (canvas) {
                 score += 50;
             }
 
-            mediaManager.Audio.SludgerDeath.play();
+            game.mediaManager.Audio.SludgerDeath.play();
 
             objectManager.removeObject(this);
         };
@@ -1011,7 +943,7 @@ var LunaticFringe = function (canvas) {
         this.CollisionRadius = 30;
         this.X = context.canvas.width / 2 - (this.Width / 2);
         this.Y = context.canvas.height / 2 - (this.Height / 2);
-        this.Sprite = mediaManager.Sprites.Base;
+        this.Sprite = game.mediaManager.Sprites.Base;
         spriteX = 0;
 
         this.draw = function (context) {
@@ -1043,7 +975,7 @@ var LunaticFringe = function (canvas) {
         this.Y = -1000; //context.canvas.height / 2 - (this.Height / 2);
         /*this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
         this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;*/
-        this.Sprite = mediaManager.Sprites.EnemyBase;
+        this.Sprite = game.mediaManager.Sprites.EnemyBase;
 
         this.draw = function (context) {
             EnemyBase.prototype.draw.call(this, context);
@@ -1089,7 +1021,7 @@ var LunaticFringe = function (canvas) {
         this.CollisionRadius = 13;
         this.VelocityX *= 3;
         this.VelocityY *= 3;
-        this.Sprite = mediaManager.Sprites.Pebbles;
+        this.Sprite = game.mediaManager.Sprites.Pebbles;
     }
     Pebbles.prototype = Object.create(Asteroid.prototype);
     Pebbles.prototype.constructor = Pebbles;
@@ -1100,7 +1032,7 @@ var LunaticFringe = function (canvas) {
         this.Height = 36;
         this.Mass = 500;
         this.CollisionRadius = 18;
-        this.Sprite = mediaManager.Sprites.Rocko;
+        this.Sprite = game.mediaManager.Sprites.Rocko;
     }
     Rocko.prototype = Object.create(Asteroid.prototype);
     Rocko.prototype.constructor = Rocko;
@@ -1317,7 +1249,7 @@ var LunaticFringe = function (canvas) {
 
             // Add ship last so it draws on top of most objects
             this.addObject(game.PlayerShip, true);
-            mediaManager.Audio.StartUp.play();
+            game.mediaManager.Audio.StartUp.play();
         };
 
         this.endGame = function () {
