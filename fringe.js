@@ -1108,7 +1108,7 @@ var LunaticFringe = function (canvas) {
     function ObjectManager(canvasContext) {
         var objects, collidables, newObject, i, context, playerShip, moveObject, updateObjects, detectCollisions, drawObjects,
                     GameBounds, checkBounds, handleCollision, setupPositions, numMessageTicks, numMessageTicksMax, message,
-                    running, isPaused;
+                    isRunning, isPaused;
 
         context = canvasContext;
 
@@ -1322,7 +1322,8 @@ var LunaticFringe = function (canvas) {
         };
 
         this.endGame = function () {
-            running = false;
+            isPaused = true;
+            isRunning = false;
             objectManager.displayMessage("You achieved a score of " + score + " before the fringe took you", 99999999999);
             objectManager.removeObject(playerShip)
         };
@@ -1338,7 +1339,6 @@ var LunaticFringe = function (canvas) {
           animationLoop();
           console.log('resume')
         }
-
 
         this.gameLoop = (function () {
             var i = 0, loops = 0, skipTicks = 1000 / 60, maxFrameSkip = 10, nextGameTick = (new Date()).getTime();
