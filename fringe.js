@@ -91,15 +91,6 @@ var LunaticFringe = function (canvas) {
     // This is primarily to make sure media is preloaded, otherwise projectiles only load when fire is pressed and looks funky
     this.mediaManager = new LunaticFringe.MediaManager();
 
-    /*mediaManager.loaded();
-    var isloaded = function () {
-    var percent = mediaManager.loaded();
-    if (percent < 100) {
-    setTimeout(isloaded, 0);
-    }
-    }
-    setTimeout(isloaded, 0);*/
-
     // Game Objects
     function GameObject() {
 

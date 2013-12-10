@@ -52,17 +52,26 @@ LunaticFringe.MediaManager = function () {
   this.LoadAudio("SludgerDeath", "audio/SludgerDeath");
 
   this.loaded = function () {
-      var sprite, numLoaded = 0, total = 0;
-      for (sprite in this.Sprites) {
-          if (this.Sprites.hasOwnProperty(sprite)) {
-              if (this.Sprites[sprite].Loaded) {
-                  numLoaded += 1;
-              }
-              total += 1;
-          }
+    var sprite, numLoaded = 0, total = 0;
+    for (sprite in this.Sprites) {
+      if (this.Sprites.hasOwnProperty(sprite)) {
+        if (this.Sprites[sprite].Loaded) {
+          numLoaded += 1;
+        }
+        total += 1;
       }
-      /*log(numLoaded + " of " + total + " sprites loaded");
-      log(numLoaded / total * 100 + "%");*/
-      return numLoaded / total * 100;
+    }
+    /*log(numLoaded + " of " + total + " sprites loaded");
+    log(numLoaded / total * 100 + "%");*/
+    return numLoaded / total * 100;
   };
 };
+
+// untested loaded checker
+//var isloaded = function () {
+//  var percent = mediaManager.loaded();
+//  if (percent < 100) {
+//    setTimeout(isloaded, 0);
+//  }
+//}
+//setTimeout(isloaded, 0);
