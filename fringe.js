@@ -490,7 +490,7 @@ var LunaticFringe = function (canvas) {
                 spriteX -= this.Width;
                 this.Angle -= rotationAmount;
                 if (spriteX < 0) {
-                    spriteX = this.Width * 32 - this.Width;
+                    spriteX = this.Width * animationFrames - this.Width;
                 }
             }
 
@@ -757,6 +757,104 @@ var LunaticFringe = function (canvas) {
     }
     Puffer.prototype = Object.create(AIGameObject.prototype);
     Puffer.prototype.constructor = Puffer;
+	
+	// Intial Slicer copied from Puffer
+	function Slicer(bounds, playerShip) {
+        var animationFrames, player, rotationAmount, maxFireRate, minFireRate, numFramesSince, spriteX, turnAbility, ticksToSpawnPhotons = 0;
+
+        AIGameObject.call(this, playerShip);
+        this.Width = 50;
+        this.Height = 50;
+        this.Mass = 10;
+        this.CollisionRadius = 14; // Good balance between wings sticking out and body taking up the whole circle
+        this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
+        this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
+        this.VelocityX = (Math.random() - Math.random()) * 1;
+        this.VelocityY = (Math.random() - Math.random()) * 1;
+        this.Angle = 0; // Straight up
+        spriteX = 0;
+        animationFrames = 26;
+        rotationAmount = (Math.PI * 2) / animationFrames; // 32 frames of animation in the sprite
+        numFramesSince = {
+            Shooting: 0
+        };
+        player = playerShip;
+        turnAbility = 0.015;
+        maxFireRate = 3 * 60; // in seconds
+        minFireRate = 0.3 * 60; // in seconds
+        this.MaxSpeed = 1;
+        this.Acceleration = 0.1;
+
+        this.Sprite = game.mediaManager.Sprites.Slicer;
+
+        this.draw = function (context) {
+            Slicer.prototype.draw.call(this, context);
+            // Draw the ship 2 pixels higher to make it better fit inside of the collision circle
+            context.drawImage(this.Sprite, spriteX, 0, this.Width, this.Height, this.X - this.Width / 2, this.Y - this.Height / 2 - 2, this.Width, this.Height);
+        };
+
+        this.handleCollision = function (otherObject) {
+            Slicer.prototype.handleCollision.call(this, otherObject);
+
+            if (otherObject instanceof PufferProjectile) {
+              return;
+            }
+
+
+            // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
+            if (otherObject instanceof PlayerShip) {
+              game.mediaManager.Audio.CollisionGeneral.play();
+              //return;
+            }
+
+            game.mediaManager.Audio.SludgerMinePop.play();
+
+            objectManager.removeObject(this);
+        };
+
+        this.updateState = function () {
+          var angleToPlayer, angleDiff, frame, frameAngle, i, photon;
+
+          angleDiff = this.angleDiffTo(player);
+
+          // only move the ship angle toward player as fast as the turn ability will allow.
+          if ( angleDiff > 0 ) this.Angle += turnAbility;
+          else this.Angle -= turnAbility;
+
+          frameAngle = this.Angle-Math.PI/2;
+
+          frame = Math.floor((frameAngle+Math.PI)/rotationAmount);
+          if (frame < 0) frame += animationFrames;
+
+          spriteX = this.Width * frame;
+
+          if (angleDiff <= this.Angle + 0.1 || angleDiff > this.Angle - 0.1) {
+              this.calculateAcceleration();
+          }
+
+          this.X += this.VelocityX;
+          this.Y += this.VelocityY;
+
+          for (i in numFramesSince) {
+            if (numFramesSince.hasOwnProperty(i)) {
+              numFramesSince[i] += 1;
+            }
+          }
+
+
+          //if (ticksToSpawnPhotons <= 0) {
+          //  if (angleDiff < 0.85 && angleDiff > -0.85) {
+          //    photon = new PufferProjectile(this);
+          //    objectManager.addObject(photon, true);
+          //    ticksToSpawnPhotons = (Math.random() * maxFireRate) + minFireRate;
+          //  }
+          //}
+
+          ticksToSpawnPhotons--;
+        };
+    }
+    Slicer.prototype = Object.create(AIGameObject.prototype);
+    Slicer.prototype.constructor = Slicer;
 
     function QuadBlaster(bounds, playerShip) {
         var animationFrames, maxFireRate, minFireRate, numTicks = 0, spriteX, player, rotationAmount, ticksToSpawnPhotons = 0;
@@ -1236,6 +1334,10 @@ var LunaticFringe = function (canvas) {
             for (i = 0; i < 4; i += 1) {
                 this.addObject(new Puffer(GameBounds, game.PlayerShip));
             }
+			
+			for (i = 0; i < 2; i += 1) {
+				this.addObject(new Slicer(GameBounds, game.PlayerShip));
+			}
 
             //this.addObject(new SludgerMine(GameBounds, game.PlayerShip));
 
