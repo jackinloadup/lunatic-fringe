@@ -20,7 +20,7 @@
 var LunaticFringe = function (canvas) {
     "use strict";
 
-    var animationLoop, objectManager, mediaManager, Key, DEBUG = false, numEnemiesKilled = 0, score = 0;
+    var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
 
     if (typeof canvas !== 'object') {
