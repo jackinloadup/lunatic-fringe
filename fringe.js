@@ -1175,10 +1175,18 @@ var LunaticFringe = function (canvas) {
         };
 
         checkBounds = function (object) {
-            if (object.X > GameBounds.Right) { object.X = GameBounds.Left + (object.X - GameBounds.Right); }
-            if (object.X < GameBounds.Left) { object.X = GameBounds.Right - (GameBounds.Left - object.X); }
-            if (object.Y > GameBounds.Bottom) { object.Y = GameBounds.Top + (object.Y - GameBounds.Bottom); }
-            if (object.Y < GameBounds.Top) { object.Y = GameBounds.Bottom - (GameBounds.Top - object.Y); }
+            if (object.X > GameBounds.Right) { 
+				object.X = GameBounds.Left + (object.X - GameBounds.Right); 
+			}
+            else if (object.X < GameBounds.Left) { 
+				object.X = GameBounds.Right - (GameBounds.Left - object.X); 
+			}
+            if (object.Y > GameBounds.Bottom) { 
+				object.Y = GameBounds.Top + (object.Y - GameBounds.Bottom); 
+			}
+            else if (object.Y < GameBounds.Top) { 
+				object.Y = GameBounds.Bottom - (GameBounds.Top - object.Y); 
+			}
         };
 
         this.displayMessage = function (text, ticksToShow) {
