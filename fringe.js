@@ -314,6 +314,17 @@ var LunaticFringe = function (canvas) {
         this.VelocityY += -Math.sin(ship.Angle) * 10;
         this.Sprite = game.mediaManager.Sprites.PhotonSmall;
         this.Lifetime = 50;
+		
+		this.handleCollision = function(otherObject) {
+			log("Photonsmall hit: " + otherObject.constructor.name);
+			
+			if (otherObject instanceof Base) {
+				// Don't want small photons to collide with player base
+				return;
+			}
+			
+			objectManager.removeObject(this);
+		}
     }
     PhotonSmall.prototype = Object.create(Projectile.prototype);
     PhotonSmall.prototype.constructor = PhotonSmall;
@@ -1047,6 +1058,10 @@ var LunaticFringe = function (canvas) {
             Base.prototype.draw.call(this, context);
             context.drawImage(this.Sprite, spriteX, 0, this.Width, this.Height, this.X - this.Width / 2, this.Y - this.Height / 2, this.Width, this.Height);
         };
+		
+		this.handleCollision = function(otherObject) {
+			//log(otherObject.constructor.name + " collided with the player's base!");
+		};
 
         this.updateState = function () {
             numTicksForAnim += 1;
@@ -1078,6 +1093,10 @@ var LunaticFringe = function (canvas) {
             EnemyBase.prototype.draw.call(this, context);
             context.drawImage(this.Sprite, this.X - this.Width / 2, this.Y - this.Height / 2);
         };
+		
+		this.handleCollision = function(otherObject) {
+			//log(otherObject.constructor.name + " collided with the enemy base!");
+		};
 
         this.updateState = function () {
             numTicksForSpawn += 1;
