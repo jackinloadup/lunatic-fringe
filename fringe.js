@@ -48,6 +48,14 @@ var LunaticFringe = function (canvas) {
             } catch (e) { }
         }
     }
+	
+	function error(message) {
+		if (DEBUG) {
+			try {
+				console.error(message);
+			} catch (e) { }
+		}
+	}
 
     Key = {
         keysPressed: {},
