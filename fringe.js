@@ -139,7 +139,13 @@ var LunaticFringe = function (canvas) {
 
         GameObject.prototype.handleCollision = function (otherObject) {
             var i, j, dx, dy, phi, magnitude_1, magnitude_2, direction_1, direction_2, new_xspeed_1, new_xspeed_2, new_yspeed_1, new_yspeed_2, final_xspeed_1, final_yspeed_1, final_xspeed_2, final_yspeed_2;
-
+			
+			if (this.Mass == 0 && otherObject.Mass == 0) {
+				// This is bad because this means the new speed calculations will result in NaN
+				error("Both objects had a mass of 0! Objects were: " + this.constructor.name + " and " + otherObject.constructor.name);
+				objectManager.pauseGame();
+			}
+			
             dx = this.X - otherObject.X;
             dy = this.Y - otherObject.Y;
 
