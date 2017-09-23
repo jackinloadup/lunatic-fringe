@@ -838,18 +838,27 @@ var LunaticFringe = function (canvas) {
         };
 
         this.updateState = function () {
-          var angleToPlayer, angleDiff, frame, frameAngle, i, photon;
+			var angleToPlayer, angleDiff, frame, frameAngle, i, photon;
 
-          angleDiff = this.angleDiffTo(player);
+			angleDiff = this.angleDiffTo(player);
 
-          // only move the ship angle toward player as fast as the turn ability will allow.
-          if ( angleDiff > 0 ) this.Angle += turnAbility;
-          else this.Angle -= turnAbility;
-
-          frameAngle = this.Angle-Math.PI/2;
-
-          frame = Math.floor((frameAngle+Math.PI)/rotationAmount);
-          if (frame < 0) frame += animationFrames;
+			// only move the ship angle toward player as fast as the turn ability will allow.
+			// If turn angle is greater than the actual angle to the player, only turn to the actual actual of the player
+			if ( angleDiff > 0 ) {
+				if (turnAbility > angleDiff) {
+					this.Angle += angleDiff;
+				} else { 
+					this.Angle += turnAbility;
+				}
+			}
+			else {
+				if (-1*turnAbility < angleDiff) {
+					this.Angle -= -1*angleDiff;
+				} else { 
+					this.Angle -= turnAbility;
+				}
+			}
+			this.Angle = this.Angle % (2 * Math.PI)
 
           spriteX = this.Width * frame;
 
