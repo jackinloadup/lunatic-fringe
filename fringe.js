@@ -529,6 +529,7 @@ var LunaticFringe = function (canvas) {
             if (KeyState.isDown(KeyState.SPACE)) {
                 if (numFramesSince.Shooting >= 13) { // 13 matches up best with the original game's rate of fire at 60fps
                     photon = new PhotonSmall(this);
+					objectManager.addObject(photon, this);
                     numFramesSince.Shooting = 0;
                     game.mediaManager.Audio.PhotonSmall.play();
                 }
@@ -769,8 +770,8 @@ var LunaticFringe = function (canvas) {
 
           if (ticksToSpawnPhotons <= 0) {
             if (angleDiff < 0.85 && angleDiff > -0.85) {
-              photon = new PufferProjectile(this);
-              objectManager.addObject(photon, true);
+              pufferProjectile = new PufferProjectile(this);
+              objectManager.addObject(pufferProjectile, true);
               ticksToSpawnPhotons = (Math.random() * maxFireRate) + minFireRate;
             }
           }
