@@ -790,8 +790,8 @@ var LunaticFringe = function (canvas) {
         AIGameObject.call(this, playerShip);
         this.Width = 50;
         this.Height = 50;
-        this.Mass = 10;
-        this.CollisionRadius = 14; // Good balance between wings sticking out and body taking up the whole circle
+        this.Mass = 100;
+        this.CollisionRadius = 14; 
         this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
         this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
         this.VelocityX = (Math.random() - Math.random()) * 1;
@@ -799,16 +799,15 @@ var LunaticFringe = function (canvas) {
         this.Angle = 0; // Straight up
         spriteX = 0;
         animationFrames = 26;
-        rotationAmount = (Math.PI * 2) / animationFrames; // 32 frames of animation in the sprite
+        rotationAmount = (Math.PI * 2) / animationFrames; 
+		// TODO: This can be removed?
         numFramesSince = {
             Shooting: 0
         };
         player = playerShip;
-        turnAbility = 0.015;
-        maxFireRate = 3 * 60; // in seconds
-        minFireRate = 0.3 * 60; // in seconds
-        this.MaxSpeed = 1;
-        this.Acceleration = 0.1;
+        turnAbility = 0.3;
+        this.MaxSpeed = 10;
+        this.Acceleration = 0.175;
 
         this.Sprite = game.mediaManager.Sprites.Slicer;
 
@@ -821,12 +820,6 @@ var LunaticFringe = function (canvas) {
         this.handleCollision = function (otherObject) {
             Slicer.prototype.handleCollision.call(this, otherObject);
 
-            if (otherObject instanceof PufferProjectile) {
-              return;
-            }
-
-
-            // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
             if (otherObject instanceof PlayerShip) {
               game.mediaManager.Audio.CollisionGeneral.play();
               //return;
@@ -858,33 +851,29 @@ var LunaticFringe = function (canvas) {
 					this.Angle -= turnAbility;
 				}
 			}
-			this.Angle = this.Angle % (2 * Math.PI)
 
-          spriteX = this.Width * frame;
+			// Calculate the Slicer animation frame to show
+			frameAngle = this.Angle-Math.PI/2;
 
-          if (angleDiff <= this.Angle + 0.1 || angleDiff > this.Angle - 0.1) {
-              this.calculateAcceleration();
-          }
+			frame = Math.floor((frameAngle+Math.PI)/rotationAmount);
+			if (frame < 0) frame += animationFrames;
 
-          this.X += this.VelocityX;
-          this.Y += this.VelocityY;
+			spriteX = this.Width * frame;
 
-          for (i in numFramesSince) {
-            if (numFramesSince.hasOwnProperty(i)) {
-              numFramesSince[i] += 1;
-            }
-          }
+			if (angleDiff <= this.Angle + 0.1 || angleDiff > this.Angle - 0.1) {
+				this.calculateAcceleration();
+			}
 
+			//Update position of Slicer
+			this.X += this.VelocityX;
+			this.Y += this.VelocityY;
 
-          //if (ticksToSpawnPhotons <= 0) {
-          //  if (angleDiff < 0.85 && angleDiff > -0.85) {
-          //    photon = new PufferProjectile(this);
-          //    objectManager.addObject(photon, true);
-          //    ticksToSpawnPhotons = (Math.random() * maxFireRate) + minFireRate;
-          //  }
-          //}
+			for (i in numFramesSince) {
+				if (numFramesSince.hasOwnProperty(i)) {
+					numFramesSince[i] += 1;
+				}
+			}
 
-          ticksToSpawnPhotons--;
         };
     }
     Slicer.prototype = Object.create(AIGameObject.prototype);
