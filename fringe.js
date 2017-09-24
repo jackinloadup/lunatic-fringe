@@ -479,7 +479,8 @@ var LunaticFringe = function (canvas) {
                 objectManager.movePlayerShipTo(Math.random() * (objectManager.GameBounds.Right - objectManager.GameBounds.Left + 1) + objectManager.GameBounds.Left, Math.random() * (objectManager.GameBounds.Bottom - objectManager.GameBounds.Top + 1) + objectManager.GameBounds.Top);
 
                 // reset health to full
-                this.updateHealth(this.maxHealth);
+				log("Setting ship back to max health of: " + this.maxHealth);
+                this.health = this.maxHealth;
             }
         }
 
