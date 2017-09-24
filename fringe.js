@@ -739,7 +739,7 @@ var LunaticFringe = function (canvas) {
         };
 
         this.updateState = function () {
-          var angleToPlayer, angleDiff, frame, frameAngle, i, photon;
+          var angleToPlayer, angleDiff, frame, frameAngle, i;
 
           angleDiff = this.angleDiffTo(player);
 
@@ -770,7 +770,7 @@ var LunaticFringe = function (canvas) {
 
           if (ticksToSpawnPhotons <= 0) {
             if (angleDiff < 0.85 && angleDiff > -0.85) {
-              pufferProjectile = new PufferProjectile(this);
+              var pufferProjectile = new PufferProjectile(this);
               objectManager.addObject(pufferProjectile, true);
               ticksToSpawnPhotons = (Math.random() * maxFireRate) + minFireRate;
             }
