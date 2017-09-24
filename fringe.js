@@ -1312,6 +1312,35 @@ var LunaticFringe = function (canvas) {
         drawObjects = function (objects, context) {
             var i;
             context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+			
+			if(DEBUG) {
+				context.save();
+				// Draw collision circle
+				var x = context.canvas.width - 100;
+				var y = context.canvas.height - 100;
+				
+				// 0,90, and 180 degrees for frame of reference for drawing (in the order RGB)
+				context.beginPath();
+                context.strokeStyle = "red";
+				context.moveTo(x, y);
+				context.lineTo(x + 80 * Math.cos(0), y + 80 * Math.sin(0));
+				context.stroke();
+				
+                context.beginPath();
+                context.strokeStyle = "green";
+				context.moveTo(x, y);
+				context.lineTo(x + 80 * Math.cos(Math.PI/2), y + 80 * Math.sin(Math.PI/2));
+				context.stroke();
+				
+				context.beginPath();
+                context.strokeStyle = "blue";
+				context.moveTo(x, y);
+				context.lineTo(x + 80 * Math.cos(Math.PI), y + 80 * Math.sin(Math.PI));
+				context.stroke();
+				
+				context.restore();
+			}
+			
             //canvas.width = canvas.width; // This is only faster in some browsers and clearRect seems like the most logical way to clear the canvas. http://jsperf.com/canvasclear
 
             for (i = 0; i < objects.length; i += 1) {
