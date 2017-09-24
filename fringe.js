@@ -272,8 +272,6 @@ var LunaticFringe = function (canvas) {
         this.VelocityY = ship.VelocityY;
         this.Lifetime = 0;
 
-        objectManager.addObject(this, true);
-
         tickCountSince = {
             Creation: 0
         };
