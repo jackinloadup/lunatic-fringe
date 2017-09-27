@@ -558,6 +558,9 @@ var LunaticFringe = function (canvas) {
         turnAbility = 0.09;
         this.MaxSpeed = 4;
         this.Acceleration = 0.1;
+		this.Health = 5;
+		this.CollisionDamage = 5;
+		this.PointWorth = 2;
 
         this.draw = function (context) {
             SludgerMine.prototype.draw.call(this, context);
