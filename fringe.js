@@ -1266,8 +1266,16 @@ var LunaticFringe = function (canvas) {
                     if (Math.pow((collidablesSnapshot[j].X - collidablesSnapshot[i].X), 2) + Math.pow((collidablesSnapshot[j].Y - collidablesSnapshot[i].Y), 2)
                             <=
                             (collidablesSnapshot[i].CollisionRadius + collidablesSnapshot[j].CollisionRadius) * (collidablesSnapshot[i].CollisionRadius + collidablesSnapshot[j].CollisionRadius)) {
-                        collidablesSnapshot[i].handleCollision(collidablesSnapshot[j]);
+                        var oldVelX = collidablesSnapshot[i].VelocityX;
+						var oldVelY = collidablesSnapshot[i].VelocityY;
+						collidablesSnapshot[i].handleCollision(collidablesSnapshot[j]);
+						var newVelX = collidablesSnapshot[i].VelocityX;
+						var newVelY = collidablesSnapshot[i].VelocityY;
+						collidablesSnapshot[i].VelocityX = oldVelX;
+						collidablesSnapshot[i].VelocityY = oldVelY;
                         collidablesSnapshot[j].handleCollision(collidablesSnapshot[i]);
+						collidablesSnapshot[i].VelocityX = newVelX;
+						collidablesSnapshot[i].VelocityY = newVelY;
                     }
                 }
             }
