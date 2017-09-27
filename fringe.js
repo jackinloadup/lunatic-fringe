@@ -711,6 +711,9 @@ var LunaticFringe = function (canvas) {
         minFireRate = 0.3 * 60; // in seconds
         this.MaxSpeed = 1;
         this.Acceleration = 0.1;
+		this.CollisionDamage = 15;
+		this.Health = 50;
+		this.PointWorth = 20;
 
         this.Sprite = game.mediaManager.Sprites.Puffer;
 
@@ -721,22 +724,51 @@ var LunaticFringe = function (canvas) {
         };
 
         this.handleCollision = function (otherObject) {
-            Puffer.prototype.handleCollision.call(this, otherObject);
-
             if (otherObject instanceof PufferProjectile) {
               return;
-            }
-
-
-            // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
-            if (otherObject instanceof PlayerShip) {
-              game.mediaManager.Audio.CollisionGeneral.play();
-              //return;
-            }
-
-            game.mediaManager.Audio.SludgerMinePop.play();
-
-            objectManager.removeObject(this);
+            } else if (otherObject instanceof Projectile) {
+				// TODO: Play the correct sound based on the projectile
+				game.mediaManager.Audio.CollisionDefaultWeapon.play();
+				log("Puffer hit by Projectile: " + otherObject.constructor.name);
+				this.Health -= otherObject.Damage;
+				log("Puffer health is now: " + this.Health);
+				if (this.Health < 0) {
+					// Puffer dies
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;
+					if(otherObject instanceof PhotonSmall) {
+						//Only award points if the player was the one to kill the puffer				
+						score += this.PointWorth;
+					}
+				}
+			} else if (otherObject instanceof PlayerShip) {
+				Puffer.prototype.handleCollision.call(this, otherObject);
+				log("Puffer hit by the player");
+				game.mediaManager.Audio.CollisionGeneral.play();
+				this.Health -= otherObject.CollisionDamage;
+				log("Puffer health is now: " + this.Health);
+				// If a puffer dies from a player hitting it, points are still awarded
+				if (this.Health < 0) {
+					// Puffer dies
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;				
+					score += this.PointWorth;
+				}
+            } else if (otherObject instanceof AIGameObject) {
+				Puffer.prototype.handleCollision.call(this, otherObject);
+				game.mediaManager.Audio.CollisionGeneral.play();
+				log("Puffer hit by Game Object: " + otherObject.constructor.name);
+				this.Health -= otherObject.CollisionDamage;
+				log("Puffer health is now: " + this.Health);
+				if (this.Health < 0) {
+					// Puffer dies, no points awared as the player had nothing to do with it
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;
+				}
+			}
         };
 
         this.updateState = function () {
