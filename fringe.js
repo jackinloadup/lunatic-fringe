@@ -652,6 +652,9 @@ var LunaticFringe = function (canvas) {
         this.Sprite = game.mediaManager.Sprites.Sludger;
         spriteX = 0;
         player = playerShip;
+		this.CollisionDamage = 10;
+		this.Health = 10;
+		this.PointWorth = 25;
 
         this.draw = function (context) {
             Sludger.prototype.draw.call(this, context);
@@ -660,20 +663,49 @@ var LunaticFringe = function (canvas) {
 
         this.handleCollision = function (otherObject) {
 
-            if (otherObject instanceof SludgerMine) {
+            if (otherObject instanceof Sludger || otherObject instanceof SludgerMine) {
                 return;
-            }
-
-            Sludger.prototype.handleCollision.call(this, otherObject);
-            if (otherObject instanceof Projectile) {
-                log("Sludger blown up by projectile");
-                numEnemiesKilled++;
-                score += 50;
-            }
-
-            game.mediaManager.Audio.SludgerDeath.play();
-
-            objectManager.removeObject(this);
+            } else if (otherObject instanceof Projectile) {
+				log("Sluder hit by Projectile: " + otherObject.constructor.name);
+				this.Health -= otherObject.Damage;
+				log("SludgerMine health is now: " + this.Health);
+				if (this.Health <= 0) {
+					//Sludger dies
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;
+					if(otherObject instanceof PhotonSmall) {
+						//Only award points if the player was the one to kill the sludger mine					
+						score += this.PointWorth;
+					}
+				}
+			} else if (otherObject instanceof PlayerShip) {
+				Sludger.prototype.handleCollision.call(this, otherObject);
+				log("Sludger hit by the Player.");
+				game.mediaManager.Audio.CollisionGeneral.play();
+				this.Health -= otherObject.CollisionDamage;
+				log("Sludger health is now: " + this.Health);
+				// If a sludger dies from a player hitting it, points are still awarded
+				if (this.Health <= 0) {
+					// Sludger dies
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;				
+					score += this.PointWorth;
+				}
+			} else if (otherObject instanceof AIGameObject) {
+				Sludger.prototype.handleCollision.call(this, otherObject);
+				game.mediaManager.Audio.CollisionGeneral.play();
+				log("Sludger hit by Game Object: " + otherObject.constructor.name);
+				this.Health -= otherObject.CollisionDamage;
+				log("Sludger health is now: " + this.Health);
+				if (this.Health < 0) {
+					// Sludger dies, no points awared as the player had nothing to do with it
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;
+				}
+			}
         };
 
         this.updateState = function () {
