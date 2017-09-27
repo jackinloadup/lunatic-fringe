@@ -554,7 +554,6 @@ var LunaticFringe = function (canvas) {
         this.Angle = 0;
         this.Sprite = game.mediaManager.Sprites.SludgerMine;
         spriteX = (Math.floor(Math.random() * 7)) * this.Width;
-        log("Started at " + spriteX);
         player = playerShip;
         turnAbility = 0.09;
         this.MaxSpeed = 4;
@@ -569,23 +568,41 @@ var LunaticFringe = function (canvas) {
 
             if (otherObject instanceof Sludger || otherObject instanceof SludgerMine) {
                 return;
-            }
-
-            SludgerMine.prototype.handleCollision.call(this, otherObject);
-
-            if (otherObject instanceof Projectile) {
-                log("SludgerMine blown up by projectile");
-                numEnemiesKilled++;
-                score += 2
-            }
-
-            if (otherObject instanceof PlayerShip) {
-                log("SludgerMined the player");
-            }
-
-            game.mediaManager.Audio.SludgerMinePop.play();
-
-            objectManager.removeObject(this);
+            } else if (otherObject instanceof Projectile) {
+				log("SluderMine hit by Projectile: " + otherObject.constructor.name);
+				this.Health -= otherObject.Damage;
+				log("SludgerMine health is now: " + this.Health);
+				if (this.Health < 0) {
+					// SludgerMine dies
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;
+					if(otherObject instanceof PhotonSmall) {
+						//Only award points if the player was the one to kill the sludger mine					
+						score += this.PointWorth;
+					}
+				}
+			} else if (otherObject instanceof PlayerShip) {
+				// If a sludgermine hits the player, it dies. Technically the player kills it, so points are still awarded.
+				log("SludgerMine hit by the player");
+				game.mediaManager.Audio.SludgerMinePop.play();
+				objectManager.removeObject(this);
+				score += this.PointWorth;
+			} else if (otherObject instanceof AIGameObject) {
+				// The sludger mine is weak, and should always die when it collides with something.
+				// Therefore do not handle collision for a sludger mine.
+				log("SluderMine hit by Game Object: " + otherObject.constructor.name);
+				this.Health -= otherObject.CollisionDamage;
+				log("SludgerMine health is now: " + this.Health);
+				if (this.Health < 0) {
+					// SludgerMine dies
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;
+				} else {
+					error("SludgerMine somehow survived being hit by " + AIGameObject.constructor.name + ". Damage recieved: " + otherObect.CollisionDamage);
+				}
+			}
         };
 
         this.updateState = function () {
