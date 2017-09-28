@@ -271,6 +271,7 @@ var LunaticFringe = function (canvas) {
         this.VelocityX = ship.VelocityX;
         this.VelocityY = ship.VelocityY;
         this.Lifetime = 0;
+		this.Damage = 0;
 
         tickCountSince = {
             Creation: 0
@@ -318,6 +319,7 @@ var LunaticFringe = function (canvas) {
         this.VelocityY += -Math.sin(ship.Angle) * 10;
         this.Sprite = game.mediaManager.Sprites.PhotonSmall;
         this.Lifetime = 50;
+		this.Damage = 10;
 		
 		this.handleCollision = function(otherObject) {
 			log("Photonsmall hit: " + otherObject.constructor.name);
@@ -342,6 +344,7 @@ var LunaticFringe = function (canvas) {
         this.VelocityY += Math.sin(ship.Angle) * 10;
         this.Sprite = game.mediaManager.Sprites.PufferShot;
         this.Lifetime = 50;
+		this.Damage = 20;
 
         this.handleCollision = function (otherObject) {
             if (otherObject instanceof Puffer
@@ -368,6 +371,7 @@ var LunaticFringe = function (canvas) {
         this.VelocityY += Math.sin(angle) * 10;
         this.Sprite = game.mediaManager.Sprites.PhotonSmall;
         this.Lifetime = 50;
+		this.Damage = 5;
 
         this.handleCollision = function (otherObject) {
             //Projectile.prototype.handleCollision.call(this, otherObject);
@@ -410,6 +414,7 @@ var LunaticFringe = function (canvas) {
         spriteX = 0;
         spriteY = 0;
         this.MaxSpeed = 12;
+		this.CollisionDamage = 10;
 
         this.draw = function (context) {
             PlayerShip.prototype.draw.call(this, context);
@@ -418,8 +423,6 @@ var LunaticFringe = function (canvas) {
         };
 
         this.handleCollision = function (otherObject) {
-            var oldX, oldY;
-            PlayerShip.prototype.handleCollision.call(this, otherObject);
 
             // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
             if (otherObject instanceof Asteroid) {
@@ -569,7 +572,7 @@ var LunaticFringe = function (canvas) {
 				log("SluderMine hit by Projectile: " + otherObject.constructor.name);
 				this.Health -= otherObject.Damage;
 				log("SludgerMine health is now: " + this.Health);
-				if (this.Health < 0) {
+				if (this.Health <= 0) {
 					// SludgerMine dies
 					game.mediaManager.Audio.SludgerMinePop.play();
 					objectManager.removeObject(this);
@@ -584,6 +587,7 @@ var LunaticFringe = function (canvas) {
 				log("SludgerMine hit by the player");
 				game.mediaManager.Audio.SludgerMinePop.play();
 				objectManager.removeObject(this);
+				numEnemiesKilled++;
 				score += this.PointWorth;
 			} else if (otherObject instanceof AIGameObject) {
 				// The sludger mine is weak, and should always die when it collides with something.
@@ -591,13 +595,13 @@ var LunaticFringe = function (canvas) {
 				log("SluderMine hit by Game Object: " + otherObject.constructor.name);
 				this.Health -= otherObject.CollisionDamage;
 				log("SludgerMine health is now: " + this.Health);
-				if (this.Health < 0) {
+				if (this.Health <= 0) {
 					// SludgerMine dies
 					game.mediaManager.Audio.SludgerMinePop.play();
 					objectManager.removeObject(this);
 					numEnemiesKilled++;
 				} else {
-					error("SludgerMine somehow survived being hit by " + AIGameObject.constructor.name + ". Damage recieved: " + otherObect.CollisionDamage);
+					error("SludgerMine somehow survived being hit by " + AIGameObject.constructor.name + ". Damage recieved: " + otherObject.CollisionDamage);
 				}
 			}
         };
@@ -759,7 +763,7 @@ var LunaticFringe = function (canvas) {
         this.Acceleration = 0.1;
 		this.CollisionDamage = 15;
 		this.Health = 50;
-		this.PointWorth = 20;
+		this.PointWorth = 40;
 
         this.Sprite = game.mediaManager.Sprites.Puffer;
 
@@ -778,7 +782,7 @@ var LunaticFringe = function (canvas) {
 				log("Puffer hit by Projectile: " + otherObject.constructor.name);
 				this.Health -= otherObject.Damage;
 				log("Puffer health is now: " + this.Health);
-				if (this.Health < 0) {
+				if (this.Health <= 0) {
 					// Puffer dies
 					game.mediaManager.Audio.SludgerMinePop.play();
 					objectManager.removeObject(this);
@@ -795,7 +799,7 @@ var LunaticFringe = function (canvas) {
 				this.Health -= otherObject.CollisionDamage;
 				log("Puffer health is now: " + this.Health);
 				// If a puffer dies from a player hitting it, points are still awarded
-				if (this.Health < 0) {
+				if (this.Health <= 0) {
 					// Puffer dies
 					game.mediaManager.Audio.SludgerMinePop.play();
 					objectManager.removeObject(this);
@@ -868,7 +872,7 @@ var LunaticFringe = function (canvas) {
         AIGameObject.call(this, playerShip);
         this.Width = 50;
         this.Height = 50;
-        this.Mass = 100;
+        this.Mass = 50;
         this.CollisionRadius = 14; 
         this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
         this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
