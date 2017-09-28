@@ -892,6 +892,9 @@ var LunaticFringe = function (canvas) {
         turnAbility = 0.3;
         this.MaxSpeed = 10;
         this.Acceleration = 0.175;
+		this.CollisionDamage = 25;
+		this.Health = 100;
+		this.PointWorth = 100;
 
         this.Sprite = game.mediaManager.Sprites.Slicer;
 
@@ -902,16 +905,51 @@ var LunaticFringe = function (canvas) {
         };
 
         this.handleCollision = function (otherObject) {
-            Slicer.prototype.handleCollision.call(this, otherObject);
-
-            if (otherObject instanceof PlayerShip) {
-              game.mediaManager.Audio.CollisionGeneral.play();
-              //return;
-            }
-
-            game.mediaManager.Audio.SludgerMinePop.play();
-
-            objectManager.removeObject(this);
+            if (otherObject instanceof Slicer) {
+              return;
+            } else if (otherObject instanceof Projectile) {
+				// TODO: Play the correct sound based on the projectile
+				game.mediaManager.Audio.CollisionDefaultWeapon.play();
+				log("Slicer hit by Projectile: " + otherObject.constructor.name);
+				this.Health -= otherObject.Damage;
+				log("Slicer health is now: " + this.Health);
+				if (this.Health <= 0) {
+					// Slicer dies
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;
+					if(otherObject instanceof PhotonSmall) {
+						//Only award points if the player was the one to kill the slicer				
+						score += this.PointWorth;
+					}
+				}
+			} else if (otherObject instanceof PlayerShip) {
+				Slicer.prototype.handleCollision.call(this, otherObject);
+				log("Slicer hit by the player");
+				game.mediaManager.Audio.CollisionGeneral.play();
+				this.Health -= otherObject.CollisionDamage;
+				log("Slicer health is now: " + this.Health);
+				// If a slicer dies from a player hitting it, points are still awarded
+				if (this.Health <= 0) {
+					// Slicer dies
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;				
+					score += this.PointWorth;
+				}
+            } else if (otherObject instanceof AIGameObject) {
+				Slicer.prototype.handleCollision.call(this, otherObject);
+				game.mediaManager.Audio.CollisionGeneral.play();
+				log("Slicer hit by Game Object: " + otherObject.constructor.name);
+				this.Health -= otherObject.CollisionDamage;
+				log("Slicer health is now: " + this.Health);
+				if (this.Health < 0) {
+					// Slicer dies, no points awared as the player had nothing to do with it
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;
+				}
+			}
         };
 
         this.updateState = function () {
