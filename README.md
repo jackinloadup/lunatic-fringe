@@ -19,3 +19,6 @@ Original foundation was written by [James Carnley](http://jamescarnley.com). Goo
 
 ## Hey the origial game had X!
 This is a work in progress. You are welcome to submit issues. Please search before creating a new one. For the more technically inclined fork and submit pull requests.
+
+## Try it out!
+[Lunatic Fringe](https://schwal10.github.io/lunatic-fringe/)
