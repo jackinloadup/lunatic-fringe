@@ -428,22 +428,16 @@ var LunaticFringe = function (canvas) {
                 this.updateHealth(-30);
                 return;
             }
-
-            if (otherObject instanceof SludgerMine) {
-                log("Player hit a SludgerMine");
-                this.updateHealth(-5);
-                return;
-            }
-
-            if (otherObject instanceof QuadBlasterProjectile) {
-                this.updateHealth(-5);
-                return;
-            }
-
-            if (otherObject instanceof PufferProjectile) {
-                this.updateHealth(-20);
-                return;
-            }
+			
+			if (otherObject instanceof PufferProjectile || otherObject instanceof QuadBlasterProjectile) {
+				log("Player was hit by projectile: " + otherObject.constructor.name);
+				this.updateHealth(-1*otherObject.Damage);
+				return;
+			} else if (otherObject instanceof AIGameObject) {
+				PlayerShip.prototype.handleCollision.call(this, otherObject);
+				this.updateHealth(-1*otherObject.CollisionDamage);
+			}
+				
         }
 
         this.updateHealth = function (healthChange) {
