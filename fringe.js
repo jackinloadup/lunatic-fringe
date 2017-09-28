@@ -1021,6 +1021,9 @@ var LunaticFringe = function (canvas) {
         spriteX = 10; // sprite starts 10 px in for some 
         player = playerShip;
         this.inScene = false;
+		this.CollisionDamage = 15;
+		this.Health = 40;
+		this.PointWorth = 30;
 
         this.getAngleOfBarrelToward = function (object) {
           var angle = this.angleTo(player);
@@ -1075,21 +1078,51 @@ var LunaticFringe = function (canvas) {
         };
 
         this.handleCollision = function (otherObject) {
-
-            if (otherObject instanceof QuadBlasterProjectile) {
-                return;
-            }
-
-            QuadBlaster.prototype.handleCollision.call(this, otherObject);
-            if (otherObject instanceof Projectile) {
-                log("Sludger blown up by projectile");
-                numEnemiesKilled++;
-                score += 50;
-            }
-
-            game.mediaManager.Audio.SludgerDeath.play();
-
-            objectManager.removeObject(this);
+			if (otherObject instanceof QuadBlaster || otherObject instanceof QuadBlasterProjectile) {
+              return;
+            } else if (otherObject instanceof Projectile) {
+				// TODO: Play the correct sound based on the projectile
+				game.mediaManager.Audio.CollisionDefaultWeapon.play();
+				log("QuadBlaster hit by Projectile: " + otherObject.constructor.name);
+				this.Health -= otherObject.Damage;
+				log("QuadBlaster health is now: " + this.Health);
+				if (this.Health <= 0) {
+					// QuadBlaster dies
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;
+					if(otherObject instanceof PhotonSmall) {
+						//Only award points if the player was the one to kill the QuadBlaster				
+						score += this.PointWorth;
+					}
+				}
+			} else if (otherObject instanceof PlayerShip) {
+				QuadBlaster.prototype.handleCollision.call(this, otherObject);
+				log("QuadBlaster hit by the player");
+				game.mediaManager.Audio.CollisionGeneral.play();
+				this.Health -= otherObject.CollisionDamage;
+				log("QuadBlaster health is now: " + this.Health);
+				// If a QuadBlaster dies from a player hitting it, points are still awarded
+				if (this.Health <= 0) {
+					// QuadBlaster dies
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;				
+					score += this.PointWorth;
+				}
+            } else if (otherObject instanceof AIGameObject) {
+				QuadBlaster.prototype.handleCollision.call(this, otherObject);
+				game.mediaManager.Audio.CollisionGeneral.play();
+				log("QuadBlaster hit by Game Object: " + otherObject.constructor.name);
+				this.Health -= otherObject.CollisionDamage;
+				log("QuadBlaster health is now: " + this.Health);
+				if (this.Health < 0) {
+					// QuadBlaster dies, no points awared as the player had nothing to do with it
+					game.mediaManager.Audio.SludgerMinePop.play();
+					objectManager.removeObject(this);
+					numEnemiesKilled++;
+				}
+			}
         };
 
         this.updateState = function () {
