@@ -477,9 +477,10 @@ var LunaticFringe = function (canvas) {
 
             // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
             if (otherObject instanceof Asteroid) {
+				PlayerShip.prototype.handleCollision.call(this, otherObject);
                 game.mediaManager.Audio.CollisionGeneral.play();
                 log("Player hit a Asteroid");
-                this.updateHealth(-30);
+                this.updateHealth(-1*otherObject.CollisionDamage);
                 return;
             }
 			
