@@ -1100,12 +1100,14 @@ var LunaticFringe = function (canvas) {
         AIGameObject.call(this, playerShip);
         this.Width = 62;
         this.Height = 60;
+		this.Mass = 100000000;
         this.CollisionRadius = 28;
         this.X = -1000; //context.canvas.width / 2 - (this.Width / 2);
         this.Y = -1000; //context.canvas.height / 2 - (this.Height / 2);
         /*this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
         this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;*/
         this.Sprite = game.mediaManager.Sprites.EnemyBase;
+		this.CollisionDamage = 50;
 
         this.draw = function (context) {
             EnemyBase.prototype.draw.call(this, context);
@@ -1113,7 +1115,10 @@ var LunaticFringe = function (canvas) {
         };
 		
 		this.handleCollision = function(otherObject) {
-			//log(otherObject.constructor.name + " collided with the enemy base!");
+			if (otherObject instanceof PlayerShip) {
+				log("PlayerShip hit the enemy base!");
+				game.mediaManager.Audio.CollisionGeneral.play();
+			}
 		};
 
         this.updateState = function () {
