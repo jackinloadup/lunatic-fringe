@@ -22,6 +22,8 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
+	var Version = "1.00";
+	log("Game Version: " + Version);
 
     if (typeof canvas !== 'object') {
         canvas = document.getElementById(canvas);
