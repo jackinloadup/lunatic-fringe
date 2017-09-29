@@ -1161,6 +1161,7 @@ var LunaticFringe = function (canvas) {
         this.VelocityX *= 3;
         this.VelocityY *= 3;
         this.Sprite = game.mediaManager.Sprites.Pebbles;
+		this.CollisionDamage = 30;
     }
     Pebbles.prototype = Object.create(Asteroid.prototype);
     Pebbles.prototype.constructor = Pebbles;
@@ -1172,6 +1173,7 @@ var LunaticFringe = function (canvas) {
         this.Mass = 500;
         this.CollisionRadius = 18;
         this.Sprite = game.mediaManager.Sprites.Rocko;
+		this.CollisionDamage = 60;
     }
     Rocko.prototype = Object.create(Asteroid.prototype);
     Rocko.prototype.constructor = Rocko;
