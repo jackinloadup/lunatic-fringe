@@ -566,7 +566,7 @@ var LunaticFringe = function (canvas) {
 
         this.handleCollision = function (otherObject) {
 
-            if (otherObject instanceof Sludger || otherObject instanceof SludgerMine) {
+            if (otherObject instanceof Sludger || otherObject instanceof SludgerMine || otherObject instanceof EnemyBase) {
                 return;
             } else if (otherObject instanceof Projectile) {
 				log("SluderMine hit by Projectile: " + otherObject.constructor.name);
@@ -661,7 +661,7 @@ var LunaticFringe = function (canvas) {
 
         this.handleCollision = function (otherObject) {
 
-            if (otherObject instanceof Sludger || otherObject instanceof SludgerMine) {
+            if (otherObject instanceof Sludger || otherObject instanceof SludgerMine || otherObject instanceof EnemyBase) {
                 return;
             } else if (otherObject instanceof Projectile) {
 				log("Sluder hit by Projectile: " + otherObject.constructor.name);
@@ -774,7 +774,7 @@ var LunaticFringe = function (canvas) {
         };
 
         this.handleCollision = function (otherObject) {
-            if (otherObject instanceof PufferProjectile) {
+            if (otherObject instanceof PufferProjectile || otherObject instanceof EnemyBase) {
               return;
             } else if (otherObject instanceof Projectile) {
 				// TODO: Play the correct sound based on the projectile
@@ -903,7 +903,7 @@ var LunaticFringe = function (canvas) {
         };
 
         this.handleCollision = function (otherObject) {
-            if (otherObject instanceof Slicer) {
+            if (otherObject instanceof Slicer || otherObject instanceof EnemyBase) {
               return;
             } else if (otherObject instanceof Projectile) {
 				// TODO: Play the correct sound based on the projectile
@@ -1076,7 +1076,7 @@ var LunaticFringe = function (canvas) {
         };
 
         this.handleCollision = function (otherObject) {
-			if (otherObject instanceof QuadBlaster || otherObject instanceof QuadBlasterProjectile) {
+			if (otherObject instanceof QuadBlaster || otherObject instanceof QuadBlasterProjectile || otherObject instanceof EnemyBase) {
               return;
             } else if (otherObject instanceof Projectile) {
 				// TODO: Play the correct sound based on the projectile
