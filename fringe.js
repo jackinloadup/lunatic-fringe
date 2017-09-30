@@ -261,16 +261,18 @@ var LunaticFringe = function (canvas) {
 		AIGameObject.prototype.handleCollision = function(otherObject) {
 			var thisName = this.constructor.name;
 			var otherName = otherObject.constructor.name;
-            if (otherObject instanceof Projectile) {
-				// TODO: Play the correct sound based on the projectile
-				game.mediaManager.Audio.CollisionDefaultWeapon.play();
+            if (otherObject instanceof Projectile) {				
 				log(thisName + " hit by Projectile: " + otherName);
 				this.Health -= otherObject.Damage;
 				log(thisName + " health is now: " + this.Health);
 				if (this.Health <= 0) {
 					// this object dies
 					log(thisName + " died!");
-					game.mediaManager.Audio.SludgerMinePop.play();
+					if (this instanceof SludgerMine) {
+						game.mediaManager.Audio.SludgerMinePop.play();
+					} else {
+						game.mediaManager.Audio.SludgerDeath.play();
+					}
 					objectManager.removeObject(this);
 					numEnemiesKilled++;
 					if(otherObject instanceof PhotonSmall) {
@@ -281,28 +283,34 @@ var LunaticFringe = function (canvas) {
 			} else if (otherObject instanceof PlayerShip) {
 				GameObject.prototype.handleCollision.call(this, otherObject);
 				log(thisName + " hit by the player");
-				game.mediaManager.Audio.CollisionGeneral.play();
 				this.Health -= otherObject.CollisionDamage;
 				log(thisName + " health is now: " + this.Health);
 				// If this dies from a player hitting it, points are still awarded
 				if (this.Health <= 0) {
 					// this dies
 					log(thisName + " died!");
-					game.mediaManager.Audio.SludgerMinePop.play();
+					if (this instanceof SludgerMine) {
+						game.mediaManager.Audio.SludgerMinePop.play();
+					} else {
+						game.mediaManager.Audio.SludgerDeath.play();
+					}
 					objectManager.removeObject(this);
 					numEnemiesKilled++;				
 					score += this.PointWorth;
 				}
             } else if (otherObject instanceof AIGameObject || otherObject instanceof Asteroid) {
 				GameObject.prototype.handleCollision.call(this, otherObject);
-				game.mediaManager.Audio.CollisionGeneral.play();
 				log(thisName + " hit by Game Object: " + otherName);
 				this.Health -= otherObject.CollisionDamage;
 				log(thisName + " health is now: " + this.Health);
 				if (this.Health < 0) {
 					// this dies, no points awared as the player had nothing to do with it
 					log(thisName + " died!");
-					game.mediaManager.Audio.SludgerMinePop.play();
+					if (this instanceof SludgerMine) {
+						game.mediaManager.Audio.SludgerMinePop.play();
+					} else {
+						game.mediaManager.Audio.SludgerDeath.play();
+					}
 					objectManager.removeObject(this);
 					numEnemiesKilled++;
 				}
@@ -377,11 +385,12 @@ var LunaticFringe = function (canvas) {
 		this.handleCollision = function(otherObject) {
 			log("Photonsmall hit: " + otherObject.constructor.name);
 			
-			if (otherObject instanceof Base) {
+			if (otherObject instanceof Base || otherObject instanceof PlayerShip) {
 				// Don't want small photons to collide with player base
 				return;
 			}
 			
+			game.mediaManager.Audio.CollisionDefaultWeapon.play();
 			objectManager.removeObject(this);
 		}
     }
@@ -491,6 +500,7 @@ var LunaticFringe = function (canvas) {
 				this.updateHealth(-1*otherObject.Damage);
 				return;
 			} else if (otherObject instanceof AIGameObject) {
+				game.mediaManager.Audio.CollisionGeneral.play();
 				PlayerShip.prototype.handleCollision.call(this, otherObject);
 				this.updateHealth(-1*otherObject.CollisionDamage);
 			}
