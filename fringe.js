@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.01";
+	var Version = "1.02";
 	log("Game Version: " + Version);
 
     if (typeof canvas !== 'object') {
@@ -261,7 +261,11 @@ var LunaticFringe = function (canvas) {
 		AIGameObject.prototype.handleCollision = function(otherObject) {
 			var thisName = this.constructor.name;
 			var otherName = otherObject.constructor.name;
-            if (otherObject instanceof Projectile) {				
+			if (otherObject instanceof SludgerMine) {
+				// SludgerMines are weak, so if they collide with anything they should die and the other
+				// object should not get hurt, so return
+				return;
+			} else if (otherObject instanceof Projectile) {				
 				log(thisName + " hit by Projectile: " + otherName);
 				this.Health -= otherObject.Damage;
 				log(thisName + " health is now: " + this.Health);
