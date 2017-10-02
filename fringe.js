@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.02";
+	var Version = "1.03";
 	log("Game Version: " + Version);
 
     if (typeof canvas !== 'object') {
@@ -223,6 +223,16 @@ var LunaticFringe = function (canvas) {
         }
     }
 
+	// All Powerups inherit from this
+	function Powerup(ship) {
+		// How long the power up lasts when used
+		this.Lifetime = 0;
+		// Whether or not the powerup can be stored for later use (if false it is activated as soon as it is obtained)
+		this.isStorable = false;
+	}
+	Powerup.prototype = Object.create(GameObject.prototype);
+	Powerup.prototype.constructor = Powerup;
+	
     // All AI inherit from this
     function AIGameObject(playerShip) {
         GameObject.call(this);
