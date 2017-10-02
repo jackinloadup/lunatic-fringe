@@ -51,6 +51,7 @@ LunaticFringe.MediaManager = function () {
   this.LoadAudio("SludgerMinePop", "audio/SludgerMinePop");
   this.LoadAudio("PlayerDeath", "audio/PlayerDeath");
   this.LoadAudio("SludgerDeath", "audio/SludgerDeath");
+  this.LoadAudio("BaseRepair", "audio/baserepair");
 
   this.loaded = function () {
     var sprite, numLoaded = 0, total = 0;
