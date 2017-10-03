@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.03";
+	var Version = "1.04";
 	log("Game Version: " + Version);
 
     if (typeof canvas !== 'object') {
@@ -484,13 +484,15 @@ var LunaticFringe = function (canvas) {
         numFramesSince = {
             Left: 0,
             Right: 0,
-            Shooting: 0
+            Shooting: 0,
+			Repair: 0
         };
         this.Sprite = game.mediaManager.Sprites.PlayerShip;
         spriteX = 0;
         spriteY = 0;
         this.MaxSpeed = 12;
 		this.CollisionDamage = 10;
+		this.isAccelerating = false;
 
         this.draw = function (context) {
             PlayerShip.prototype.draw.call(this, context);
@@ -507,9 +509,7 @@ var LunaticFringe = function (canvas) {
                 log("Player hit a Asteroid");
                 this.updateHealth(-1*otherObject.CollisionDamage);
                 return;
-            }
-			
-			if (otherObject instanceof PufferProjectile || otherObject instanceof QuadBlasterProjectile) {
+            } else if (otherObject instanceof PufferProjectile || otherObject instanceof QuadBlasterProjectile) {
 				log("Player was hit by projectile: " + otherObject.constructor.name);
 				this.updateHealth(-1*otherObject.Damage);
 				return;
@@ -517,12 +517,74 @@ var LunaticFringe = function (canvas) {
 				game.mediaManager.Audio.CollisionGeneral.play();
 				PlayerShip.prototype.handleCollision.call(this, otherObject);
 				this.updateHealth(-1*otherObject.CollisionDamage);
+			} else if (otherObject instanceof Base) {
+				// Make it so that the ship will go towards the Player Base
+				// These are the coordinates the Base should be at if the ship is centered on the base
+				var baseX = context.canvas.width / 2 - (this.Width / 2);
+				var baseY = context.canvas.height / 2 - (this.Height / 2) + 2.5;
+				// There will be rounding error with the program, so don't check that the 
+				// values are equal but rather that they are within this threshold
+				var threshold = .5; 
+				if (this.VelocityX == 0 && this.VelocityY == 0 && Math.abs(otherObject.X - baseX) < threshold && Math.abs(otherObject.Y - baseY) < threshold) {
+					//The player ship is stopped at the base
+					if (numFramesSince.Repair >= 60 && this.health < this.maxHealth) {
+						//Repair ship
+						numFramesSince.Repair = 0;
+						game.mediaManager.Audio.BaseRepair.play();
+						this.updateHealth(1);
+					}
+				} else if (!this.isAccelerating && (Math.abs(otherObject.X - baseX) > threshold || Math.abs(otherObject.Y - baseY) > threshold)) {
+					// Only pull the ship in if it is not accelerating
+					
+					var vectorToBase = new Vector(otherObject.X - baseX, otherObject.Y - baseY);
+					var playerShipVelocity = new Vector(this.VelocityX, this.VelocityY);
+					var velocityChange = playerShipVelocity.Add(vectorToBase).Scale(0.001);
+					var minimumVelocityChangeMagnitude = 0.08;
+					if (velocityChange.Magnitude() < minimumVelocityChangeMagnitude) {
+						// Change the magnitude to the minimum magnitude
+						velocityChange = velocityChange.Scale(minimumVelocityChangeMagnitude / velocityChange.Magnitude());
+					}
+					
+					//var dampeningFactor = Math.sqrt(playerShipVelocity.Magnitude()/this.MaxSpeed)*0.09+.9;
+					var dampeningFactor = playerShipVelocity.Magnitude()/this.MaxSpeed*0.09+.9;
+					
+					var mag = playerShipVelocity.Magnitude();
+					if (mag < .5) {
+						dampeningFactor = .90;
+					} else if (mag < .6) {
+						dampeningFactor = .92;
+					} else if (mag < .75) {
+						dampeningFactor = .94;
+					} else if (mag < 1) {
+						dampeningFactor = .96;
+					} else if (mag < 2) {
+						dampeningFactor = .98;
+					} else {
+						dampeningFactor = .99;
+					}
+					
+					var minimumDampening = .9;
+					if (dampeningFactor < minimumDampening) {
+						dampeningFactor = minimumDampening;
+					}
+					this.VelocityX += velocityChange.X;
+					this.VelocityX *= dampeningFactor;
+					this.VelocityY += velocityChange.Y;
+					this.VelocityY *= dampeningFactor;
+				} else if (!this.isAccelerating && this.VelocityX != 0 && this.VelocityY != 0) {
+					var vectorToBase = new Vector(otherObject.X - baseX, otherObject.Y - baseY);
+					this.VelocityX = this.VelocityX/4;
+					this.VelocityY = this.VelocityY/4;
+					if (this.VelocityX < 0.000001 && this.VelocityY < 0.00001) {
+						this.VelocityX = 0;
+						this.VelocityY = 0;
+					}
+				}
 			}
-				
         }
 
         this.updateHealth = function (healthChange) {
-          log("ship Health: " + this.health + healthChange);
+          log("ship Health: " + this.health + ", changing by: " + healthChange);
           this.health = this.health + healthChange;
 
           if(this.health <= 0) {
@@ -570,6 +632,7 @@ var LunaticFringe = function (canvas) {
 
         this.processInput = function (KeyState) {
             var i, photon, newVelX, newVelY;
+			this.isAccelerating = false;
 
             for (i in numFramesSince) {
                 if (numFramesSince.hasOwnProperty(i)) {
@@ -578,6 +641,7 @@ var LunaticFringe = function (canvas) {
             }
 
             if (KeyState.isDown(KeyState.UP)) {
+				this.isAccelerating = true;
                 this.calculateAcceleration();
                 spriteY = this.Height;
             } else {
