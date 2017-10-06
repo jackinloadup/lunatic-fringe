@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.04";
+	var Version = "1.05";
 	log("Game Version: " + Version);
 
     if (typeof canvas !== 'object') {
@@ -289,7 +289,7 @@ var LunaticFringe = function (canvas) {
 					}
 					objectManager.removeObject(this);
 					numEnemiesKilled++;
-					if(otherObject instanceof PhotonSmall) {
+					if(otherObject instanceof PhotonSmall || otherObject instanceof PhotonMedium || otherObject instanceof PhotonLarge) {
 						//Only award points if the player was the one to kill the this				
 						score += this.PointWorth;
 					}
@@ -397,7 +397,7 @@ var LunaticFringe = function (canvas) {
 		this.Damage = 10;
 		
 		this.handleCollision = function(otherObject) {
-			log("Photonsmall hit: " + otherObject.constructor.name);
+			log("PhotonSmall hit: " + otherObject.constructor.name);
 			
 			if (otherObject instanceof Base || otherObject instanceof PlayerShip) {
 				// Don't want small photons to collide with player base
@@ -410,6 +410,58 @@ var LunaticFringe = function (canvas) {
     }
     PhotonSmall.prototype = Object.create(Projectile.prototype);
     PhotonSmall.prototype.constructor = PhotonSmall;
+	
+	function PhotonMedium(ship) {
+		Projectile.call(this, ship);
+		this.Width = 10;
+		this.Height = 10;
+		this.CollisionRadius = 5;
+		this.VelocityX += -Math.cos(ship.Angle) * 10;
+        this.VelocityY += -Math.sin(ship.Angle) * 10;
+		this.Sprite = game.mediaManager.Sprites.PhotonMedium;
+		this.Lifetime = 50;
+		this.Damage = 15;
+		
+		this.handleCollision = function(otherObject) {
+			log("PhotonMedium hit: " + otherObject.constructor.name);
+			
+			if (otherObject instanceof Base || otherObject instanceof PlayerShip) {
+				// Don't want medium photons to collide with player base
+				return;
+			}
+			
+			game.mediaManager.Audio.CollisionDefaultWeapon.play();
+			objectManager.removeObject(this);
+		}
+	}
+	PhotonMedium.prototype = Object.create(Projectile.prototype);
+	PhotonMedium.prototype.constructor = PhotonMedium;
+	
+	function PhotonLarge(ship) {
+		Projectile.call(this, ship);
+		this.Width = 15;
+		this.Height = 10;
+		this.CollisionRadius = 15;
+		this.VelocityX += -Math.cos(ship.Angle) * 10;
+        this.VelocityY += -Math.sin(ship.Angle) * 10;
+		this.Sprite = game.mediaManager.Sprites.PhotonLarge;
+		this.Lifetime = 50;
+		this.Damage = 30;
+		
+		this.handleCollision = function(otherObject) {
+			log("PhotonLarge hit: " + otherObject.constructor.name);
+			
+			if (otherObject instanceof Base || otherObject instanceof PlayerShip) {
+				// Don't want medium photons to collide with player base
+				return;
+			}
+			
+			game.mediaManager.Audio.CollisionDefaultWeapon.play();
+			objectManager.removeObject(this);
+		}
+	}
+	PhotonLarge.prototype = Object.create(Projectile.prototype);
+	PhotonLarge.prototype.constructor = PhotonLarge;
 
     function PufferProjectile(ship) {
         Projectile.call(this, ship);
@@ -440,12 +492,12 @@ var LunaticFringe = function (canvas) {
 
     function QuadBlasterProjectile(ship, angle) {
         Projectile.call(this, ship);
-        this.Width = 7;
-        this.Height = 7;
-        this.CollisionRadius = 4;
+        this.Width = 13;
+        this.Height = 11;
+        this.CollisionRadius = 3;
         this.VelocityX += Math.cos(angle) * 10;
         this.VelocityY += Math.sin(angle) * 10;
-        this.Sprite = game.mediaManager.Sprites.PhotonSmall;
+        this.Sprite = game.mediaManager.Sprites.PhotonQuad;
         this.Lifetime = 50;
 		this.Damage = 5;
 
