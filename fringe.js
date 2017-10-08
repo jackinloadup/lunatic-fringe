@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.07";
+	var Version = "1.08";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -451,8 +451,8 @@ var LunaticFringe = function (canvas) {
 	function PhotonLarge(ship) {
 		Projectile.call(this, ship);
 		this.Width = 15;
-		this.Height = 10;
-		this.CollisionRadius = 15;
+		this.Height = 16;
+		this.CollisionRadius = 8;
 		this.VelocityX += -Math.cos(ship.Angle) * 10;
         this.VelocityY += -Math.sin(ship.Angle) * 10;
 		this.Sprite = game.mediaManager.Sprites.PhotonLarge;
