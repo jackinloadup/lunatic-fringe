@@ -22,7 +22,8 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.05";
+	var Version = "1.06";
+	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
     if (typeof canvas !== 'object') {
@@ -67,6 +68,7 @@ var LunaticFringe = function (canvas) {
         UP: 38,
         RIGHT: 39,
         DOWN: 40,
+		CAPSLOCK: 20,
 
         isDown: function (keyCode) {
             return this.keysPressed[keyCode];
@@ -74,6 +76,15 @@ var LunaticFringe = function (canvas) {
 
         onKeydown: function (event) {
             this.keysPressed[event.keyCode] = true;
+			// If caps locks was pressed, handle pausing/unpausing depending on the current state
+			if (event.keyCode == this.CAPSLOCK) {
+				isCapsPaused = !isCapsPaused;
+				if (isCapsPaused) {
+					objectManager.pauseGame();
+				} else {
+					objectManager.resumeGame();
+				}
+			}
         },
 
         onKeyup: function (event) {
@@ -145,7 +156,6 @@ var LunaticFringe = function (canvas) {
 			if (this.Mass == 0 && otherObject.Mass == 0) {
 				// This is bad because this means the new speed calculations will result in NaN
 				error("Both objects had a mass of 0! Objects were: " + this.constructor.name + " and " + otherObject.constructor.name);
-				objectManager.pauseGame();
 			}
 			
             dx = this.X - otherObject.X;
@@ -1586,22 +1596,26 @@ var LunaticFringe = function (canvas) {
         };
 
         this.endGame = function () {
-            isPaused = true;
+            this.isPaused = true;
             isRunning = false;
             objectManager.displayMessage("You achieved a score of " + score + " before the fringe took you", 99999999999);
             objectManager.removeObject(playerShip)
         };
 
         this.pauseGame = function () {
-          isPaused = true;
-          console.log('paused')
+			if (!this.isPaused) {
+			    this.isPaused = true;
+			    console.log('paused')
+			}
         }
 
         this.resumeGame = function () {
-          isPaused = false;
-          objectManager.gameLoop(true);
-          animationLoop();
-          console.log('resume')
+			if (this.isPaused) {
+				this.isPaused = false;
+				objectManager.gameLoop(true);
+				animationLoop();
+				console.log('resume')
+			}
         }
 
         this.gameLoop = (function () {
