@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.06";
+	var Version = "1.07";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -75,9 +75,8 @@ var LunaticFringe = function (canvas) {
         },
 
         onKeydown: function (event) {
-            this.keysPressed[event.keyCode] = true;
-			// If caps locks was pressed, handle pausing/unpausing depending on the current state
-			if (event.keyCode == this.CAPSLOCK) {
+			// If caps locks was pressed (and is not already registered as being down before this), handle pausing/unpausing depending on the current state
+			if (event.keyCode == this.CAPSLOCK && this.keysPressed[event.keyCode] != true) {
 				isCapsPaused = !isCapsPaused;
 				if (isCapsPaused) {
 					objectManager.pauseGame();
@@ -85,6 +84,8 @@ var LunaticFringe = function (canvas) {
 					objectManager.resumeGame();
 				}
 			}
+			
+            this.keysPressed[event.keyCode] = true;
         },
 
         onKeyup: function (event) {
@@ -1659,9 +1660,15 @@ var LunaticFringe = function (canvas) {
 
     function handleVisibilityChange() {
         if (document[hidden]) {
-          objectManager.pauseGame();
+			// Only pause the game if the game is not paused by Caps Lock
+			if(!isCapsPaused) {
+				objectManager.pauseGame();
+			}
         } else {
-          objectManager.resumeGame();
+			// Only resume the game if the game is not paused by Caps Lock
+			if(!isCapsPaused) {
+				objectManager.resumeGame();
+			}
         }
     }
 
