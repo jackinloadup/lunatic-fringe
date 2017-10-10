@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.09";
+	var Version = "1.10";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -491,9 +491,9 @@ var LunaticFringe = function (canvas) {
 		this.handleCollision = function(otherObject) {
 			log("PhotonLarge hit: " + otherObject.constructor.name);
 			
-			if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof Projectile) {
+			if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof Projectile || otherObject instanceof SludgerMine) {
 				// Don't want large photons to collide with player base or player
-				// Other projectiles also do not stop the large photon
+				// Other projectiles and SludgerMines also do not stop the large photon
 				return;
 			}
 			
@@ -629,7 +629,9 @@ var LunaticFringe = function (canvas) {
 				this.updateHealth(-1*otherObject.Damage);
 				return;
 			} else if (otherObject instanceof AIGameObject) {
-				game.mediaManager.Audio.CollisionGeneral.play();
+				if (!(otherObject instanceof SludgerMine)) {
+					game.mediaManager.Audio.CollisionGeneral.play();
+				}
 				PlayerShip.prototype.handleCollision.call(this, otherObject);
 				this.updateHealth(-1*otherObject.CollisionDamage);
 			} else if (otherObject instanceof Base) {
@@ -735,6 +737,9 @@ var LunaticFringe = function (canvas) {
                 // reset health to full
 				log("Setting ship back to max health of: " + this.maxHealth);
                 this.health = this.maxHealth;
+				
+				// reset ship back to default state
+				this.updatePowerupState();
             }
         }
 
