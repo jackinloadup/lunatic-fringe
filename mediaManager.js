@@ -50,11 +50,13 @@ LunaticFringe.MediaManager = function () {
   this.LoadAudio("CollisionQuad", "audio/collision_quad");
   this.LoadAudio("CollisionDefaultWeapon", "audio/collision_defaultweapon");
   this.LoadAudio("PhotonSmall", "audio/PhotonSmall");
+  this.LoadAudio("PhotonBig", "audio/PhotonBig")
   this.LoadAudio("StartUp", "audio/StartUp");
   this.LoadAudio("SludgerMinePop", "audio/SludgerMinePop");
   this.LoadAudio("PlayerDeath", "audio/PlayerDeath");
   this.LoadAudio("SludgerDeath", "audio/SludgerDeath");
   this.LoadAudio("BaseRepair", "audio/baserepair");
+  this.LoadAudio("PowerupWow", "audio/powerup_wow");
 
   this.loaded = function () {
     var sprite, numLoaded = 0, total = 0;
