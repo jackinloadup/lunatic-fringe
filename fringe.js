@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.10";
+	var Version = "1.11";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -243,7 +243,6 @@ var LunaticFringe = function (canvas) {
 		this.isStorable = false;
 		this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
         this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
-		log("PhotonLargePowerup created at: (" + this.X + "," + this.Y + ")");
 		
 		this.draw = function (context) {
             Powerup.prototype.draw.call(this, context);
@@ -261,6 +260,7 @@ var LunaticFringe = function (canvas) {
 		this.Sprite = game.mediaManager.Sprites.PhotonLarge;
 		this.PowerupLifeTime = 60 * 30; // 30 seconds at 60 frames per second
 		this.shootingSpeed = 60; // 1 bullet per second at 60 frames per second
+		log("PhotonLargePowerup created at: (" + this.X + "," + this.Y + ")");
 		
 		this.handleCollision = function(otherObject) {
 			if(otherObject instanceof PlayerShip) {
@@ -272,6 +272,27 @@ var LunaticFringe = function (canvas) {
 	}
 	PhotonLargePowerup.prototype = Object.create(Powerup.prototype);
 	PhotonLargePowerup.prototype.constructor = PhotonLargePowerup;
+	
+	function SpreadShotPowerup(bounds) {
+		Powerup.call(this, bounds);
+		this.Width = 19;
+		this.Height = 16;
+		this.CollisionRadius = 9;
+		this.Sprite = game.mediaManager.Sprites.SpreadShot;
+		this.PowerupLifeTime = 60 * 60; // 60 seconds at 60 frames per second
+		this.shootingSpeed = 39; // 60/26 bullets per second at 60 frames per second
+		log("SpreadShotPowerup created at: (" + this.X + "," + this.Y + ")");
+		
+		this.handleCollision = function(otherObject) {
+			if(otherObject instanceof PlayerShip) {
+				log("SpreadShotPowerup gained by the player");
+				game.mediaManager.Audio.PowerupWow.play();
+				objectManager.removeObject(this);
+			}
+		}
+	}
+	SpreadShotPowerup.prototype = Object.create(Powerup.prototype);
+	SpreadShotPowerup.prototype.constructor = SpreadShotPowerup;
 	
     // All AI inherit from this
     function AIGameObject(playerShip) {
@@ -451,13 +472,13 @@ var LunaticFringe = function (canvas) {
     PhotonSmall.prototype = Object.create(Projectile.prototype);
     PhotonSmall.prototype.constructor = PhotonSmall;
 	
-	function PhotonMedium(ship) {
+	function PhotonMedium(ship, angle) {
 		Projectile.call(this, ship);
 		this.Width = 10;
 		this.Height = 10;
 		this.CollisionRadius = 5;
-		this.VelocityX += -Math.cos(ship.Angle) * 10;
-        this.VelocityY += -Math.sin(ship.Angle) * 10;
+		this.VelocityX += -Math.cos(ship.Angle + angle) * 10;
+        this.VelocityY += -Math.sin(ship.Angle + angle) * 10;
 		this.Sprite = game.mediaManager.Sprites.PhotonMedium;
 		this.Lifetime = 50;
 		this.Damage = 15;
@@ -465,7 +486,7 @@ var LunaticFringe = function (canvas) {
 		this.handleCollision = function(otherObject) {
 			log("PhotonMedium hit: " + otherObject.constructor.name);
 			
-			if (otherObject instanceof Base || otherObject instanceof PlayerShip) {
+			if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof PhotonMedium) {
 				// Don't want medium photons to collide with player base
 				return;
 			}
@@ -600,7 +621,8 @@ var LunaticFringe = function (canvas) {
 		// Powerup variables
 		Powerups = {
 			NONE: 0,
-			LARGEPHOTON: 1
+			LARGEPHOTON: 1,
+			SPREADSHOT: 2
 		};
 		this.powerupState = Powerups.NONE;
 		this.powerupLength = 0;
@@ -768,6 +790,12 @@ var LunaticFringe = function (canvas) {
 				this.bulletShootingSpeed = this.defaultShootingSpeed;
 				this.bulletState = Bullets.SMALL;
 				this.powerupState = Powerups.NONE;
+			} else if (this.powerupState == Powerups.SPREADSHOT) {
+				log("reverting SPREADSHOT powerup");
+				this.powerupLength = 0;
+				this.bulletShootingSpeed = this.defaultShootingSpeed;
+				this.bulletState = Bullets.SMALL;
+				this.powerupState = Powerups.NONE;
 			}
 			
 			// Apply new powerup values
@@ -778,6 +806,13 @@ var LunaticFringe = function (canvas) {
 				numFramesSince.PowerupStarted = 0;
 				this.powerupLength = powerupObject.PowerupLifeTime;
 				this.powerupState = Powerups.LARGEPHOTON;
+			} else if (powerupObject instanceof SpreadShotPowerup) {
+				log("applying SPREADSHOT powerup");
+				this.bulletState = Bullets.SPREADSHOT;
+				this.bulletShootingSpeed = powerupObject.shootingSpeed;
+				numFramesSince.PowerupStarted = 0;
+				this.powerupLength = powerupObject.PowerupLifeTime;
+				this.powerupState = Powerups.SPREADSHOT;
 			}
 		}
 
@@ -826,6 +861,13 @@ var LunaticFringe = function (canvas) {
 					} else if (this.bulletState == Bullets.LARGE) {
 						photon = new PhotonLarge(this);
 						game.mediaManager.Audio.PhotonBig.play();
+					} else if (this.bulletState == Bullets.SPREADSHOT) {
+						photon = new PhotonMedium(this, 0);
+						var photon2 = new PhotonMedium(this, -Math.PI/16);
+						var photon3 = new PhotonMedium(this, Math.PI/16);
+						objectManager.addObject(photon2, this);
+						objectManager.addObject(photon3, this);
+						game.mediaManager.Audio.PhotonSpread.play();
 					}
 					objectManager.addObject(photon, this);
                     numFramesSince.Shooting = 0;
@@ -1688,6 +1730,7 @@ var LunaticFringe = function (canvas) {
 			// }
 			
 			this.addObject(new PhotonLargePowerup(GameBounds));
+			this.addObject(new SpreadShotPowerup(GameBounds));
 
             // Add ship last so it draws on top of most objects
             this.addObject(game.PlayerShip, true);

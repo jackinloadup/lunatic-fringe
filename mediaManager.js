@@ -44,6 +44,7 @@ LunaticFringe.MediaManager = function () {
   this.LoadSprite("Sludger", "images/Sludger.png");
   this.LoadSprite("SludgerMine", "images/SludgerMine.png");
   this.LoadSprite("PufferShot", "images/PufferShot.png");
+  this.LoadSprite("SpreadShot", "images/SpreadShot.png");
 
   this.LoadAudio("CollisionGeneral", "audio/collision_general");
   this.LoadAudio("CollisionSpreadshot", "audio/collision_spreadshot");
@@ -51,6 +52,7 @@ LunaticFringe.MediaManager = function () {
   this.LoadAudio("CollisionDefaultWeapon", "audio/collision_defaultweapon");
   this.LoadAudio("PhotonSmall", "audio/PhotonSmall");
   this.LoadAudio("PhotonBig", "audio/PhotonBig")
+  this.LoadAudio("PhotonSpread", "audio/PhotonSpread");
   this.LoadAudio("StartUp", "audio/StartUp");
   this.LoadAudio("SludgerMinePop", "audio/SludgerMinePop");
   this.LoadAudio("PlayerDeath", "audio/PlayerDeath");
