@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.11";
+	var Version = "1.12";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -460,7 +460,7 @@ var LunaticFringe = function (canvas) {
 		this.handleCollision = function(otherObject) {
 			log("PhotonSmall hit: " + otherObject.constructor.name);
 			
-			if (otherObject instanceof Base || otherObject instanceof PlayerShip) {
+			if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof Powerup) {
 				// Don't want small photons to collide with player base or player
 				return;
 			}
@@ -486,7 +486,7 @@ var LunaticFringe = function (canvas) {
 		this.handleCollision = function(otherObject) {
 			log("PhotonMedium hit: " + otherObject.constructor.name);
 			
-			if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof PhotonMedium) {
+			if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof PhotonMedium || otherObject instanceof Powerup) {
 				// Don't want medium photons to collide with player base
 				return;
 			}
@@ -512,7 +512,7 @@ var LunaticFringe = function (canvas) {
 		this.handleCollision = function(otherObject) {
 			log("PhotonLarge hit: " + otherObject.constructor.name);
 			
-			if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof Projectile || otherObject instanceof SludgerMine) {
+			if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof Projectile || otherObject instanceof SludgerMine || otherObject instanceof Powerup) {
 				// Don't want large photons to collide with player base or player
 				// Other projectiles and SludgerMines also do not stop the large photon
 				return;
@@ -538,7 +538,7 @@ var LunaticFringe = function (canvas) {
 
         this.handleCollision = function (otherObject) {
             if (otherObject instanceof Puffer
-             || otherObject instanceof PufferProjectile) {
+             || otherObject instanceof PufferProjectile || otherObject instanceof Powerup) {
                return;
             } else if (otherObject instanceof PlayerShip) {
                 log("PufferShot hit player!");
@@ -566,7 +566,9 @@ var LunaticFringe = function (canvas) {
 
         this.handleCollision = function (otherObject) {
             //Projectile.prototype.handleCollision.call(this, otherObject);
-            if (otherObject instanceof PlayerShip) {
+			if (otherObject instanceof Powerup) {
+				return;
+			} else if (otherObject instanceof PlayerShip) {
                 log("QuadBlasterProjectile hit PlayerShip!");
                 game.mediaManager.Audio.CollisionQuad.play();
                 objectManager.removeObject(this);
