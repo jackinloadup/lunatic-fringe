@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.12";
+	var Version = "1.13";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -294,6 +294,26 @@ var LunaticFringe = function (canvas) {
 	SpreadShotPowerup.prototype = Object.create(Powerup.prototype);
 	SpreadShotPowerup.prototype.constructor = SpreadShotPowerup;
 	
+	function DoublePointsPowerup(bounds) {
+		Powerup.call(this, bounds);
+		this.Width = 15;
+		this.Height = 16;
+		this.CollisionRadius = 8;
+		this.Sprite = game.mediaManager.Sprites.DoublePoints;
+		this.PowerupLifeTime = 90 * 60; // 90 seconds at 60 frames per second
+		log("DoublePointsPowerup created at: (" + this.X + "," + this.Y + ")");
+		
+		this.handleCollision = function(otherObject) {
+			if(otherObject instanceof PlayerShip) {
+				log("DoublePointsPowerup gained by the player");
+				game.mediaManager.Audio.PowerupWow.play();
+				objectManager.removeObject(this);
+			}
+		}
+	}
+	DoublePointsPowerup.prototype = Object.create(Powerup.prototype);
+	DoublePointsPowerup.prototype.constructor = DoublePointsPowerup;
+	
     // All AI inherit from this
     function AIGameObject(playerShip) {
         GameObject.call(this);
@@ -352,7 +372,7 @@ var LunaticFringe = function (canvas) {
 					numEnemiesKilled++;
 					if(otherObject instanceof PhotonSmall || otherObject instanceof PhotonMedium || otherObject instanceof PhotonLarge) {
 						//Only award points if the player was the one to kill the this				
-						score += this.PointWorth;
+						playerShip.addToScore(this.PointWorth);
 					}
 				}
 			} else if (otherObject instanceof PlayerShip) {
@@ -371,7 +391,7 @@ var LunaticFringe = function (canvas) {
 					}
 					objectManager.removeObject(this);
 					numEnemiesKilled++;				
-					score += this.PointWorth;
+					playerShip.addToScore(this.PointWorth);
 				}
             } else if (otherObject instanceof AIGameObject || otherObject instanceof Asteroid) {
 				GameObject.prototype.handleCollision.call(this, otherObject);
@@ -632,6 +652,7 @@ var LunaticFringe = function (canvas) {
 		// The shooting speed with standard bullets and no power ups
 		this.defaultShootingSpeed = 13;
 		this.bulletShootingSpeed = this.defaultShootingSpeed;
+		this.scoreMultiplier = 1;
 
         this.draw = function (context) {
             PlayerShip.prototype.draw.call(this, context);
@@ -816,6 +837,10 @@ var LunaticFringe = function (canvas) {
 				this.powerupLength = powerupObject.PowerupLifeTime;
 				this.powerupState = Powerups.SPREADSHOT;
 			}
+		}
+		
+		this.addToScore = function(amount) {
+			score += amount * this.scoreMultiplier;
 		}
 
         this.processInput = function (KeyState) {
@@ -1733,6 +1758,7 @@ var LunaticFringe = function (canvas) {
 			
 			this.addObject(new PhotonLargePowerup(GameBounds));
 			this.addObject(new SpreadShotPowerup(GameBounds));
+			this.addObject(new DoublePointsPowerup(GameBounds));
 
             // Add ship last so it draws on top of most objects
             this.addObject(game.PlayerShip, true);
