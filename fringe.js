@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.13";
+	var Version = "1.14";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -603,7 +603,7 @@ var LunaticFringe = function (canvas) {
     QuadBlasterProjectile.prototype.constructor = QuadBlasterProjectile;
 
     function PlayerShip(context) {
-        var animationFrames, spriteX, spriteY, rotationAmount, accel, numFramesSince, lives, health, maxSpeed, Bullets, Powerups;
+        var animationFrames, spriteX, spriteY, rotationAmount, accel, numFramesSince, lives, health, maxSpeed, Bullets, BulletPowerups, OtherPowerups;
         GameObject.call(this);
         this.lives = 3;
         this.health = 100;
@@ -626,7 +626,8 @@ var LunaticFringe = function (canvas) {
             Right: 0,
             Shooting: 0,
 			Repair: 0,
-			PowerupStarted: 0
+			BulletPowerupStarted: 0,
+			DoublePointsStarted: 0
         };
 		Bullets = {
 			SMALL: 1,
@@ -641,18 +642,24 @@ var LunaticFringe = function (canvas) {
 		this.isAccelerating = false;
 		
 		// Powerup variables
-		Powerups = {
+		BulletPowerups = {
 			NONE: 0,
 			LARGEPHOTON: 1,
 			SPREADSHOT: 2
 		};
-		this.powerupState = Powerups.NONE;
+		OtherPowerups = {
+			RESET: 0,
+			DOUBLEPOINTS: 1,
+			REVERTDOUBLEPOINTS: 2
+		}
+		this.powerupState = BulletPowerups.NONE;
 		this.powerupLength = 0;
 		this.bulletState = Bullets.SMALL;
 		// The shooting speed with standard bullets and no power ups
 		this.defaultShootingSpeed = 13;
 		this.bulletShootingSpeed = this.defaultShootingSpeed;
 		this.scoreMultiplier = 1;
+		this.doublePointsLength = 0;
 
         this.draw = function (context) {
             PlayerShip.prototype.draw.call(this, context);
@@ -743,7 +750,11 @@ var LunaticFringe = function (canvas) {
 					}
 				}
 			} else if (otherObject instanceof Powerup) {
-				this.updatePowerupState(otherObject);
+				if (otherObject instanceof PhotonLargePowerup || otherObject instanceof SpreadShotPowerup) {
+					this.updateBulletPowerupState(otherObject);
+				} else {
+					this.updateOtherPowerupState(otherObject);
+				}
 			}
         }
 
@@ -784,7 +795,8 @@ var LunaticFringe = function (canvas) {
                 this.health = this.maxHealth;
 				
 				// reset ship back to default state
-				this.updatePowerupState();
+				this.updateBulletPowerupState();
+				this.handleOtherPowerups(OtherPowerups.RESET);
             }
         }
 
@@ -796,46 +808,64 @@ var LunaticFringe = function (canvas) {
                 objectManager.removeObject(this);
             }
 			
-			if (numFramesSince.PowerupStarted > this.powerupLength && this.powerupLength != 0) {
+			if (numFramesSince.BulletPowerupStarted > this.powerupLength && this.powerupLength != 0) {
 				// With no arguments, this method sets the Player Ship back to the default state
-				this.updatePowerupState();
+				this.updateBulletPowerupState();
 			}
+			
+			if (numFramesSince.DoublePointsStarted > this.doublePointsLength && this.doublePointsLength != 0) {
+				this.handleOtherPowerups(OtherPowerups.REVERTDOUBLEPOINTS);
+			}
+		
         }
+		
+		this.updateOtherPowerupState = function(powerupObject) {
+			if (powerupObject instanceof DoublePointsPowerup) {
+				this.doublePointsLength = powerupObject.PowerupLifeTime;
+				numFramesSince.DoublePointsStarted = 0;
+				this.handleOtherPowerups(OtherPowerups.DOUBLEPOINTS);
+			}
+		}
+		
+		this.handleOtherPowerups = function(state) {
+			if (state == OtherPowerups.DOUBLEPOINTS) {
+				log("Applying the DoublePoints powerup")
+				this.scoreMultiplier = 2;
+			} else if (state == OtherPowerups.REVERTDOUBLEPOINTS || state == OtherPowerups.RESET) {
+				log("Reverting the DoublePoints powerup")
+				this.scoreMultiplier = 1;
+				this.doublePointsLength = 0;
+			}			
+		}
 		
 		// Method to update the state of powerups for the ship
 		// If nothing is passed in, then powerupObject will be undefined, which 
 		// means the state is being set back to default
-		this.updatePowerupState = function(powerupObject) {
+		this.updateBulletPowerupState = function(powerupObject) {
 			// Revert previous powerup values (if there was previously a powerup applied)
-			if (this.powerupState == Powerups.LARGEPHOTON) {
-				log("reverting LARGEPHOTON powerup");
+			if (this.powerupState == BulletPowerups.LARGEPHOTON || this.powerupState == BulletPowerups.SPREADSHOT) {
+				log("reverting " + (this.powerupState == BulletPowerups.LARGEPHOTON ? "LARGEPHOTON" : "SPREADSHOT") + " powerup");
 				this.powerupLength = 0;
 				this.bulletShootingSpeed = this.defaultShootingSpeed;
 				this.bulletState = Bullets.SMALL;
-				this.powerupState = Powerups.NONE;
-			} else if (this.powerupState == Powerups.SPREADSHOT) {
-				log("reverting SPREADSHOT powerup");
-				this.powerupLength = 0;
-				this.bulletShootingSpeed = this.defaultShootingSpeed;
-				this.bulletState = Bullets.SMALL;
-				this.powerupState = Powerups.NONE;
+				this.powerupState = BulletPowerups.NONE;
 			}
 			
 			// Apply new powerup values
 			if (powerupObject instanceof PhotonLargePowerup) {
 				log("applying LARGEPHOTON powerup");
 				this.bulletState = Bullets.LARGE;
+				this.powerupState = BulletPowerups.LARGEPHOTON;
 				this.bulletShootingSpeed = powerupObject.shootingSpeed;
-				numFramesSince.PowerupStarted = 0;
+				numFramesSince.BulletPowerupStarted = 0;
 				this.powerupLength = powerupObject.PowerupLifeTime;
-				this.powerupState = Powerups.LARGEPHOTON;
 			} else if (powerupObject instanceof SpreadShotPowerup) {
 				log("applying SPREADSHOT powerup");
 				this.bulletState = Bullets.SPREADSHOT;
+				this.powerupState = BulletPowerups.SPREADSHOT;
 				this.bulletShootingSpeed = powerupObject.shootingSpeed;
-				numFramesSince.PowerupStarted = 0;
+				numFramesSince.BulletPowerupStarted = 0;
 				this.powerupLength = powerupObject.PowerupLifeTime;
-				this.powerupState = Powerups.SPREADSHOT;
 			}
 		}
 		
