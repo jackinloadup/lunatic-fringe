@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.15";
+	var Version = "1.16";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -809,9 +809,11 @@ var LunaticFringe = function (canvas) {
                 }
                 objectManager.movePlayerShipTo(Math.random() * (objectManager.GameBounds.Right - objectManager.GameBounds.Left + 1) + objectManager.GameBounds.Left, Math.random() * (objectManager.GameBounds.Bottom - objectManager.GameBounds.Top + 1) + objectManager.GameBounds.Top);
 
-                // reset health to full
+                // reset health and fuel to full
 				log("Setting ship back to max health of: " + this.maxHealth);
                 this.health = this.maxHealth;
+				this.Fuel = this.maxFuel;
+				document.getElementById('fuel').setAttribute('value', this.Fuel);
 				
 				// reset ship back to default state
 				this.updateBulletPowerupState();
