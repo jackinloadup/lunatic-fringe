@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.14";
+	var Version = "1.15";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -617,6 +617,8 @@ var LunaticFringe = function (canvas) {
         this.VelocityX = 0;
         this.VelocityY = 0;
         this.Angle = Math.PI / 2; // Straight up
+		this.Fuel = 1500;
+		this.maxFuel = 1500;
         animationFrames = 32;
         rotationAmount = (Math.PI * 2) / animationFrames; // 32 frames of animation in the sprite
         // accel = 0.1;
@@ -696,11 +698,16 @@ var LunaticFringe = function (canvas) {
 				var threshold = .5; 
 				if (this.VelocityX == 0 && this.VelocityY == 0 && Math.abs(otherObject.X - baseX) < threshold && Math.abs(otherObject.Y - baseY) < threshold) {
 					//The player ship is stopped at the base
-					if (numFramesSince.Repair >= 60 && this.health < this.maxHealth) {
+					if (numFramesSince.Repair >= 60 && (this.health < this.maxHealth || this.Fuel < this.maxFuel)) {
 						//Repair ship
 						numFramesSince.Repair = 0;
 						game.mediaManager.Audio.BaseRepair.play();
-						this.updateHealth(1);
+						if (this.health < this.maxHealth) {
+							this.updateHealth(1);
+						}
+						if (this.Fuel < this.maxFuel) {
+							this.updateFuel(20);
+						}
 					}
 				} else if (!this.isAccelerating && (Math.abs(otherObject.X - baseX) > threshold || Math.abs(otherObject.Y - baseY) > threshold)) {
 					// Only pull the ship in if it is not accelerating
@@ -768,6 +775,18 @@ var LunaticFringe = function (canvas) {
 
           document.getElementById('health').setAttribute('value', this.health);
         }
+		
+		this.updateFuel = function (fuelChange) {
+			this.Fuel += fuelChange;
+			
+			if (this.Fuel > this.maxFuel) {
+				this.Fuel = this.maxFuel;
+			} else if (this.Fuel < 0) {
+				this.Fuel = 0;
+			}
+			
+			document.getElementById('fuel').setAttribute('value', this.Fuel);
+		}
 
         this.die = function () {
             game.mediaManager.Audio.PlayerDeath.play();
@@ -883,8 +902,9 @@ var LunaticFringe = function (canvas) {
                 }
             }
 
-            if (KeyState.isDown(KeyState.UP)) {
+            if (KeyState.isDown(KeyState.UP) && this.Fuel > 0) {
 				this.isAccelerating = true;
+				this.updateFuel(-1);
                 this.calculateAcceleration();
                 spriteY = this.Height;
             } else {
