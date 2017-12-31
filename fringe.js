@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.17";
+	var Version = "1.18";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -313,6 +313,26 @@ var LunaticFringe = function (canvas) {
 	}
 	DoublePointsPowerup.prototype = Object.create(Powerup.prototype);
 	DoublePointsPowerup.prototype.constructor = DoublePointsPowerup;
+	
+	function ExtraFuelPowerup(bounds) {
+		Powerup.call(this, bounds);
+		this.Width = 13;
+		this.Height = 13;
+		this.CollisionRadius = 8;
+		this.Sprite = game.mediaManager.Sprites.ExtraFuel;
+		this.PowerupLifeTime = 90 * 60; // 90 seconds at 60 frames per second
+		log("ExtraFuel created at: (" + this.X + "," + this.Y + ")");
+		
+		this.handleCollision = function(otherObject) {
+			if(otherObject instanceof PlayerShip) {
+				log("ExtraFuel gained by the player");
+				game.mediaManager.Audio.PowerupWow.play();
+				objectManager.removeObject(this);
+			}
+		}
+	}
+	ExtraFuelPowerup.prototype = Object.create(Powerup.prototype);
+	ExtraFuelPowerup.prototype.constructor = ExtraFuelPowerup;
 	
     // All AI inherit from this
     function AIGameObject(playerShip) {
@@ -669,9 +689,9 @@ var LunaticFringe = function (canvas) {
             // Draw the ship 2 pixels higher to make it better fit inside of the collision circle
             context.drawImage(this.Sprite, spriteX, spriteY, this.Width, this.Height, this.X - this.Width / 2, this.Y - this.Height / 2 - 2, this.Width, this.Height);
         };
-			
-        this.handleCollision = function (otherObject) {
 
+        this.handleCollision = function (otherObject) {
+			
             // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
             if (otherObject instanceof Asteroid) {
 				PlayerShip.prototype.handleCollision.call(this, otherObject);
@@ -852,6 +872,9 @@ var LunaticFringe = function (canvas) {
 				this.doublePointsLength = powerupObject.PowerupLifeTime;
 				numFramesSince.DoublePointsStarted = 0;
 				this.handleOtherPowerups(OtherPowerups.DOUBLEPOINTS);
+			} else if (powerupObject instanceof ExtraFuelPowerup) {
+				//Gain back half of the max fuel
+				this.updateFuel(this.maxFuel/2);
 			}
 		}
 		
@@ -1818,6 +1841,7 @@ var LunaticFringe = function (canvas) {
 			this.addObject(new PhotonLargePowerup(GameBounds));
 			this.addObject(new SpreadShotPowerup(GameBounds));
 			this.addObject(new DoublePointsPowerup(GameBounds));
+			this.addObject(new ExtraFuelPowerup(GameBounds));
 
             // Add ship last so it draws on top of most objects
             this.addObject(game.PlayerShip, true);

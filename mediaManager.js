@@ -46,6 +46,7 @@ LunaticFringe.MediaManager = function () {
   this.LoadSprite("PufferShot", "images/PufferShot.png");
   this.LoadSprite("SpreadShot", "images/SpreadShot.png");
   this.LoadSprite("DoublePoints", "images/DoublePoints.png");
+  this.LoadSprite("ExtraFuel", "images/ExtraFuel.png");
 
   this.LoadAudio("CollisionGeneral", "audio/collision_general");
   this.LoadAudio("CollisionSpreadshot", "audio/collision_spreadshot");
