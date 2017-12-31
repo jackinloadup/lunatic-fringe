@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.16";
+	var Version = "1.17";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -642,6 +642,7 @@ var LunaticFringe = function (canvas) {
         this.MaxSpeed = 12;
 		this.CollisionDamage = 10;
 		this.isAccelerating = false;
+		this.atBase = false;
 		
 		// Powerup variables
 		BulletPowerups = {
@@ -668,7 +669,7 @@ var LunaticFringe = function (canvas) {
             // Draw the ship 2 pixels higher to make it better fit inside of the collision circle
             context.drawImage(this.Sprite, spriteX, spriteY, this.Width, this.Height, this.X - this.Width / 2, this.Y - this.Height / 2 - 2, this.Width, this.Height);
         };
-
+			
         this.handleCollision = function (otherObject) {
 
             // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
@@ -689,6 +690,7 @@ var LunaticFringe = function (canvas) {
 				PlayerShip.prototype.handleCollision.call(this, otherObject);
 				this.updateHealth(-1*otherObject.CollisionDamage);
 			} else if (otherObject instanceof Base) {
+				this.atBase = true;
 				// Make it so that the ship will go towards the Player Base
 				// These are the coordinates the Base should be at if the ship is centered on the base
 				var baseX = context.canvas.width / 2 - (this.Width / 2);
@@ -698,15 +700,16 @@ var LunaticFringe = function (canvas) {
 				var threshold = .5; 
 				if (this.VelocityX == 0 && this.VelocityY == 0 && Math.abs(otherObject.X - baseX) < threshold && Math.abs(otherObject.Y - baseY) < threshold) {
 					//The player ship is stopped at the base
+					
 					if (numFramesSince.Repair >= 60 && (this.health < this.maxHealth || this.Fuel < this.maxFuel)) {
 						//Repair ship
 						numFramesSince.Repair = 0;
 						game.mediaManager.Audio.BaseRepair.play();
 						if (this.health < this.maxHealth) {
-							this.updateHealth(1);
+							this.updateHealth(3);
 						}
 						if (this.Fuel < this.maxFuel) {
-							this.updateFuel(20);
+							this.updateFuel(25);
 						}
 					}
 				} else if (!this.isAccelerating && (Math.abs(otherObject.X - baseX) > threshold || Math.abs(otherObject.Y - baseY) > threshold)) {
@@ -748,6 +751,7 @@ var LunaticFringe = function (canvas) {
 					this.VelocityY += velocityChange.Y;
 					this.VelocityY *= dampeningFactor;
 				} else if (!this.isAccelerating && this.VelocityX != 0 && this.VelocityY != 0) {
+					
 					var vectorToBase = new Vector(otherObject.X - baseX, otherObject.Y - baseY);
 					this.VelocityX = this.VelocityX/4;
 					this.VelocityY = this.VelocityY/4;
@@ -822,6 +826,9 @@ var LunaticFringe = function (canvas) {
         }
 
         this.updateState = function () {
+			if (this.atBase) {
+				this.atBase = false;
+			}
             if (objectManager.enemiesRemaining() == 0) {
                 objectManager.displayMessage("You conquered the fringe with a score of " + score, 99999999);
                 this.VelocityX = 0;
@@ -931,7 +938,7 @@ var LunaticFringe = function (canvas) {
                 }
             }
 
-            if (KeyState.isDown(KeyState.SPACE)) {
+            if (KeyState.isDown(KeyState.SPACE) && !this.atBase) {
                 if (numFramesSince.Shooting >= this.bulletShootingSpeed) { // 13 matches up best with the original game's rate of fire at 60fps
 					var photon;
 					if (this.bulletState == Bullets.SMALL) {
