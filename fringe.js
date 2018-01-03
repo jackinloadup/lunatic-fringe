@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.18";
+	var Version = "1.19";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -318,9 +318,9 @@ var LunaticFringe = function (canvas) {
 		Powerup.call(this, bounds);
 		this.Width = 13;
 		this.Height = 13;
-		this.CollisionRadius = 8;
+		this.CollisionRadius = 7;
 		this.Sprite = game.mediaManager.Sprites.ExtraFuel;
-		this.PowerupLifeTime = 90 * 60; // 90 seconds at 60 frames per second
+		this.PowerupLifeTime = 0; // Instantaneous
 		log("ExtraFuel created at: (" + this.X + "," + this.Y + ")");
 		
 		this.handleCollision = function(otherObject) {
@@ -333,6 +333,26 @@ var LunaticFringe = function (canvas) {
 	}
 	ExtraFuelPowerup.prototype = Object.create(Powerup.prototype);
 	ExtraFuelPowerup.prototype.constructor = ExtraFuelPowerup;
+	
+	function ShipRepairsPowerup(bounds) {
+		Powerup.call(this, bounds);
+		this.Width = 13;
+		this.Height = 13;
+		this.CollisionRadius = 7;
+		this.Sprite = game.mediaManager.Sprites.ShipRepairs;
+		this.PowerupLifeTime = 0; // Instantaneous
+		log("ShipRepairs created at: (" + this.X + "," + this.Y + ")");
+		
+		this.handleCollision = function(otherObject) {
+			if(otherObject instanceof PlayerShip) {
+				log("ShipRepairs gained by the player");
+				game.mediaManager.Audio.PowerupWow.play();
+				objectManager.removeObject(this);
+			}
+		}
+	}
+	ShipRepairsPowerup.prototype = Object.create(Powerup.prototype);
+	ShipRepairsPowerup.prototype.constructor = ShipRepairsPowerup;
 	
     // All AI inherit from this
     function AIGameObject(playerShip) {
@@ -790,14 +810,16 @@ var LunaticFringe = function (canvas) {
         }
 
         this.updateHealth = function (healthChange) {
-          log("ship Health: " + this.health + ", changing by: " + healthChange);
-          this.health = this.health + healthChange;
+			log("ship Health: " + this.health + ", changing by: " + healthChange);
+			this.health = this.health + healthChange;
 
-          if(this.health <= 0) {
-             this.die();
-          }
+			if(this.health > this.maxHealth) {
+				this.health = this.maxHealth;
+			} else if(this.health <= 0) {
+				this.die();
+			}
 
-          document.getElementById('health').setAttribute('value', this.health);
+			document.getElementById('health').setAttribute('value', this.health);
         }
 		
 		this.updateFuel = function (fuelChange) {
@@ -875,6 +897,9 @@ var LunaticFringe = function (canvas) {
 			} else if (powerupObject instanceof ExtraFuelPowerup) {
 				//Gain back half of the max fuel
 				this.updateFuel(this.maxFuel/2);
+			} else if (powerupObject instanceof ShipRepairsPowerup) {
+				//Give back 1/3 of max health
+				this.updateHealth(this.maxHealth/3);
 			}
 		}
 		
@@ -1842,6 +1867,7 @@ var LunaticFringe = function (canvas) {
 			this.addObject(new SpreadShotPowerup(GameBounds));
 			this.addObject(new DoublePointsPowerup(GameBounds));
 			this.addObject(new ExtraFuelPowerup(GameBounds));
+			this.addObject(new ShipRepairsPowerup(GameBounds));
 
             // Add ship last so it draws on top of most objects
             this.addObject(game.PlayerShip, true);
