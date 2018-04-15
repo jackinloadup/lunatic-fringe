@@ -327,7 +327,7 @@ var LunaticFringe = function (canvas) {
 		this.handleCollision = function(otherObject) {
 			if(otherObject instanceof PlayerShip) {
 				log("ExtraFuel gained by the player");
-				game.mediaManager.Audio.PowerupWow.play();
+				game.mediaManager.Audio.RepairOrFuelPowerup.play();
 				objectManager.removeObject(this);
 			}
 		}
@@ -347,7 +347,7 @@ var LunaticFringe = function (canvas) {
 		this.handleCollision = function(otherObject) {
 			if(otherObject instanceof PlayerShip) {
 				log("ShipRepairs gained by the player");
-				game.mediaManager.Audio.PowerupWow.play();
+				game.mediaManager.Audio.RepairOrFuelPowerup.play();
 				objectManager.removeObject(this);
 			}
 		}
