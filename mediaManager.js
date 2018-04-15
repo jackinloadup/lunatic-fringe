@@ -37,6 +37,7 @@ LunaticFringe.MediaManager = function () {
   this.LoadSprite("PhotonMedium", "images/PhotonMedium.png");
   this.LoadSprite("PhotonLarge", "images/PhotonLarge.png");
   this.LoadSprite("PlayerShip", "images/PlayerShip.png");
+  this.LoadSprite("PlayerShipInvulnerable", "images/PlayerShipInvulnerable.png");
   this.LoadSprite("Puffer", "images/Puffer.png");
   this.LoadSprite("QuadBlaster", "images/Quadblaster.png");
   this.LoadSprite("Rocko", "images/Rocko.png");
@@ -48,6 +49,7 @@ LunaticFringe.MediaManager = function () {
   this.LoadSprite("DoublePoints", "images/DoublePoints.png");
   this.LoadSprite("ExtraFuel", "images/ExtraFuel.png");
   this.LoadSprite("ShipRepairs", "images/RepairShip.png");
+  this.LoadSprite("Invulnerability", "images/Invulnerability.png");
 
   this.LoadAudio("CollisionGeneral", "audio/collision_general");
   this.LoadAudio("CollisionSpreadshot", "audio/collision_spreadshot");
@@ -62,6 +64,8 @@ LunaticFringe.MediaManager = function () {
   this.LoadAudio("SludgerDeath", "audio/SludgerDeath");
   this.LoadAudio("BaseRepair", "audio/baserepair");
   this.LoadAudio("PowerupWow", "audio/powerup_wow");
+  this.LoadAudio("InvincibleCollision", "audio/invincible_collision");
+  this.LoadAudio("InvincibleOrBoost", "audio/invincible_boost");
 
   this.loaded = function () {
     var sprite, numLoaded = 0, total = 0;

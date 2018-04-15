@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.19";
+	var Version = "1.20";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -69,6 +69,7 @@ var LunaticFringe = function (canvas) {
         RIGHT: 39,
         DOWN: 40,
 		CAPSLOCK: 20,
+		V: 86,
 
         isDown: function (keyCode) {
             return this.keysPressed[keyCode];
@@ -354,6 +355,26 @@ var LunaticFringe = function (canvas) {
 	ShipRepairsPowerup.prototype = Object.create(Powerup.prototype);
 	ShipRepairsPowerup.prototype.constructor = ShipRepairsPowerup;
 	
+	function InvulnerabilityPowerup(bounds) {
+		Powerup.call(this, bounds);
+		this.Width = 15;
+		this.Height = 19;
+		this.CollisionRadius = 9;
+		this.Sprite = game.mediaManager.Sprites.Invulnerability;
+		this.PowerupLifeTime = 10 * 60; // 10 seconds at 60 frames per second
+		log("Invulnerability created at: (" + this.X + "," + this.Y + ")");
+		
+		this.handleCollision = function(otherObject) {
+			if(otherObject instanceof PlayerShip) {
+				log("Invulnerability gained by the player");
+				game.mediaManager.Audio.PowerupWow.play();
+				objectManager.removeObject(this);
+			}
+		}
+	}
+	InvulnerabilityPowerup.prototype = Object.create(Powerup.prototype);
+	InvulnerabilityPowerup.prototype.constructor = InvulnerabilityPowerup;
+	
     // All AI inherit from this
     function AIGameObject(playerShip) {
         GameObject.call(this);
@@ -602,7 +623,11 @@ var LunaticFringe = function (canvas) {
                return;
             } else if (otherObject instanceof PlayerShip) {
                 log("PufferShot hit player!");
-                game.mediaManager.Audio.CollisionGeneral.play();
+				if (otherObject.isInvulnerable) {
+					game.mediaManager.Audio.InvincibleCollision.play();
+				} else {
+					game.mediaManager.Audio.CollisionGeneral.play();
+				}
                 objectManager.removeObject(this);
             } else if (otherObject instanceof Projectile) {
 				log("PufferProjectile hit another Projectile!");
@@ -630,7 +655,11 @@ var LunaticFringe = function (canvas) {
 				return;
 			} else if (otherObject instanceof PlayerShip) {
                 log("QuadBlasterProjectile hit PlayerShip!");
-                game.mediaManager.Audio.CollisionQuad.play();
+				if (otherObject.isInvulnerable) {
+					game.mediaManager.Audio.InvincibleCollision.play();
+				} else {
+					game.mediaManager.Audio.CollisionQuad.play();
+				}
                 objectManager.removeObject(this);
             } else if (otherObject instanceof Projectile) {
 				log("QuadBlasterProjectile hit another Projectile!");
@@ -669,20 +698,25 @@ var LunaticFringe = function (canvas) {
             Shooting: 0,
 			Repair: 0,
 			BulletPowerupStarted: 0,
-			DoublePointsStarted: 0
+			DoublePointsStarted: 0,
+			InvulnerabilityStarted: 0
         };
 		Bullets = {
 			SMALL: 1,
 			SPREADSHOT: 2,
 			LARGE: 3
-		};
-        this.Sprite = game.mediaManager.Sprites.PlayerShip;
+		};       
+		this.normalShipSprite = game.mediaManager.Sprites.PlayerShip;
+		this.invulnerableShipSprite = game.mediaManager.Sprites.PlayerShipInvulnerable;
+		this.Sprite = this.normalShipSprite;
         spriteX = 0;
         spriteY = 0;
         this.MaxSpeed = 12;
 		this.CollisionDamage = 10;
 		this.isAccelerating = false;
 		this.atBase = false;
+		this.hasInvulnerablePowerup = false;
+		this.isInvulnerable = false;
 		
 		// Powerup variables
 		BulletPowerups = {
@@ -693,7 +727,9 @@ var LunaticFringe = function (canvas) {
 		OtherPowerups = {
 			RESET: 0,
 			DOUBLEPOINTS: 1,
-			REVERTDOUBLEPOINTS: 2
+			REVERTDOUBLEPOINTS: 2,
+			INVULNERABILITY: 3,
+			REVERTINVULNERABILITY: 4
 		}
 		this.powerupState = BulletPowerups.NONE;
 		this.powerupLength = 0;
@@ -703,6 +739,7 @@ var LunaticFringe = function (canvas) {
 		this.bulletShootingSpeed = this.defaultShootingSpeed;
 		this.scoreMultiplier = 1;
 		this.doublePointsLength = 0;
+		this.invulnerabilityLength = 0;
 
         this.draw = function (context) {
             PlayerShip.prototype.draw.call(this, context);
@@ -714,21 +751,31 @@ var LunaticFringe = function (canvas) {
 			
             // Don't die from asteroids yet. It looks cool to bounce off. Take this out when ship damage is implemented.
             if (otherObject instanceof Asteroid) {
-				PlayerShip.prototype.handleCollision.call(this, otherObject);
-                game.mediaManager.Audio.CollisionGeneral.play();
+				PlayerShip.prototype.handleCollision.call(this, otherObject);     
                 log("Player hit a Asteroid");
-                this.updateHealth(-1*otherObject.CollisionDamage);
+				if (!this.isInvulnerable) {
+					game.mediaManager.Audio.CollisionGeneral.play();
+					this.updateHealth(-1*otherObject.CollisionDamage);
+				} else {
+					game.mediaManager.Audio.InvincibleCollision.play();
+				}
                 return;
             } else if (otherObject instanceof PufferProjectile || otherObject instanceof QuadBlasterProjectile) {
 				log("Player was hit by projectile: " + otherObject.constructor.name);
-				this.updateHealth(-1*otherObject.Damage);
+				if (!this.isInvulnerable) {
+					this.updateHealth(-1*otherObject.Damage);
+				}
 				return;
 			} else if (otherObject instanceof AIGameObject) {
-				if (!(otherObject instanceof SludgerMine)) {
-					game.mediaManager.Audio.CollisionGeneral.play();
+				if (!this.isInvulnerable) {
+					this.updateHealth(-1*otherObject.CollisionDamage);
+					if (!(otherObject instanceof SludgerMine)) {
+						game.mediaManager.Audio.CollisionGeneral.play();
+					}
+				} else {
+					game.mediaManager.Audio.InvincibleCollision.play();
 				}
-				PlayerShip.prototype.handleCollision.call(this, otherObject);
-				this.updateHealth(-1*otherObject.CollisionDamage);
+				PlayerShip.prototype.handleCollision.call(this, otherObject);				
 			} else if (otherObject instanceof Base) {
 				this.atBase = true;
 				// Make it so that the ship will go towards the Player Base
@@ -886,6 +933,13 @@ var LunaticFringe = function (canvas) {
 			if (numFramesSince.DoublePointsStarted > this.doublePointsLength && this.doublePointsLength != 0) {
 				this.handleOtherPowerups(OtherPowerups.REVERTDOUBLEPOINTS);
 			}
+			
+			if (this.isInvulnerable && numFramesSince.InvulnerabilityStarted > this.invulnerabilityLength && this.invulnerabilityLength != 0) {
+				log("Losing invulnerabliity");
+				this.isInvulnerable = false;
+				this.invulnerabilityLength = 0;
+				this.Sprite = this.normalShipSprite;
+			}
 		
         }
 		
@@ -900,6 +954,11 @@ var LunaticFringe = function (canvas) {
 			} else if (powerupObject instanceof ShipRepairsPowerup) {
 				//Give back 1/3 of max health
 				this.updateHealth(this.maxHealth/3);
+			} else if (powerupObject instanceof InvulnerabilityPowerup) {
+				//Give the player a stored invulnerability powerup
+				document.getElementById('invulnerabilityAvailable').style.visibility = "visible";
+				this.invulnerabilityLength = powerupObject.PowerupLifeTime;
+				this.hasInvulnerablePowerup = true;
 			}
 		}
 		
@@ -1007,7 +1066,20 @@ var LunaticFringe = function (canvas) {
                     numFramesSince.Shooting = 0;
                 }
             }
+			
+			if (KeyState.isDown(KeyState.V) && this.hasInvulnerablePowerup) {
+				this.activateInvulnerability();
+			}
         };
+		
+		this.activateInvulnerability = function() {
+			document.getElementById('invulnerabilityAvailable').style.visibility = "hidden";
+			this.hasInvulnerablePowerup = false;
+			this.isInvulnerable = true;
+			numFramesSince.InvulnerabilityStarted = 0;
+			game.mediaManager.Audio.InvincibleOrBoost.play();
+			this.Sprite = this.invulnerableShipSprite;
+		}
     }
     PlayerShip.prototype = Object.create(GameObject.prototype);
     PlayerShip.prototype.constructor = PlayerShip;
@@ -1540,7 +1612,11 @@ var LunaticFringe = function (canvas) {
 		this.handleCollision = function(otherObject) {
 			if (otherObject instanceof PlayerShip) {
 				log("PlayerShip hit the enemy base!");
-				game.mediaManager.Audio.CollisionGeneral.play();
+				if (otherObject.isInvulnerable) {
+					game.mediaManager.Audio.InvincibleCollision.play();
+				} else {
+					game.mediaManager.Audio.CollisionGeneral.play();
+				}
 			}
 		};
 
@@ -1868,6 +1944,7 @@ var LunaticFringe = function (canvas) {
 			this.addObject(new DoublePointsPowerup(GameBounds));
 			this.addObject(new ExtraFuelPowerup(GameBounds));
 			this.addObject(new ShipRepairsPowerup(GameBounds));
+			this.addObject(new InvulnerabilityPowerup(GameBounds));
 
             // Add ship last so it draws on top of most objects
             this.addObject(game.PlayerShip, true);
