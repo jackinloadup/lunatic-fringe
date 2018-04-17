@@ -769,8 +769,10 @@ var LunaticFringe = function (canvas) {
 			} else if (otherObject instanceof AIGameObject) {
 				if (!this.isInvulnerable) {
 					this.updateHealth(-1*otherObject.CollisionDamage);
-					if (!(otherObject instanceof SludgerMine)) {
+					if (!(otherObject instanceof SludgerMine) && !(otherObject instanceof Slicer)) {
 						game.mediaManager.Audio.CollisionGeneral.play();
+					} else if (otherObject instanceof Slicer) {
+						game.mediaManager.Audio.SlicerAttack.play();
 					}
 				} else {
 					game.mediaManager.Audio.InvincibleCollision.play();
