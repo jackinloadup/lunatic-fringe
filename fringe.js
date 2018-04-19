@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.20";
+	var Version = "1.21";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -740,6 +740,19 @@ var LunaticFringe = function (canvas) {
 		this.scoreMultiplier = 1;
 		this.doublePointsLength = 0;
 		this.invulnerabilityLength = 0;
+		
+		// Setup for the low fuel sound
+		this.isLowFuel = false;
+		let lowFuelSoundCount = 1;
+		const lowFuelSoundCountMax = 3; // The number of times you want the low fuel sound to play
+		game.mediaManager.Audio.LowFuel.addEventListener('ended', function(){
+			if(lowFuelSoundCount < lowFuelSoundCountMax) {
+				game.mediaManager.Audio.LowFuel.play();
+				lowFuelSoundCount++;
+			} else {
+				lowFuelSoundCount = 1;
+			}
+		});
 
         this.draw = function (context) {
             PlayerShip.prototype.draw.call(this, context);
@@ -942,7 +955,16 @@ var LunaticFringe = function (canvas) {
 				this.invulnerabilityLength = 0;
 				this.Sprite = this.normalShipSprite;
 			}
-		
+			
+			// Handle playing the fuel sound
+			const fuelSoundThreshold = (this.maxFuel / 5);
+			if (this.Fuel < fuelSoundThreshold && !this.isLowFuel) {
+				game.mediaManager.Audio.LowFuel.play();
+				this.isLowFuel = true;
+			} else if (this.Fuel > fuelSoundThreshold && this.isLowFuel) {
+				this.isLowFuel = false;
+			}
+	
         }
 		
 		this.updateOtherPowerupState = function(powerupObject) {
