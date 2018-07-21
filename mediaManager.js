@@ -67,6 +67,7 @@ LunaticFringe.MediaManager = function () {
   this.LoadAudio("LowFuel", "audio/Low_Fuel");
   this.LoadAudio("InvincibleCollision", "audio/invincible_collision");
   this.LoadAudio("InvincibleOrBoost", "audio/invincible_boost");
+  this.LoadAudio("NewLevel", "audio/newlevel");
   this.LoadAudio("RepairOrFuelPowerup", "audio/repair_fuel");
   this.LoadAudio("SlicerAttack", "audio/Slicer_attack");
 
