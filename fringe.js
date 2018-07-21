@@ -715,7 +715,7 @@ var LunaticFringe = function (canvas) {
 		this.CollisionDamage = 10;
 		this.isAccelerating = false;
 		this.atBase = false;
-		this.hasInvulnerablePowerup = false;
+		this.hasInvulnerablePowerup = true;
 		this.isInvulnerable = false;
 		
 		// Powerup variables
@@ -739,7 +739,7 @@ var LunaticFringe = function (canvas) {
 		this.bulletShootingSpeed = this.defaultShootingSpeed;
 		this.scoreMultiplier = 1;
 		this.doublePointsLength = 0;
-		this.invulnerabilityLength = 0;
+		this.invulnerabilityLength = 600;
 		
 		// Setup for the low fuel sound
 		this.isLowFuel = false;
