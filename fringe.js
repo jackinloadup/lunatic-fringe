@@ -234,143 +234,151 @@ var LunaticFringe = function (canvas) {
             this.VelocityY = currentVelocity.Y;
         }
     }
+	
+	// Powerup activation constants
+	const INSTANT = 'INSTANT';
+	const BUTTON_PRESS = 'BUTTON_PRESS';
 
 	// All Powerups inherit from this
-	function Powerup(bounds) {
+	// activation: How the powerup is activated. Options: INSTANT and BUTTON_PRESS
+	// duration: How long the powerup lasts, in frames (60 frames per second) (0 for instantaneous)
+	function Powerup(bounds, options) {
 		GameObject.call(this);
-		// How long the power up lasts when used
-		this.Lifetime = 0;
-		// Whether or not the powerup can be stored for later use (if false it is activated as soon as it is obtained)
-		this.isStorable = false;
+		
+		this.Activation = options.activation;
+		this.Duration = options.duration;
+		this.Name = options.name;
+		this.Width = options.width;
+		this.Height = options.height;
+		this.CollisionRadius = options.collisionRadius;
+		this.Sprite = options.sprite;
 		this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
         this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
+		log(this.Name + " created at: (" + this.X + "," + this.Y + ")");
 		
 		this.draw = function (context) {
             Powerup.prototype.draw.call(this, context);
             context.drawImage(this.Sprite, this.X - this.Width / 2, this.Y - this.Height / 2);
         };
+		
+		this.handleCollision = function(otherObject) {
+			if(otherObject instanceof PlayerShip) {
+				log(this.Name + " gained by the player");
+				game.mediaManager.Audio.PowerupWow.play();
+				objectManager.removeObject(this);
+			}
+		}
 	}
 	Powerup.prototype = Object.create(GameObject.prototype);
 	Powerup.prototype.constructor = Powerup;
 	
 	function PhotonLargePowerup(bounds) {
-		Powerup.call(this, bounds);
-		this.Width = 15;
-		this.Height = 16;
-		this.CollisionRadius = 8;
-		this.Sprite = game.mediaManager.Sprites.PhotonLarge;
-		this.PowerupLifeTime = 60 * 30; // 30 seconds at 60 frames per second
-		this.shootingSpeed = 60; // 1 bullet per second at 60 frames per second
-		log("PhotonLargePowerup created at: (" + this.X + "," + this.Y + ")");
-		
-		this.handleCollision = function(otherObject) {
-			if(otherObject instanceof PlayerShip) {
-				log("PhotonLargePowerup gained by the player");
-				game.mediaManager.Audio.PowerupWow.play();
-				objectManager.removeObject(this);
+		Powerup.call(
+			this, 
+			bounds, 
+			{
+				activation: INSTANT, 
+				duration: 60 * 30, 
+				name: "PhotonLargePowerup",
+				width: 15,
+				height: 16,
+				collisionRadius: 8,
+				sprite: game.mediaManager.Sprites.PhotonLarge
 			}
-		}
+		);
+		this.shootingSpeed = 60; // 1 bullet per second at 60 frames per second
 	}
 	PhotonLargePowerup.prototype = Object.create(Powerup.prototype);
 	PhotonLargePowerup.prototype.constructor = PhotonLargePowerup;
 	
 	function SpreadShotPowerup(bounds) {
-		Powerup.call(this, bounds);
-		this.Width = 19;
-		this.Height = 16;
-		this.CollisionRadius = 9;
-		this.Sprite = game.mediaManager.Sprites.SpreadShot;
-		this.PowerupLifeTime = 60 * 60; // 60 seconds at 60 frames per second
-		this.shootingSpeed = 39; // 60/26 bullets per second at 60 frames per second
-		log("SpreadShotPowerup created at: (" + this.X + "," + this.Y + ")");
-		
-		this.handleCollision = function(otherObject) {
-			if(otherObject instanceof PlayerShip) {
-				log("SpreadShotPowerup gained by the player");
-				game.mediaManager.Audio.PowerupWow.play();
-				objectManager.removeObject(this);
+		Powerup.call(
+			this, 
+			bounds, 
+			{
+				activation: INSTANT, 
+				duration: 60 * 60, 
+				name: "SpreadShotPowerup",
+				width: 19,
+				height: 16,
+				collisionRadius: 9,
+				sprite: game.mediaManager.Sprites.SpreadShot
 			}
-		}
+		);
+		this.shootingSpeed = 39; // 60/39 bullets per second at 60 frames per second
 	}
 	SpreadShotPowerup.prototype = Object.create(Powerup.prototype);
 	SpreadShotPowerup.prototype.constructor = SpreadShotPowerup;
 	
 	function DoublePointsPowerup(bounds) {
-		Powerup.call(this, bounds);
-		this.Width = 15;
-		this.Height = 16;
-		this.CollisionRadius = 8;
-		this.Sprite = game.mediaManager.Sprites.DoublePoints;
-		this.PowerupLifeTime = 90 * 60; // 90 seconds at 60 frames per second
-		log("DoublePointsPowerup created at: (" + this.X + "," + this.Y + ")");
-		
-		this.handleCollision = function(otherObject) {
-			if(otherObject instanceof PlayerShip) {
-				log("DoublePointsPowerup gained by the player");
-				game.mediaManager.Audio.PowerupWow.play();
-				objectManager.removeObject(this);
+		Powerup.call(
+			this, 
+			bounds, 
+			{
+				activation: INSTANT, 
+				duration: 60 * 90, 
+				name: "DoublePointsPowerup",
+				width: 15,
+				height: 16,
+				collisionRadius: 8,
+				sprite: game.mediaManager.Sprites.DoublePoints
 			}
-		}
+		);
 	}
 	DoublePointsPowerup.prototype = Object.create(Powerup.prototype);
 	DoublePointsPowerup.prototype.constructor = DoublePointsPowerup;
 	
 	function ExtraFuelPowerup(bounds) {
-		Powerup.call(this, bounds);
-		this.Width = 13;
-		this.Height = 13;
-		this.CollisionRadius = 7;
-		this.Sprite = game.mediaManager.Sprites.ExtraFuel;
-		this.PowerupLifeTime = 0; // Instantaneous
-		log("ExtraFuel created at: (" + this.X + "," + this.Y + ")");
-		
-		this.handleCollision = function(otherObject) {
-			if(otherObject instanceof PlayerShip) {
-				log("ExtraFuel gained by the player");
-				game.mediaManager.Audio.RepairOrFuelPowerup.play();
-				objectManager.removeObject(this);
+		Powerup.call(
+			this, 
+			bounds, 
+			{
+				activation: INSTANT, 
+				duration: 0, 
+				name: "ExtraFuelPowerup",
+				width: 13,
+				height: 13,
+				collisionRadius: 7,
+				sprite: game.mediaManager.Sprites.ExtraFuel
 			}
-		}
+		);
+
 	}
 	ExtraFuelPowerup.prototype = Object.create(Powerup.prototype);
 	ExtraFuelPowerup.prototype.constructor = ExtraFuelPowerup;
 	
 	function ShipRepairsPowerup(bounds) {
-		Powerup.call(this, bounds);
-		this.Width = 13;
-		this.Height = 13;
-		this.CollisionRadius = 7;
-		this.Sprite = game.mediaManager.Sprites.ShipRepairs;
-		this.PowerupLifeTime = 0; // Instantaneous
-		log("ShipRepairs created at: (" + this.X + "," + this.Y + ")");
-		
-		this.handleCollision = function(otherObject) {
-			if(otherObject instanceof PlayerShip) {
-				log("ShipRepairs gained by the player");
-				game.mediaManager.Audio.RepairOrFuelPowerup.play();
-				objectManager.removeObject(this);
+		Powerup.call(
+			this, 
+			bounds, 
+			{
+				activation: INSTANT, 
+				duration: 0, 
+				name: "ShipRepairsPowerup",
+				width: 13,
+				height: 13,
+				collisionRadius: 7,
+				sprite: game.mediaManager.Sprites.ShipRepairs
 			}
-		}
+		);
 	}
 	ShipRepairsPowerup.prototype = Object.create(Powerup.prototype);
 	ShipRepairsPowerup.prototype.constructor = ShipRepairsPowerup;
 	
 	function InvulnerabilityPowerup(bounds) {
-		Powerup.call(this, bounds);
-		this.Width = 15;
-		this.Height = 19;
-		this.CollisionRadius = 9;
-		this.Sprite = game.mediaManager.Sprites.Invulnerability;
-		this.PowerupLifeTime = 10 * 60; // 10 seconds at 60 frames per second
-		log("Invulnerability created at: (" + this.X + "," + this.Y + ")");
-		
-		this.handleCollision = function(otherObject) {
-			if(otherObject instanceof PlayerShip) {
-				log("Invulnerability gained by the player");
-				game.mediaManager.Audio.PowerupWow.play();
-				objectManager.removeObject(this);
+		Powerup.call(
+			this, 
+			bounds, 
+			{
+				activation: BUTTON_PRESS, 
+				duration: 60 * 10, 
+				name: "InvulnerabilityPowerup",
+				width: 15,
+				height: 19,
+				collisionRadius: 9,
+				sprite: game.mediaManager.Sprites.Invulnerability
 			}
-		}
+		);
 	}
 	InvulnerabilityPowerup.prototype = Object.create(Powerup.prototype);
 	InvulnerabilityPowerup.prototype.constructor = InvulnerabilityPowerup;
@@ -623,7 +631,7 @@ var LunaticFringe = function (canvas) {
                return;
             } else if (otherObject instanceof PlayerShip) {
                 log("PufferShot hit player!");
-				if (otherObject.isInvulnerable) {
+				if (otherObject.isInvulnerable()) {
 					game.mediaManager.Audio.InvincibleCollision.play();
 				} else {
 					game.mediaManager.Audio.CollisionGeneral.play();
@@ -655,7 +663,7 @@ var LunaticFringe = function (canvas) {
 				return;
 			} else if (otherObject instanceof PlayerShip) {
                 log("QuadBlasterProjectile hit PlayerShip!");
-				if (otherObject.isInvulnerable) {
+				if (otherObject.isInvulnerable()) {
 					game.mediaManager.Audio.InvincibleCollision.play();
 				} else {
 					game.mediaManager.Audio.CollisionQuad.play();
@@ -715,31 +723,6 @@ var LunaticFringe = function (canvas) {
 		this.CollisionDamage = 10;
 		this.isAccelerating = false;
 		this.atBase = false;
-		this.hasInvulnerablePowerup = true;
-		this.isInvulnerable = false;
-		
-		// Powerup variables
-		BulletPowerups = {
-			NONE: 0,
-			LARGEPHOTON: 1,
-			SPREADSHOT: 2
-		};
-		OtherPowerups = {
-			RESET: 0,
-			DOUBLEPOINTS: 1,
-			REVERTDOUBLEPOINTS: 2,
-			INVULNERABILITY: 3,
-			REVERTINVULNERABILITY: 4
-		}
-		this.powerupState = BulletPowerups.NONE;
-		this.powerupLength = 0;
-		this.bulletState = Bullets.SMALL;
-		// The shooting speed with standard bullets and no power ups
-		this.defaultShootingSpeed = 13;
-		this.bulletShootingSpeed = this.defaultShootingSpeed;
-		this.scoreMultiplier = 1;
-		this.doublePointsLength = 0;
-		this.invulnerabilityLength = 600;
 		
 		// Setup for the low fuel sound
 		this.isLowFuel = false;
@@ -766,7 +749,7 @@ var LunaticFringe = function (canvas) {
             if (otherObject instanceof Asteroid) {
 				PlayerShip.prototype.handleCollision.call(this, otherObject);     
                 log("Player hit a Asteroid");
-				if (!this.isInvulnerable) {
+				if (this.storedPowerupsActivated['InvulnerabilityPowerup'] != true) {
 					game.mediaManager.Audio.CollisionGeneral.play();
 					this.updateHealth(-1*otherObject.CollisionDamage);
 				} else {
@@ -775,12 +758,12 @@ var LunaticFringe = function (canvas) {
                 return;
             } else if (otherObject instanceof PufferProjectile || otherObject instanceof QuadBlasterProjectile) {
 				log("Player was hit by projectile: " + otherObject.constructor.name);
-				if (!this.isInvulnerable) {
+				if (this.storedPowerupsActivated['InvulnerabilityPowerup'] != true) {
 					this.updateHealth(-1*otherObject.Damage);
 				}
 				return;
 			} else if (otherObject instanceof AIGameObject) {
-				if (!this.isInvulnerable) {
+				if (this.storedPowerupsActivated['InvulnerabilityPowerup'] != true) {
 					this.updateHealth(-1*otherObject.CollisionDamage);
 					if (!(otherObject instanceof SludgerMine) && !(otherObject instanceof Slicer)) {
 						game.mediaManager.Audio.CollisionGeneral.play();
@@ -863,11 +846,7 @@ var LunaticFringe = function (canvas) {
 					}
 				}
 			} else if (otherObject instanceof Powerup) {
-				if (otherObject instanceof PhotonLargePowerup || otherObject instanceof SpreadShotPowerup) {
-					this.updateBulletPowerupState(otherObject);
-				} else {
-					this.updateOtherPowerupState(otherObject);
-				}
+				this.handlePowerupCollision(otherObject);
 			}
         }
 
@@ -940,21 +919,7 @@ var LunaticFringe = function (canvas) {
                 objectManager.removeObject(this);
             }
 			
-			if (numFramesSince.BulletPowerupStarted > this.powerupLength && this.powerupLength != 0) {
-				// With no arguments, this method sets the Player Ship back to the default state
-				this.updateBulletPowerupState();
-			}
-			
-			if (numFramesSince.DoublePointsStarted > this.doublePointsLength && this.doublePointsLength != 0) {
-				this.handleOtherPowerups(OtherPowerups.REVERTDOUBLEPOINTS);
-			}
-			
-			if (this.isInvulnerable && numFramesSince.InvulnerabilityStarted > this.invulnerabilityLength && this.invulnerabilityLength != 0) {
-				log("Losing invulnerabliity");
-				this.isInvulnerable = false;
-				this.invulnerabilityLength = 0;
-				this.Sprite = this.normalShipSprite;
-			}
+			this.updatePowerupState();
 			
 			// Handle playing the fuel sound
 			const fuelSoundThreshold = (this.maxFuel / 5);
@@ -966,66 +931,99 @@ var LunaticFringe = function (canvas) {
 			}
 	
         }
+	
+		// Subtracted from each cycle, if > 0 powerup is active
+		this.powerupFramesRemaining = {
+			SpreadShotPowerup: 0,
+			PhotonLargePowerup: 0,
+			DoublePointsPowerup: 0,
+			InvulnerabilityPowerup: 0
+        };
+		// Stored powerups indicated by true here
+		this.storedPowerupsAvailable = {
+			InvulnerabilityPowerup: {
+				available: true,
+				duration: 60 * 10 // TODO: Connect this to the invulnerability powerup
+			},
+		};
+		// Stored powerups that are currently activated indicated by true here
+		this.storedPowerupsActivated = {
+			InvulnerabilityPowerup: false,
+		};
+		// Possible bullet states
+		Bullets = {
+			SMALL: 1,
+			SPREADSHOT: 2,
+			LARGE: 3
+		};
+		this.bulletState = Bullets.SMALL;
+		this.defaultShootingSpeed = 13;
+		this.bulletShootingSpeed = this.defaultShootingSpeed;
+		this.scoreMultiplier = 1;
 		
-		this.updateOtherPowerupState = function(powerupObject) {
+		this.handlePowerupCollision = function(powerupObject) {
+			if (powerupObject.Activation === INSTANT) {
+				// Start the powerup for the duration
+				this.powerupFramesRemaining[powerupObject.Name] = powerupObject.Duration;
+			} else if (powerupObject.Activation === BUTTON_PRESS) {
+				// Store powerup as available (note: if already stored cannot be stored again)
+				this.storedPowerupsAvailable[powerupObject.Name].available = true;
+				// Set the duration for the powerup even though it won't be used right away
+				this.storedPowerupsAvailable[powerupObject.Name].duration = powerupObject.Duration;
+			}
+			
+			// Apply effect from powerup
 			if (powerupObject instanceof DoublePointsPowerup) {
-				this.doublePointsLength = powerupObject.PowerupLifeTime;
-				numFramesSince.DoublePointsStarted = 0;
-				this.handleOtherPowerups(OtherPowerups.DOUBLEPOINTS);
+				this.scoreMultiplier = 2;
 			} else if (powerupObject instanceof ExtraFuelPowerup) {
 				//Gain back half of the max fuel
 				this.updateFuel(this.maxFuel/2);
 			} else if (powerupObject instanceof ShipRepairsPowerup) {
 				//Give back 1/3 of max health
 				this.updateHealth(this.maxHealth/3);
+			} else if (powerupObject instanceof SpreadShotPowerup) {
+				this.bulletState = Bullets.SPREADSHOT;
+				this.bulletShootingSpeed = powerupObject.shootingSpeed;
+			} else if (powerupObject instanceof PhotonLargePowerup) {
+				this.bulletState = Bullets.LARGE;
+				this.bulletShootingSpeed = powerupObject.shootingSpeed;
 			} else if (powerupObject instanceof InvulnerabilityPowerup) {
-				//Give the player a stored invulnerability powerup
 				document.getElementById('invulnerabilityAvailable').style.visibility = "visible";
-				this.invulnerabilityLength = powerupObject.PowerupLifeTime;
-				this.hasInvulnerablePowerup = true;
 			}
 		}
 		
-		this.handleOtherPowerups = function(state) {
-			if (state == OtherPowerups.DOUBLEPOINTS) {
-				log("Applying the DoublePoints powerup")
-				this.scoreMultiplier = 2;
-			} else if (state == OtherPowerups.REVERTDOUBLEPOINTS || state == OtherPowerups.RESET) {
-				log("Reverting the DoublePoints powerup")
-				this.scoreMultiplier = 1;
-				this.doublePointsLength = 0;
-			}			
-		}
-		
-		// Method to update the state of powerups for the ship
-		// If nothing is passed in, then powerupObject will be undefined, which 
-		// means the state is being set back to default
-		this.updateBulletPowerupState = function(powerupObject) {
-			// Revert previous powerup values (if there was previously a powerup applied)
-			if (this.powerupState == BulletPowerups.LARGEPHOTON || this.powerupState == BulletPowerups.SPREADSHOT) {
-				log("reverting " + (this.powerupState == BulletPowerups.LARGEPHOTON ? "LARGEPHOTON" : "SPREADSHOT") + " powerup");
-				this.powerupLength = 0;
-				this.bulletShootingSpeed = this.defaultShootingSpeed;
-				this.bulletState = Bullets.SMALL;
-				this.powerupState = BulletPowerups.NONE;
+		this.updatePowerupState = function() {
+			// Handle bullet powerups
+			if (this.bulletState == Bullets.SPREADSHOT) {
+				if (this.powerupFramesRemaining['SpreadShotPowerup'] <= 0) {
+					log("reverting spreadshot bullet powerup");
+					this.bulletState = Bullets.SMALL;
+					this.bulletShootingSpeed = this.defaultShootingSpeed;
+				}
+			} else if (this.bulletState == Bullets.LARGE) {
+				if (this.powerupFramesRemaining['PhotonLargePowerup'] <= 0) {
+					log("reverting large bullet powerup");
+					this.bulletState = Bullets.SMALL;
+					this.bulletShootingSpeed = this.defaultShootingSpeed;
+				}
 			}
 			
-			// Apply new powerup values
-			if (powerupObject instanceof PhotonLargePowerup) {
-				log("applying LARGEPHOTON powerup");
-				this.bulletState = Bullets.LARGE;
-				this.powerupState = BulletPowerups.LARGEPHOTON;
-				this.bulletShootingSpeed = powerupObject.shootingSpeed;
-				numFramesSince.BulletPowerupStarted = 0;
-				this.powerupLength = powerupObject.PowerupLifeTime;
-			} else if (powerupObject instanceof SpreadShotPowerup) {
-				log("applying SPREADSHOT powerup");
-				this.bulletState = Bullets.SPREADSHOT;
-				this.powerupState = BulletPowerups.SPREADSHOT;
-				this.bulletShootingSpeed = powerupObject.shootingSpeed;
-				numFramesSince.BulletPowerupStarted = 0;
-				this.powerupLength = powerupObject.PowerupLifeTime;
+			// Handle other powerups
+			if (this.powerupFramesRemaining['DoublePointsPowerup'] <= 0 && this.scoreMultiplier != 1) {
+				// Revert double points
+				log("reverting double points powerup");
+				this.scoreMultiplier = 1;
 			}
+			if (this.powerupFramesRemaining['InvulnerabilityPowerup'] <= 0 && this.storedPowerupsActivated['InvulnerabilityPowerup'] == true) {
+				// Revert invulnerability
+				log("reverting invulnerability powerup");
+				this.storedPowerupsActivated['InvulnerabilityPowerup'] = false;
+				this.Sprite = this.normalShipSprite;
+			}
+		}
+		
+		this.isInvulnerable = function() {
+			return this.storedPowerupsActivated['InvulnerabilityPowerup'];
 		}
 		
 		this.addToScore = function(amount) {
@@ -1041,6 +1039,12 @@ var LunaticFringe = function (canvas) {
                     numFramesSince[i] += 1;
                 }
             }
+			
+			for (i in this.powerupFramesRemaining) {
+				if (this.powerupFramesRemaining.hasOwnProperty(i) && this.powerupFramesRemaining[i] > 0) {
+					this.powerupFramesRemaining[i] -= 1;
+				}
+			}
 
             if (KeyState.isDown(KeyState.UP) && this.Fuel > 0) {
 				this.isAccelerating = true;
@@ -1091,16 +1095,16 @@ var LunaticFringe = function (canvas) {
                 }
             }
 			
-			if (KeyState.isDown(KeyState.V) && this.hasInvulnerablePowerup) {
+			if (KeyState.isDown(KeyState.V) && this.storedPowerupsAvailable['InvulnerabilityPowerup'].available == true) {
 				this.activateInvulnerability();
 			}
         };
 		
 		this.activateInvulnerability = function() {
 			document.getElementById('invulnerabilityAvailable').style.visibility = "hidden";
-			this.hasInvulnerablePowerup = false;
-			this.isInvulnerable = true;
-			numFramesSince.InvulnerabilityStarted = 0;
+			this.storedPowerupsActivated['InvulnerabilityPowerup'] = true;
+			this.storedPowerupsAvailable['InvulnerabilityPowerup'].available = false;
+			this.powerupFramesRemaining['InvulnerabilityPowerup'] = this.storedPowerupsAvailable['InvulnerabilityPowerup'].duration;
 			game.mediaManager.Audio.InvincibleOrBoost.play();
 			this.Sprite = this.invulnerableShipSprite;
 		}
@@ -1636,7 +1640,7 @@ var LunaticFringe = function (canvas) {
 		this.handleCollision = function(otherObject) {
 			if (otherObject instanceof PlayerShip) {
 				log("PlayerShip hit the enemy base!");
-				if (otherObject.isInvulnerable) {
+				if (otherObject.isInvulnerable()) {
 					game.mediaManager.Audio.InvincibleCollision.play();
 				} else {
 					game.mediaManager.Audio.CollisionGeneral.play();
