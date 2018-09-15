@@ -366,6 +366,24 @@ var LunaticFringe = function (canvas) {
 	InvulnerabilityPowerup.prototype = Object.create(Powerup.prototype);
 	InvulnerabilityPowerup.prototype.constructor = InvulnerabilityPowerup;
 	
+	function TurboThrustPowerup(bounds) {
+		Powerup.call(
+			this,
+			bounds,
+			{
+				activation: BUTTON_PRESS,
+				duration:60 * 2,
+				name: "TurboThrustPowerup",
+				width: 15,
+				height: 16,
+				collisionRadius: 8,
+				sprite: game.mediaManager.Sprites.TurboThrust
+			}
+		);
+	}
+	TurboThrustPowerup.prototype = Object.create(Powerup.prototype);
+	TurboThrustPowerup.prototype.constructor = TurboThrustPowerup;
+	
     // All AI inherit from this
     function AIGameObject(playerShip) {
         GameObject.call(this);
@@ -921,7 +939,8 @@ var LunaticFringe = function (canvas) {
 			SpreadShotPowerup: 0,
 			PhotonLargePowerup: 0,
 			DoublePointsPowerup: 0,
-			InvulnerabilityPowerup: 0
+			InvulnerabilityPowerup: 0,
+			TurboThrustPowerup: 0
         };
 		// Stored powerups indicated by true here
 		this.storedPowerupsAvailable = {
@@ -929,10 +948,15 @@ var LunaticFringe = function (canvas) {
 				available: true,
 				duration: 60 * 10 // TODO: Connect this to the invulnerability powerup
 			},
+			TurboThrustPowerup: {
+				available: true,
+				duration: 60 * 2 // TODO: Connect this to the turbo thrust powerup
+			}
 		};
 		// Stored powerups that are currently activated indicated by true here
 		this.storedPowerupsActivated = {
 			InvulnerabilityPowerup: false,
+			TurboThrustPowerup: false
 		};
 		// Possible bullet states
 		Bullets = {

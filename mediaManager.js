@@ -50,6 +50,7 @@ LunaticFringe.MediaManager = function () {
   this.LoadSprite("ExtraFuel", "images/ExtraFuel.png");
   this.LoadSprite("ShipRepairs", "images/RepairShip.png");
   this.LoadSprite("Invulnerability", "images/Invulnerability.png");
+  this.LoadSprite("TurboThrust", "images/TurboThrust.png");
 
   this.LoadAudio("CollisionGeneral", "audio/collision_general");
   this.LoadAudio("CollisionSpreadshot", "audio/collision_spreadshot");
