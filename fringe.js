@@ -886,8 +886,9 @@ var LunaticFringe = function (canvas) {
 				document.getElementById('fuel').setAttribute('value', this.Fuel);
 				
 				// reset ship back to default state
-				this.updateBulletPowerupState();
-				this.handleOtherPowerups(OtherPowerups.RESET);
+				this.updatePowerupState(true);
+				// this.updateBulletPowerupState();
+				// this.handleOtherPowerups(OtherPowerups.RESET);
             }
         }
 
@@ -975,29 +976,29 @@ var LunaticFringe = function (canvas) {
 			}
 		}
 		
-		this.updatePowerupState = function() {
+		this.updatePowerupState = function(reset = false) {
 			// Handle bullet powerups
 			if (this.bulletState == Bullets.SPREADSHOT) {
-				if (this.powerupFramesRemaining['SpreadShotPowerup'] <= 0) {
+				if (this.powerupFramesRemaining['SpreadShotPowerup'] <= 0 || (this.powerupFramesRemaining['SpreadShotPowerup'] > 0 && reset)) {
 					log("reverting spreadshot bullet powerup");
 					this.bulletState = Bullets.SMALL;
 					this.bulletShootingSpeed = this.defaultShootingSpeed;
 				}
 			} else if (this.bulletState == Bullets.LARGE) {
-				if (this.powerupFramesRemaining['PhotonLargePowerup'] <= 0) {
+				if (this.powerupFramesRemaining['PhotonLargePowerup'] <= 0 || (this.powerupFramesRemaining['PhotonLargePowerup'] > 0 && reset)) {
 					log("reverting large bullet powerup");
 					this.bulletState = Bullets.SMALL;
 					this.bulletShootingSpeed = this.defaultShootingSpeed;
 				}
 			}
-			
+
 			// Handle other powerups
-			if (this.powerupFramesRemaining['DoublePointsPowerup'] <= 0 && this.scoreMultiplier != 1) {
+			if ((this.powerupFramesRemaining['DoublePointsPowerup'] <= 0 && this.scoreMultiplier != 1) || (this.powerupFramesRemaining['DoublePointsPowerup'] > 0 && reset)) {
 				// Revert double points
 				log("reverting double points powerup");
 				this.scoreMultiplier = 1;
 			}
-			if (this.powerupFramesRemaining['InvulnerabilityPowerup'] <= 0 && this.storedPowerupsActivated['InvulnerabilityPowerup'] == true) {
+			if ((this.powerupFramesRemaining['InvulnerabilityPowerup'] <= 0 && this.storedPowerupsActivated['InvulnerabilityPowerup'] == true) || (this.powerupFramesRemaining['InvulnerabilityPowerup'] > 0 && reset)) {
 				// Revert invulnerability
 				log("reverting invulnerability powerup");
 				this.storedPowerupsActivated['InvulnerabilityPowerup'] = false;
