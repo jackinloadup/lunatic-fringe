@@ -70,6 +70,7 @@ var LunaticFringe = function (canvas) {
         DOWN: 40,
 		CAPSLOCK: 20,
 		V: 86,
+		B: 66,
 
         isDown: function (keyCode) {
             return this.keysPressed[keyCode];
@@ -968,6 +969,10 @@ var LunaticFringe = function (canvas) {
 		this.defaultShootingSpeed = 13;
 		this.bulletShootingSpeed = this.defaultShootingSpeed;
 		this.scoreMultiplier = 1;
+		// The speed you got at when using the turbo thrust powerup
+		const SPEED_OF_TURBO_THRUST = 2 * this.MaxSpeed;
+		// What to set the speed of the ship to after turbo thrusting so you get a little "drifting" after the boost
+		const SPEED_AFTER_TURBO_THRUST = 1;
 		
 		this.handlePowerupCollision = function(powerupObject) {
 			if (powerupObject.Activation === INSTANT) {
@@ -997,6 +1002,8 @@ var LunaticFringe = function (canvas) {
 				this.bulletShootingSpeed = powerupObject.shootingSpeed;
 			} else if (powerupObject instanceof InvulnerabilityPowerup) {
 				document.getElementById('invulnerabilityAvailable').style.visibility = "visible";
+			} else if (powerupObject instanceof TurboThrustPowerup) {
+				document.getElementById('turboThrustAvailable').style.visibility = "visible";
 			}
 		}
 		
@@ -1027,6 +1034,13 @@ var LunaticFringe = function (canvas) {
 				log("reverting invulnerability powerup");
 				this.storedPowerupsActivated['InvulnerabilityPowerup'] = false;
 				this.Sprite = this.normalShipSprite;
+			}
+			if ((this.powerupFramesRemaining['TurboThrustPowerup'] <= 0 && this.storedPowerupsActivated['TurboThrustPowerup'] == true) || (this.powerupFramesRemaining['TurboThrustPowerup'] > 0 && reset)) {
+				// Revert turbo thrust
+				log("reverting turbo thrust powerup");
+				this.storedPowerupsActivated['TurboThrustPowerup'] = false;
+				this.VelocityX = this.VelocityX * SPEED_AFTER_TURBO_THRUST / SPEED_OF_TURBO_THRUST;
+				this.VelocityY = this.VelocityY * SPEED_AFTER_TURBO_THRUST / SPEED_OF_TURBO_THRUST;
 			}
 		}
 		
@@ -1106,6 +1120,10 @@ var LunaticFringe = function (canvas) {
 			if (KeyState.isDown(KeyState.V) && this.storedPowerupsAvailable['InvulnerabilityPowerup'].available == true) {
 				this.activateInvulnerability();
 			}
+			
+			if (KeyState.isDown(KeyState.B) && this.storedPowerupsAvailable['TurboThrustPowerup'].available == true) {
+				this.activateTurboThrust();
+			}
         };
 		
 		this.activateInvulnerability = function() {
@@ -1115,6 +1133,18 @@ var LunaticFringe = function (canvas) {
 			this.powerupFramesRemaining['InvulnerabilityPowerup'] = this.storedPowerupsAvailable['InvulnerabilityPowerup'].duration;
 			game.mediaManager.Audio.InvincibleOrBoost.play();
 			this.Sprite = this.invulnerableShipSprite;
+		}
+		
+		this.activateTurboThrust = function() {
+			document.getElementById('turboThrustAvailable').style.visibility = "hidden";
+			this.storedPowerupsActivated['TurboThrustPowerup'] = true;
+			this.storedPowerupsAvailable['TurboThrustPowerup'].available = false;
+			this.powerupFramesRemaining['TurboThrustPowerup'] = this.storedPowerupsAvailable['TurboThrustPowerup'].duration;
+			game.mediaManager.Audio.InvincibleOrBoost.play();
+			this.VelocityX = -Math.cos(this.Angle) * SPEED_OF_TURBO_THRUST;
+			this.VelocityY = Math.sin(-this.Angle) * SPEED_OF_TURBO_THRUST;
+			// new Vector(-Math.cos(this.Angle) * this.Acceleration, Math.sin(-this.Angle) * this.Acceleration)
+			// this.Angle = Math.PI / 2; // Straight up
 		}
     }
     PlayerShip.prototype = Object.create(GameObject.prototype);
@@ -1981,6 +2011,7 @@ var LunaticFringe = function (canvas) {
 			this.addObject(new ExtraFuelPowerup(GameBounds));
 			this.addObject(new ShipRepairsPowerup(GameBounds));
 			this.addObject(new InvulnerabilityPowerup(GameBounds));
+			this.addObject(new TurboThrustPowerup(GameBounds));
 
             // Add ship last so it draws on top of most objects
             this.addObject(game.PlayerShip, true);
