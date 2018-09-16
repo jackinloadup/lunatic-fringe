@@ -449,7 +449,12 @@ var LunaticFringe = function (canvas) {
 			} else if (otherObject instanceof PlayerShip) {
 				GameObject.prototype.handleCollision.call(this, otherObject);
 				log(thisName + " hit by the player");
-				this.Health -= otherObject.CollisionDamage;
+				if(otherObject.isTurboThrusting()) {
+					// Turbo thrusting player instantly kills any enemy (with the exception of the asteroids and enemy base)
+					this.Health = 0;
+				} else {
+					this.Health -= otherObject.CollisionDamage;
+				}
 				log(thisName + " health is now: " + this.Health);
 				// If this dies from a player hitting it, points are still awarded
 				if (this.Health <= 0) {
@@ -775,8 +780,11 @@ var LunaticFringe = function (canvas) {
 				} else {
 					game.mediaManager.Audio.InvincibleCollision.play();
 				}
-				PlayerShip.prototype.handleCollision.call(this, otherObject);				
-			} else if (otherObject instanceof Base) {
+				if (this.storedPowerupsActivated['TurboThrustPowerup'] != true || otherObject instanceof EnemyBase) {
+					// Hitting other objects (besides asteroids and the enemy base) only changes your direction and speed if you are not turbo thrusting
+					PlayerShip.prototype.handleCollision.call(this, otherObject);
+				}				
+			} else if (otherObject instanceof Base && this.storedPowerupsActivated['TurboThrustPowerup'] != true) {
 				this.atBase = true;
 				// Make it so that the ship will go towards the Player Base
 				// These are the coordinates the Base should be at if the ship is centered on the base
@@ -1048,6 +1056,10 @@ var LunaticFringe = function (canvas) {
 			return this.storedPowerupsActivated['InvulnerabilityPowerup'];
 		}
 		
+		this.isTurboThrusting = function() {
+			return this.storedPowerupsActivated['TurboThrustPowerup'];
+		}
+		
 		this.addToScore = function(amount) {
 			score += amount * this.scoreMultiplier;
 		}
@@ -1068,7 +1080,7 @@ var LunaticFringe = function (canvas) {
 				}
 			}
 
-            if (KeyState.isDown(KeyState.UP) && this.Fuel > 0) {
+            if (KeyState.isDown(KeyState.UP) && this.Fuel > 0 && this.storedPowerupsActivated['TurboThrustPowerup'] != true) {
 				this.isAccelerating = true;
 				this.updateFuel(-1);
                 this.calculateAcceleration();
@@ -1077,7 +1089,7 @@ var LunaticFringe = function (canvas) {
                 spriteY = 0;
             }
 
-            if (KeyState.isDown(KeyState.LEFT) && numFramesSince.Left >= 3) {
+            if (KeyState.isDown(KeyState.LEFT) && numFramesSince.Left >= 3 && this.storedPowerupsActivated['TurboThrustPowerup'] != true) {
                 numFramesSince.Left = 0;
                 spriteX -= this.Width;
                 this.Angle -= rotationAmount;
@@ -1086,7 +1098,7 @@ var LunaticFringe = function (canvas) {
                 }
             }
 
-            if (KeyState.isDown(KeyState.RIGHT) && numFramesSince.Right >= 3) {
+            if (KeyState.isDown(KeyState.RIGHT) && numFramesSince.Right >= 3 && this.storedPowerupsActivated['TurboThrustPowerup'] != true) {
                 numFramesSince.Right = 0;
                 spriteX += this.Width;
                 this.Angle += rotationAmount;
@@ -1095,7 +1107,7 @@ var LunaticFringe = function (canvas) {
                 }
             }
 
-            if (KeyState.isDown(KeyState.SPACE) && !this.atBase) {
+            if (KeyState.isDown(KeyState.SPACE) && !this.atBase && this.storedPowerupsActivated['TurboThrustPowerup'] != true) {
                 if (numFramesSince.Shooting >= this.bulletShootingSpeed) { // 13 matches up best with the original game's rate of fire at 60fps
 					var photon;
 					if (this.bulletState == Bullets.SMALL) {
@@ -1121,7 +1133,7 @@ var LunaticFringe = function (canvas) {
 				this.activateInvulnerability();
 			}
 			
-			if (KeyState.isDown(KeyState.B) && this.storedPowerupsAvailable['TurboThrustPowerup'].available == true) {
+			if (KeyState.isDown(KeyState.B) && this.storedPowerupsAvailable['TurboThrustPowerup'].available == true && this.storedPowerupsActivated['TurboThrustPowerup'] != true) {
 				this.activateTurboThrust();
 			}
         };
@@ -1143,8 +1155,6 @@ var LunaticFringe = function (canvas) {
 			game.mediaManager.Audio.InvincibleOrBoost.play();
 			this.VelocityX = -Math.cos(this.Angle) * SPEED_OF_TURBO_THRUST;
 			this.VelocityY = Math.sin(-this.Angle) * SPEED_OF_TURBO_THRUST;
-			// new Vector(-Math.cos(this.Angle) * this.Acceleration, Math.sin(-this.Angle) * this.Acceleration)
-			// this.Angle = Math.PI / 2; // Straight up
 		}
     }
     PlayerShip.prototype = Object.create(GameObject.prototype);
