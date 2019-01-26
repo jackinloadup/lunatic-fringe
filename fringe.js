@@ -2011,9 +2011,9 @@ var LunaticFringe = function (canvas) {
 				this.addObject(new Slicer(GameBounds, game.PlayerShip));
 			}
 
-			for (i = 0; i < 3; i += 1) {
-				this.addObject(new SludgerMine(GameBounds, game.PlayerShip));
-			}
+			// for (i = 0; i < 3; i += 1) {
+				// this.addObject(new SludgerMine(GameBounds, game.PlayerShip));
+			// }
 			
 			this.addObject(new PhotonLargePowerup(GameBounds));
 			this.addObject(new SpreadShotPowerup(GameBounds));
