@@ -1986,33 +1986,33 @@ var LunaticFringe = function (canvas) {
 
             this.addObject(new EnemyBase(GameBounds, game.PlayerShip));
 
-            // for (i = 0; i < 6; i += 1) {
-                // this.addObject(new Pebbles(GameBounds));
-            // }
+            for (i = 0; i < 6; i += 1) {
+                this.addObject(new Pebbles(GameBounds));
+            }
 
-            // for (i = 0; i < 3; i += 1) {
-                // this.addObject(new Rocko(GameBounds));
-            // }
+            for (i = 0; i < 3; i += 1) {
+                this.addObject(new Rocko(GameBounds));
+            }
 
-            // for (i = 0; i < 4; i += 1) {
-                // this.addObject(new Sludger(GameBounds, game.PlayerShip));
-            // }
+            for (i = 0; i < 4; i += 1) {
+                this.addObject(new Sludger(GameBounds, game.PlayerShip));
+            }
 
-            // for (i = 0; i < 5; i += 1) {
-                // this.addObject(new QuadBlaster(GameBounds, game.PlayerShip));
-            // }
+            for (i = 0; i < 5; i += 1) {
+                this.addObject(new QuadBlaster(GameBounds, game.PlayerShip));
+            }
 
-            // for (i = 0; i < 4; i += 1) {
-                // this.addObject(new Puffer(GameBounds, game.PlayerShip));
-            // }
+            for (i = 0; i < 4; i += 1) {
+                this.addObject(new Puffer(GameBounds, game.PlayerShip));
+            }
 			
-			// for (i = 0; i < 2; i += 1) {
-				// this.addObject(new Slicer(GameBounds, game.PlayerShip));
-			// }
+			for (i = 0; i < 2; i += 1) {
+				this.addObject(new Slicer(GameBounds, game.PlayerShip));
+			}
 
-			// for (i = 0; i < 3; i += 1) {
-				// this.addObject(new SludgerMine(GameBounds, game.PlayerShip));
-			// }
+			for (i = 0; i < 3; i += 1) {
+				this.addObject(new SludgerMine(GameBounds, game.PlayerShip));
+			}
 			
 			this.addObject(new PhotonLargePowerup(GameBounds));
 			this.addObject(new SpreadShotPowerup(GameBounds));
