@@ -71,6 +71,7 @@ var LunaticFringe = function (canvas) {
 		CAPSLOCK: 20,
 		V: 86,
 		B: 66,
+		K: 75,
 
         isDown: function (keyCode) {
             return this.keysPressed[keyCode];
@@ -712,15 +713,8 @@ var LunaticFringe = function (canvas) {
             Right: 0,
             Shooting: 0,
 			Repair: 0,
-			BulletPowerupStarted: 0,
-			DoublePointsStarted: 0,
-			InvulnerabilityStarted: 0
-        };
-		Bullets = {
-			SMALL: 1,
-			SPREADSHOT: 2,
-			LARGE: 3
-		};       
+			Death: 0,
+		}
 		this.normalShipSprite = game.mediaManager.Sprites.PlayerShip;
 		this.invulnerableShipSprite = game.mediaManager.Sprites.PlayerShipInvulnerable;
 		this.Sprite = this.normalShipSprite;
@@ -912,10 +906,11 @@ var LunaticFringe = function (canvas) {
 				this.Fuel = this.maxFuel;
 				document.getElementById('fuel').setAttribute('value', this.Fuel);
 				
-				// reset ship back to default state
+				// reset ship back to default powerup state
 				this.updatePowerupState(true);
-				// this.updateBulletPowerupState();
-				// this.handleOtherPowerups(OtherPowerups.RESET);
+				
+				// reset number of frames since death
+				numFramesSince['Death'] = 0;
             }
         }
 
@@ -1135,6 +1130,11 @@ var LunaticFringe = function (canvas) {
 			
 			if (KeyState.isDown(KeyState.B) && this.storedPowerupsAvailable['TurboThrustPowerup'].available == true && this.storedPowerupsActivated['TurboThrustPowerup'] != true) {
 				this.activateTurboThrust();
+			}
+			
+			// Allow a keypress of K to autokill the player. Do not allow this event to be fired more than once per second (60 frames) or when the player is at the base.
+			if(KeyState.isDown(KeyState.K) && numFramesSince['Death'] > 60 && !this.atBase) {
+				this.die();
 			}
         };
 		
