@@ -1132,7 +1132,8 @@ var LunaticFringe = function (canvas) {
 				this.activateTurboThrust();
 			}
 			
-			if(KeyState.isDown(KeyState.K)) {
+			// Allow a keypress of K to autokill the player. Do not allow this event to be fired more than once per second (60 frames) or when the player is at the base.
+			if(KeyState.isDown(KeyState.K) && numFramesSince['Death'] > 60 && !this.atBase) {
 				this.die();
 			}
         };
