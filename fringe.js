@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = false, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.23";
+	var Version = "1.24";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
