@@ -113,7 +113,7 @@ var LunaticFringe = function (canvas) {
         this.Sprite = null;
 
         GameObject.prototype.updateState = function () {
-            //console.log("GameObject - updateState");
+            // console.log("GameObject - updateState");
         };
 
         GameObject.prototype.draw = function (context) {
@@ -170,7 +170,7 @@ var LunaticFringe = function (canvas) {
         };
 
         GameObject.prototype.processInput = function (KeyState) {
-            //console.log("GameObject - processInput");
+            // console.log("GameObject - processInput");
         };
 
         GameObject.prototype.calculateAcceleration = function () {
