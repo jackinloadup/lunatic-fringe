@@ -22,7 +22,7 @@ var LunaticFringe = function (canvas) {
 
     var animationLoop, objectManager, mediaManager, Key, DEBUG = false, numEnemiesKilled = 0, score = 0;
     var game = this;
-	var Version = "1.24";
+	var Version = "1.25";
 	var isCapsPaused = false;
 	log("Game Version: " + Version);
 
@@ -994,9 +994,15 @@ var LunaticFringe = function (canvas) {
 			} else if (powerupObject instanceof SpreadShotPowerup) {
 				this.bulletState = Bullets.SPREADSHOT;
 				this.bulletShootingSpeed = powerupObject.shootingSpeed;
+				document.getElementById('spreadShotActive').style.visibility = "visible";
+				// Overrides photon large powerup so make sure that is hidden
+				document.getElementById('photonLargeActive').style.visibility = "hidden";
 			} else if (powerupObject instanceof PhotonLargePowerup) {
 				this.bulletState = Bullets.LARGE;
 				this.bulletShootingSpeed = powerupObject.shootingSpeed;
+				document.getElementById('photonLargeActive').style.visibility = "visible";
+				// Overrides spreadshot powerup so make sure that is hidden
+				document.getElementById('spreadShotActive').style.visibility = "hidden";				
 			} else if (powerupObject instanceof InvulnerabilityPowerup) {
 				document.getElementById('invulnerabilityAvailable').style.visibility = "visible";
 			} else if (powerupObject instanceof TurboThrustPowerup) {
@@ -1011,12 +1017,14 @@ var LunaticFringe = function (canvas) {
 					log("reverting spreadshot bullet powerup");
 					this.bulletState = Bullets.SMALL;
 					this.bulletShootingSpeed = this.defaultShootingSpeed;
+					document.getElementById('spreadShotActive').style.visibility = "hidden";
 				}
 			} else if (this.bulletState == Bullets.LARGE) {
 				if (this.powerupFramesRemaining['PhotonLargePowerup'] <= 0 || (this.powerupFramesRemaining['PhotonLargePowerup'] > 0 && reset)) {
 					log("reverting large bullet powerup");
 					this.bulletState = Bullets.SMALL;
 					this.bulletShootingSpeed = this.defaultShootingSpeed;
+					document.getElementById('photonLargeActive').style.visibility = "hidden";
 				}
 			}
 
