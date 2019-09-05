@@ -160,18 +160,13 @@ var LunaticFringe = function (canvas) {
             new_yspeed_1 = magnitude_1 * Math.sin(direction_1 - phi);
 
             new_xspeed_2 = magnitude_2 * Math.cos(direction_2 - phi);
-            //new_yspeed_2 = magnitude_2 * Math.sin(direction_2 - phi);
 
             final_xspeed_1 = ((this.Mass - otherObject.Mass) * new_xspeed_1 + (otherObject.Mass + otherObject.Mass) * new_xspeed_2) / (this.Mass + otherObject.Mass);
-            //final_xspeed_2 = ((this.Mass + this.Mass) * new_xspeed_1 + (otherObject.Mass - this.Mass) * new_xspeed_2) / (this.Mass + otherObject.Mass);
 
             final_yspeed_1 = new_yspeed_1;
-            //final_yspeed_2 = new_yspeed_2;
 
             this.VelocityX = Math.cos(phi) * final_xspeed_1 + Math.cos(phi + Math.PI / 2) * final_yspeed_1;
             this.VelocityY = Math.sin(phi) * final_xspeed_1 + Math.sin(phi + Math.PI / 2) * final_yspeed_1;
-            //otherObject.VelocityX = Math.cos(phi) * final_xspeed_2 + Math.cos(phi + Math.PI / 2) * final_yspeed_2;
-            //otherObject.VelocityY = Math.sin(phi) * final_xspeed_2 + Math.sin(phi + Math.PI / 2) * final_yspeed_2;
         };
 
         GameObject.prototype.processInput = function (KeyState) {
@@ -666,7 +661,6 @@ var LunaticFringe = function (canvas) {
 		this.Damage = 5;
 
         this.handleCollision = function (otherObject) {
-            //Projectile.prototype.handleCollision.call(this, otherObject);
 			if (otherObject instanceof Powerup) {
 				return;
 			} else if (otherObject instanceof PlayerShip) {
@@ -706,7 +700,6 @@ var LunaticFringe = function (canvas) {
 		this.maxFuel = 1500;
         animationFrames = 32;
         rotationAmount = (Math.PI * 2) / animationFrames; // 32 frames of animation in the sprite
-        // accel = 0.1;
         this.Acceleration = 0.1;
         numFramesSince = {
             Left: 0,
