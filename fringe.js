@@ -984,6 +984,7 @@ var LunaticFringe = function (canvas) {
 			// Apply effect from powerup
 			if (powerupObject instanceof DoublePointsPowerup) {
 				this.scoreMultiplier = 2;
+				document.getElementById('doublePointsActive').style.visibility = "visible";
 			} else if (powerupObject instanceof ExtraFuelPowerup) {
 				//Gain back half of the max fuel
 				this.updateFuel(this.maxFuel/2);
@@ -1023,6 +1024,7 @@ var LunaticFringe = function (canvas) {
 			if ((this.powerupFramesRemaining['DoublePointsPowerup'] <= 0 && this.scoreMultiplier != 1) || (this.powerupFramesRemaining['DoublePointsPowerup'] > 0 && reset)) {
 				// Revert double points
 				log("reverting double points powerup");
+				document.getElementById('doublePointsActive').style.visibility = "hidden";
 				this.scoreMultiplier = 1;
 			}
 			if ((this.powerupFramesRemaining['InvulnerabilityPowerup'] <= 0 && this.storedPowerupsActivated['InvulnerabilityPowerup'] == true) || (this.powerupFramesRemaining['InvulnerabilityPowerup'] > 0 && reset)) {
