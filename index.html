@@ -22,6 +22,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
     <link rel="shortcut icon" href="favicon.ico" />
     <link rel="stylesheet" type="text/css" href="main.css">
+	<script src="vector.js" type="text/javascript"></script>
     <script src="fringe.js" type="text/javascript"></script>
     <script src="mediaManager.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -37,7 +38,34 @@
 <body>
     <canvas id="fringeCanvas" style="position: absolute; top: 0px; left: 0px;"></canvas>
     <div id="hud">
-       <progress id="health" value="100" max="100"></progress>
+		<div id="healthDiv">
+			Health:	<progress id="health" value="100" max="100"></progress>
+		</div>
+		<div id="fuelDiv">
+			Fuel:	<progress id="fuel" value="1500" max="1500"></progress>
+		</div>
+		<div>
+			<span id="invulnerabilityAvailable" style="visibility: visible;">
+				<img src="images/Invulnerability.png" alt="Invulnerability Available" height="19" width="15">
+			</span>
+			<span id="turboThrustAvailable" style="visibility: visible;">
+				<img src="images/TurboThrust.png" alt="Turbo Thrust Available" height="16" width="15">
+			</span>
+		</div>
+		<div>
+			<span>Active Powerups:</span>
+		</div>
+		<div>
+			<span id="doublePointsActive" style="visibility: hidden;">
+				<img src="images/DoublePoints.png" alt="Double Points Active" height="16" width="15">
+			</span>
+			<span id="spreadShotActive" style="visibility: hidden;">
+				<img src="images/SpreadShot.png" alt="Spread Shot Active" height="16" width="19">
+			</span>
+			<span id="photonLargeActive" style="visibility: hidden;">
+				<img src="images/PhotonLarge.png" alt="Photon Large Active" height="16" width="15">
+			</span>
+		</div>
     </div>
 </body>
 </html>
