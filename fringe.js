@@ -344,6 +344,24 @@ var LunaticFringe = function (canvas) {
 	}
 	ShipRepairsPowerup.prototype = Object.create(Powerup.prototype);
 	ShipRepairsPowerup.prototype.constructor = ShipRepairsPowerup;
+
+    function SparePartsPowerup(bounds) {
+        Powerup.call(
+            this,
+            bounds,
+            {
+                activation: INSTANT, 
+				duration: 0, 
+				name: "SparePartsPowerup",
+				width: 13,
+				height: 13,
+				collisionRadius: 7,
+				sprite: game.mediaManager.Sprites.SpareParts
+            }
+        );
+    }
+    SparePartsPowerup.prototype = Object.create(Powerup.prototype);
+    SparePartsPowerup.prototype.constructor = SparePartsPowerup;
 	
 	function InvulnerabilityPowerup(bounds) {
 		Powerup.call(
@@ -698,6 +716,8 @@ var LunaticFringe = function (canvas) {
         this.Angle = Math.PI / 2; // Straight up
 		this.Fuel = 1500;
 		this.maxFuel = 1500;
+        this.SpareParts = 100; // Start with full spare parts
+        this.maxSpareParts = 100;
         animationFrames = 32;
         rotationAmount = (Math.PI * 2) / animationFrames; // 32 frames of animation in the sprite
         this.Acceleration = 0.1;
@@ -707,6 +727,8 @@ var LunaticFringe = function (canvas) {
             Shooting: 0,
 			Repair: 0,
 			Death: 0,
+            HealFromSparePart: 0,
+            TakenDamage: 0
 		}
 		this.normalShipSprite = game.mediaManager.Sprites.PlayerShip;
 		this.invulnerableShipSprite = game.mediaManager.Sprites.PlayerShipInvulnerable;
@@ -848,12 +870,18 @@ var LunaticFringe = function (canvas) {
         }
 
         this.updateHealth = function (healthChange) {
+            if (healthChange < 0) {
+                // Ship has taken damage
+                numFramesSince.TakenDamage = 0;
+            }
+
 			log("ship Health: " + this.health + ", changing by: " + healthChange);
 			this.health = this.health + healthChange;
 
 			if(this.health > this.maxHealth) {
 				this.health = this.maxHealth;
 			} else if(this.health <= 0) {
+                this.health = 0;
 				this.die();
 			}
 
@@ -871,6 +899,19 @@ var LunaticFringe = function (canvas) {
 			
 			document.getElementById('fuel').setAttribute('value', this.Fuel);
 		}
+
+        this.updateSpareParts = function (sparePartsChange) {
+            log("ship Spare Parts: " + this.SpareParts + ", changing by: " + sparePartsChange);
+            this.SpareParts += sparePartsChange;
+
+            if (this.SpareParts > this.maxSpareParts) {
+                this.SpareParts = this.maxSpareParts;
+            } else if (this.SpareParts < 0) {
+                this.SpareParts = 0;
+            }
+
+            document.getElementById('spareParts').setAttribute('value', this.SpareParts);
+        }
 
         this.die = function () {
             game.mediaManager.Audio.PlayerDeath.play();
@@ -894,10 +935,10 @@ var LunaticFringe = function (canvas) {
                 objectManager.movePlayerShipTo(Math.random() * (objectManager.GameBounds.Right - objectManager.GameBounds.Left + 1) + objectManager.GameBounds.Left, Math.random() * (objectManager.GameBounds.Bottom - objectManager.GameBounds.Top + 1) + objectManager.GameBounds.Top);
 
                 // reset health and fuel to full
-				log("Setting ship back to max health of: " + this.maxHealth);
-                this.health = this.maxHealth;
-				this.Fuel = this.maxFuel;
-				document.getElementById('fuel').setAttribute('value', this.Fuel);
+				log("Setting ship back to max health/fuel/spare parts");
+                this.updateHealth(this.maxHealth);
+                this.updateFuel(this.maxFuel);
+                this.updateSpareParts(this.maxSpareParts);
 				
 				// reset ship back to default powerup state
 				this.updatePowerupState(true);
@@ -929,6 +970,14 @@ var LunaticFringe = function (canvas) {
 				this.isLowFuel = false;
 			}
 	
+            // Handle healing from spare parts
+            if (this.health < this.maxHealth && this.SpareParts > 0 && numFramesSince.HealFromSparePart > 30 && numFramesSince.TakenDamage > 120) {
+                numFramesSince.HealFromSparePart = 0;
+                this.updateSpareParts(-1);
+                this.updateHealth(1);
+
+                // TODO: I don't remember if there was a sound played here. I'll leave it out for now until I know for sure there was one
+            }
         }
 	
 		// Subtracted from each cycle, if > 0 powerup is active
@@ -1007,7 +1056,9 @@ var LunaticFringe = function (canvas) {
 				document.getElementById('invulnerabilityAvailable').style.visibility = "visible";
 			} else if (powerupObject instanceof TurboThrustPowerup) {
 				document.getElementById('turboThrustAvailable').style.visibility = "visible";
-			}
+			} else if (powerupObject instanceof SparePartsPowerup) {
+                this.updateSpareParts(25);
+            }
 		}
 		
 		this.updatePowerupState = function(reset = false) {
@@ -2025,6 +2076,7 @@ var LunaticFringe = function (canvas) {
 			this.addObject(new ShipRepairsPowerup(GameBounds));
 			this.addObject(new InvulnerabilityPowerup(GameBounds));
 			this.addObject(new TurboThrustPowerup(GameBounds));
+            this.addObject(new SparePartsPowerup(GameBounds));
 
             // Add ship last so it draws on top of most objects
             this.addObject(game.PlayerShip, true);
