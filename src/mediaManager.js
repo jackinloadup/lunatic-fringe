@@ -1,4 +1,4 @@
-LunaticFringe.MediaManager = function () {
+export function MediaManager() {
   this.Sprites = {};
   this.Audio = {};
 
