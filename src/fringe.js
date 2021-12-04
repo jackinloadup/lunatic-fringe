@@ -1,5 +1,25 @@
 ﻿import {Vector} from './utility/vector.js';
 import {MediaManager} from './mediaManager.js';
+import { NewMediaManager } from './classes/NewMediaManager.js';
+import { PhotonLargePowerupTest } from './classes/powerups/PhotonLargePowerup.js';
+import { SpreadShotPowerupTest } from './classes/powerups/SpreadShotPowerup.js';
+import { DoublePointsPowerupTest } from './classes/powerups/DoublePointsPowerup.js';
+import { ExtraFuelPowerupTest } from './classes/powerups/ExtraFuelPowerup.js';
+import { ShipRepairsPowerupTest } from './classes/powerups/ShipRepairsPowerup.js';
+import { SparePartsPowerupTest } from './classes/powerups/SparePartsPowerup.js';
+import { InvulnerabilityPowerupTest } from './classes/powerups/InvulnerabilityPowerup.js';
+import { TurboThrustPowerupTest } from './classes/powerups/TurboThrustPowerup.js';
+import { PhotonSmallTest } from './classes/projectiles/PhotonSmall.js';
+import { PhotonMediumTest } from './classes/projectiles/PhotonMedium.js';
+import { PhotonLargeTest } from './classes/projectiles/PhotonLarge.js';
+import { PufferProjectileTest } from './classes/projectiles/PufferProjectile.js';
+import { QuasBlasterProjectileTest } from './classes/projectiles/QuadBlasterProjectile.js';
+import { SludgerMineTest } from './classes/enemies/SludgerMine.js';
+import { SludgerTest } from './classes/enemies/Sludger.js';
+import { PufferTest } from './classes/enemies/Puffer.js';
+import { SlicerTest } from './classes/enemies/Slicer.js';
+import { QuadBlasterTest } from './classes/enemies/QuadBlaster.js';
+import { PlayerShipTest } from './classes/PlayerShip.js';
 
 /*  Lunatic Fringe - http://code.google.com/p/lunatic-fringe/
     Copyright (C) 2011-2013 James Carnley, Lucas Riutzel, 
@@ -23,7 +43,7 @@ import {MediaManager} from './mediaManager.js';
 export function LunaticFringe(canvas, hidden, visibilityChange) {
     "use strict";
 
-    var animationLoop, objectManager, mediaManager, Key, DEBUG = false, numEnemiesKilled = 0, score = 0;
+    var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     var game = this;
 	var Version = "1.26";
 	var isCapsPaused = false;
@@ -103,604 +123,604 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
     this.mediaManager = new MediaManager();
 
     // Game Objects
-    function GameObject() {
+    // function GameObject() {
 
-        this.X = 0;
-        this.Y = 0;
-        this.Width = 0;
-        this.Height = 0;
-        this.VelocityX = 0;
-        this.VelocityY = 0;
-        this.Mass = 0;
-        this.CollisionRadius = 0;
-        this.Sprite = null;
+        // this.X = 0;
+        // this.Y = 0;
+        // this.Width = 0;
+        // this.Height = 0;
+        // this.VelocityX = 0;
+        // this.VelocityY = 0;
+        // this.Mass = 0;
+        // this.CollisionRadius = 0;
+        // this.Sprite = null;
 
-        GameObject.prototype.updateState = function () {
-            // console.log("GameObject - updateState");
-        };
+        // GameObject.prototype.updateState = function () {
+        //     // console.log("GameObject - updateState");
+        // };
 
-        GameObject.prototype.draw = function (context) {
-            if (DEBUG) {
-                // Draw collision circle
-                context.beginPath();
-                context.strokeStyle = "blue";
-                context.arc(this.X, this.Y, this.CollisionRadius, 0, Math.PI * 2);
-                context.stroke();
+        // GameObject.prototype.draw = function (context) {
+        //     if (DEBUG) {
+        //         // Draw collision circle
+        //         context.beginPath();
+        //         context.strokeStyle = "blue";
+        //         context.arc(this.X, this.Y, this.CollisionRadius, 0, Math.PI * 2);
+        //         context.stroke();
 
-                // Draw object angle
-                context.beginPath();
-                context.strokeStyle = "blue";
-                context.moveTo(this.X, this.Y);
-                if (this instanceof PlayerShip) {
-                    context.lineTo(this.X + -Math.cos(this.Angle) * this.CollisionRadius * 2, this.Y + -Math.sin(this.Angle) * this.CollisionRadius * 2);
-                } else {
-                    context.lineTo(this.X + Math.cos(this.Angle) * this.CollisionRadius * 2, this.Y + Math.sin(this.Angle) * this.CollisionRadius * 2);
-                }
-                context.stroke();
-            }
-        };
+        //         // Draw object angle
+        //         context.beginPath();
+        //         context.strokeStyle = "blue";
+        //         context.moveTo(this.X, this.Y);
+        //         if (this instanceof PlayerShip) {
+        //             context.lineTo(this.X + -Math.cos(this.Angle) * this.CollisionRadius * 2, this.Y + -Math.sin(this.Angle) * this.CollisionRadius * 2);
+        //         } else {
+        //             context.lineTo(this.X + Math.cos(this.Angle) * this.CollisionRadius * 2, this.Y + Math.sin(this.Angle) * this.CollisionRadius * 2);
+        //         }
+        //         context.stroke();
+        //     }
+        // };
 
-        GameObject.prototype.handleCollision = function (otherObject) {
-            var i, j, dx, dy, phi, magnitude_1, magnitude_2, direction_1, direction_2, new_xspeed_1, new_xspeed_2, new_yspeed_1, new_yspeed_2, final_xspeed_1, final_yspeed_1, final_xspeed_2, final_yspeed_2;
+        // GameObject.prototype.handleCollision = function (otherObject) {
+        //     var i, j, dx, dy, phi, magnitude_1, magnitude_2, direction_1, direction_2, new_xspeed_1, new_xspeed_2, new_yspeed_1, new_yspeed_2, final_xspeed_1, final_yspeed_1, final_xspeed_2, final_yspeed_2;
 			
-			if (this.Mass == 0 && otherObject.Mass == 0) {
-				// This is bad because this means the new speed calculations will result in NaN
-				error("Both objects had a mass of 0! Objects were: " + this.constructor.name + " and " + otherObject.constructor.name);
-			}
+		// 	if (this.Mass == 0 && otherObject.Mass == 0) {
+		// 		// This is bad because this means the new speed calculations will result in NaN
+		// 		error("Both objects had a mass of 0! Objects were: " + this.constructor.name + " and " + otherObject.constructor.name);
+		// 	}
 			
-            dx = this.X - otherObject.X;
-            dy = this.Y - otherObject.Y;
+        //     dx = this.X - otherObject.X;
+        //     dy = this.Y - otherObject.Y;
 
-            phi = Math.atan2(dy, dx);
+        //     phi = Math.atan2(dy, dx);
 
-            magnitude_1 = Math.sqrt(this.VelocityX * this.VelocityX + this.VelocityY * this.VelocityY);
-            magnitude_2 = Math.sqrt(otherObject.VelocityX * otherObject.VelocityX + otherObject.VelocityY * otherObject.VelocityY);
+        //     magnitude_1 = Math.sqrt(this.VelocityX * this.VelocityX + this.VelocityY * this.VelocityY);
+        //     magnitude_2 = Math.sqrt(otherObject.VelocityX * otherObject.VelocityX + otherObject.VelocityY * otherObject.VelocityY);
 
-            direction_1 = Math.atan2(this.VelocityY, this.VelocityX);
-            direction_2 = Math.atan2(otherObject.VelocityY, otherObject.VelocityX);
+        //     direction_1 = Math.atan2(this.VelocityY, this.VelocityX);
+        //     direction_2 = Math.atan2(otherObject.VelocityY, otherObject.VelocityX);
 
-            new_xspeed_1 = magnitude_1 * Math.cos(direction_1 - phi);
-            new_yspeed_1 = magnitude_1 * Math.sin(direction_1 - phi);
+        //     new_xspeed_1 = magnitude_1 * Math.cos(direction_1 - phi);
+        //     new_yspeed_1 = magnitude_1 * Math.sin(direction_1 - phi);
 
-            new_xspeed_2 = magnitude_2 * Math.cos(direction_2 - phi);
+        //     new_xspeed_2 = magnitude_2 * Math.cos(direction_2 - phi);
 
-            final_xspeed_1 = ((this.Mass - otherObject.Mass) * new_xspeed_1 + (otherObject.Mass + otherObject.Mass) * new_xspeed_2) / (this.Mass + otherObject.Mass);
+        //     final_xspeed_1 = ((this.Mass - otherObject.Mass) * new_xspeed_1 + (otherObject.Mass + otherObject.Mass) * new_xspeed_2) / (this.Mass + otherObject.Mass);
 
-            final_yspeed_1 = new_yspeed_1;
+        //     final_yspeed_1 = new_yspeed_1;
 
-            this.VelocityX = Math.cos(phi) * final_xspeed_1 + Math.cos(phi + Math.PI / 2) * final_yspeed_1;
-            this.VelocityY = Math.sin(phi) * final_xspeed_1 + Math.sin(phi + Math.PI / 2) * final_yspeed_1;
-        };
+        //     this.VelocityX = Math.cos(phi) * final_xspeed_1 + Math.cos(phi + Math.PI / 2) * final_yspeed_1;
+        //     this.VelocityY = Math.sin(phi) * final_xspeed_1 + Math.sin(phi + Math.PI / 2) * final_yspeed_1;
+        // };
 
-        GameObject.prototype.processInput = function (KeyState) {
-            // console.log("GameObject - processInput");
-        };
+        // GameObject.prototype.processInput = function (KeyState) {
+        //     // console.log("GameObject - processInput");
+        // };
 
-        GameObject.prototype.calculateAcceleration = function () {
+        // GameObject.prototype.calculateAcceleration = function () {
 
-            var currentVelocity = new Vector(this.VelocityX, this.VelocityY);
+        //     var currentVelocity = new Vector(this.VelocityX, this.VelocityY);
 
-            var acceleration;
+        //     var acceleration;
 
-            // The ship forces are opposite everything else. It doesn't move, it shifts the universe around it.
-            if (this instanceof PlayerShip) {
-                acceleration = new Vector(-Math.cos(this.Angle) * this.Acceleration, Math.sin(-this.Angle) * this.Acceleration);
-            } else {
-                acceleration = new Vector(Math.cos(this.Angle) * this.Acceleration, Math.sin(this.Angle) * this.Acceleration);
-            }
+        //     // The ship forces are opposite everything else. It doesn't move, it shifts the universe around it.
+        //     if (this instanceof PlayerShip) {
+        //         acceleration = new Vector(-Math.cos(this.Angle) * this.Acceleration, Math.sin(-this.Angle) * this.Acceleration);
+        //     } else {
+        //         acceleration = new Vector(Math.cos(this.Angle) * this.Acceleration, Math.sin(this.Angle) * this.Acceleration);
+        //     }
 
-            var newVelocity = currentVelocity.Add(acceleration);
+        //     var newVelocity = currentVelocity.Add(acceleration);
 
-            // Only apply Lorentz factor if acceleration increases speed
-            if (newVelocity.Magnitude() > currentVelocity.Magnitude()) {
-                var b = 1 - ((currentVelocity.Magnitude() * currentVelocity.Magnitude()) / (this.MaxSpeed * this.MaxSpeed));
+        //     // Only apply Lorentz factor if acceleration increases speed
+        //     if (newVelocity.Magnitude() > currentVelocity.Magnitude()) {
+        //         var b = 1 - ((currentVelocity.Magnitude() * currentVelocity.Magnitude()) / (this.MaxSpeed * this.MaxSpeed));
 
-                // If b is negative then just make it very small to prevent errors in the square root
-                if (b <= 0) { b = 0.0000000001; }
+        //         // If b is negative then just make it very small to prevent errors in the square root
+        //         if (b <= 0) { b = 0.0000000001; }
 
-                var lorentz_factor = Math.sqrt(b);
+        //         var lorentz_factor = Math.sqrt(b);
 
-                acceleration = acceleration.Scale(lorentz_factor);
-            }
+        //         acceleration = acceleration.Scale(lorentz_factor);
+        //     }
 
-            currentVelocity = currentVelocity.Add(acceleration);
+        //     currentVelocity = currentVelocity.Add(acceleration);
 
-            /* Allow acceleration in the forward direction to change the direction
-            of currentVelocity by using the direction of newVelocity (without the Lorentz factor)
-            with the magnitude of currentVelocity (that applies the Lorentz factor). Without this
-            the ship is almost impossible to turn when at max speed. */
-            if (currentVelocity.Magnitude() > 0) {
-                currentVelocity = newVelocity.Normalize().Scale(currentVelocity.Magnitude());
-            }
+        //     /* Allow acceleration in the forward direction to change the direction
+        //     of currentVelocity by using the direction of newVelocity (without the Lorentz factor)
+        //     with the magnitude of currentVelocity (that applies the Lorentz factor). Without this
+        //     the ship is almost impossible to turn when at max speed. */
+        //     if (currentVelocity.Magnitude() > 0) {
+        //         currentVelocity = newVelocity.Normalize().Scale(currentVelocity.Magnitude());
+        //     }
 
-            this.VelocityX = currentVelocity.X;
-            this.VelocityY = currentVelocity.Y;
-        }
-    }
+        //     this.VelocityX = currentVelocity.X;
+        //     this.VelocityY = currentVelocity.Y;
+        // }
+    // }
 	
 	// Powerup activation constants
-	const INSTANT = 'INSTANT';
-	const BUTTON_PRESS = 'BUTTON_PRESS';
+	// const INSTANT = 'INSTANT';
+	// const BUTTON_PRESS = 'BUTTON_PRESS';
 
 	// All Powerups inherit from this
 	// activation: How the powerup is activated. Options: INSTANT and BUTTON_PRESS
 	// duration: How long the powerup lasts, in frames (60 frames per second) (0 for instantaneous)
 	function Powerup(bounds, options) {
-		GameObject.call(this);
+		// GameObject.call(this);
 		
-		this.Activation = options.activation;
-		this.Duration = options.duration;
-		this.Name = options.name;
-		this.Width = options.width;
-		this.Height = options.height;
-		this.CollisionRadius = options.collisionRadius;
-		this.Sprite = options.sprite;
+		// this.Activation = options.activation;
+		// this.Duration = options.duration;
+		// this.Name = options.name;
+		// this.Width = options.width;
+		// this.Height = options.height;
+		// this.CollisionRadius = options.collisionRadius;
+		// this.Sprite = options.sprite;
 		this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
         this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
-		log(this.Name + " created at: (" + this.X + "," + this.Y + ")");
+		// log(this.Name + " created at: (" + this.X + "," + this.Y + ")");
 		
-		this.draw = function (context) {
-            Powerup.prototype.draw.call(this, context);
-            context.drawImage(this.Sprite, this.X - this.Width / 2, this.Y - this.Height / 2);
-        };
+		// this.draw = function (context) {
+        //     Powerup.prototype.draw.call(this, context);
+        //     context.drawImage(this.Sprite, this.X - this.Width / 2, this.Y - this.Height / 2);
+        // };
 		
-		this.handleCollision = function(otherObject) {
-			if(otherObject instanceof PlayerShip) {
-				log(this.Name + " gained by the player");
-				game.mediaManager.Audio.PowerupWow.play();
-				objectManager.removeObject(this);
-			}
-		}
+		// this.handleCollision = function(otherObject) {
+		// 	if(otherObject instanceof PlayerShip) {
+		// 		log(this.Name + " gained by the player");
+		// 		game.mediaManager.Audio.PowerupWow.play();
+		// 		objectManager.removeObject(this);
+		// 	}
+		// }
 	}
-	Powerup.prototype = Object.create(GameObject.prototype);
-	Powerup.prototype.constructor = Powerup;
+	// Powerup.prototype = Object.create(GameObject.prototype);
+	// Powerup.prototype.constructor = Powerup;
 	
-	function PhotonLargePowerup(bounds) {
-		Powerup.call(
-			this, 
-			bounds, 
-			{
-				activation: INSTANT, 
-				duration: 60 * 30, 
-				name: "PhotonLargePowerup",
-				width: 15,
-				height: 16,
-				collisionRadius: 8,
-				sprite: game.mediaManager.Sprites.PhotonLarge
-			}
-		);
-		this.shootingSpeed = 60; // 1 bullet per second at 60 frames per second
-	}
-	PhotonLargePowerup.prototype = Object.create(Powerup.prototype);
-	PhotonLargePowerup.prototype.constructor = PhotonLargePowerup;
+	// function PhotonLargePowerup(bounds) {
+		// Powerup.call(
+			// this, 
+			// bounds, 
+			// {
+				// activation: INSTANT, 
+				// duration: 60 * 30, 
+				// name: "PhotonLargePowerup",
+				// width: 15,
+				// height: 16,
+				// collisionRadius: 8,
+				// sprite: game.mediaManager.Sprites.PhotonLarge
+		// 	}
+		// );
+		// this.shootingSpeed = 60; // 1 bullet per second at 60 frames per second
+	// }
+	// PhotonLargePowerup.prototype = Object.create(Powerup.prototype);
+	// PhotonLargePowerup.prototype.constructor = PhotonLargePowerup;
 	
-	function SpreadShotPowerup(bounds) {
-		Powerup.call(
-			this, 
-			bounds, 
-			{
-				activation: INSTANT, 
-				duration: 60 * 60, 
-				name: "SpreadShotPowerup",
-				width: 19,
-				height: 16,
-				collisionRadius: 9,
-				sprite: game.mediaManager.Sprites.SpreadShot
-			}
-		);
-		this.shootingSpeed = 39; // 60/39 bullets per second at 60 frames per second
-	}
-	SpreadShotPowerup.prototype = Object.create(Powerup.prototype);
-	SpreadShotPowerup.prototype.constructor = SpreadShotPowerup;
+	// function SpreadShotPowerup(bounds) {
+	// 	Powerup.call(
+	// 		this, 
+	// 		bounds, 
+	// 		{
+				// activation: INSTANT, 
+				// duration: 60 * 60, 
+				// name: "SpreadShotPowerup",
+				// width: 19,
+				// height: 16,
+				// collisionRadius: 9,
+				// sprite: game.mediaManager.Sprites.SpreadShot
+		// 	}
+		// );
+		// this.shootingSpeed = 39; // 60/39 bullets per second at 60 frames per second
+	// }
+	// SpreadShotPowerup.prototype = Object.create(Powerup.prototype);
+	// SpreadShotPowerup.prototype.constructor = SpreadShotPowerup;
 	
-	function DoublePointsPowerup(bounds) {
-		Powerup.call(
-			this, 
-			bounds, 
-			{
-				activation: INSTANT, 
-				duration: 60 * 90, 
-				name: "DoublePointsPowerup",
-				width: 15,
-				height: 16,
-				collisionRadius: 8,
-				sprite: game.mediaManager.Sprites.DoublePoints
-			}
-		);
-	}
-	DoublePointsPowerup.prototype = Object.create(Powerup.prototype);
-	DoublePointsPowerup.prototype.constructor = DoublePointsPowerup;
+	// function DoublePointsPowerup(bounds) {
+	// 	Powerup.call(
+	// 		this, 
+	// 		bounds, 
+	// 		{
+				// activation: INSTANT, 
+				// duration: 60 * 90, 
+				// name: "DoublePointsPowerup",
+				// width: 15,
+				// height: 16,
+				// collisionRadius: 8,
+				// sprite: game.mediaManager.Sprites.DoublePoints
+	// 		}
+	// 	);
+	// }
+	// DoublePointsPowerup.prototype = Object.create(Powerup.prototype);
+	// DoublePointsPowerup.prototype.constructor = DoublePointsPowerup;
 	
-	function ExtraFuelPowerup(bounds) {
-		Powerup.call(
-			this, 
-			bounds, 
-			{
-				activation: INSTANT, 
-				duration: 0, 
-				name: "ExtraFuelPowerup",
-				width: 13,
-				height: 13,
-				collisionRadius: 7,
-				sprite: game.mediaManager.Sprites.ExtraFuel
-			}
-		);
+	// function ExtraFuelPowerup(bounds) {
+	// 	Powerup.call(
+	// 		this, 
+	// 		bounds, 
+	// 		{
+				// activation: INSTANT, 
+				// duration: 0, 
+				// name: "ExtraFuelPowerup",
+				// width: 13,
+				// height: 13,
+				// collisionRadius: 7,
+				// sprite: game.mediaManager.Sprites.ExtraFuel
+	// 		}
+	// 	);
 
-	}
-	ExtraFuelPowerup.prototype = Object.create(Powerup.prototype);
-	ExtraFuelPowerup.prototype.constructor = ExtraFuelPowerup;
+	// }
+	// ExtraFuelPowerup.prototype = Object.create(Powerup.prototype);
+	// ExtraFuelPowerup.prototype.constructor = ExtraFuelPowerup;
 	
-	function ShipRepairsPowerup(bounds) {
-		Powerup.call(
-			this, 
-			bounds, 
-			{
-				activation: INSTANT, 
-				duration: 0, 
-				name: "ShipRepairsPowerup",
-				width: 13,
-				height: 13,
-				collisionRadius: 7,
-				sprite: game.mediaManager.Sprites.ShipRepairs
-			}
-		);
-	}
-	ShipRepairsPowerup.prototype = Object.create(Powerup.prototype);
-	ShipRepairsPowerup.prototype.constructor = ShipRepairsPowerup;
+	// function ShipRepairsPowerup(bounds) {
+	// 	Powerup.call(
+	// 		this, 
+	// 		bounds, 
+	// 		{
+				// activation: INSTANT, 
+				// duration: 0, 
+				// name: "ShipRepairsPowerup",
+				// width: 13,
+				// height: 13,
+				// collisionRadius: 7,
+				// sprite: game.mediaManager.Sprites.ShipRepairs
+	// 		}
+	// 	);
+	// }
+	// ShipRepairsPowerup.prototype = Object.create(Powerup.prototype);
+	// ShipRepairsPowerup.prototype.constructor = ShipRepairsPowerup;
 
-    function SparePartsPowerup(bounds) {
-        Powerup.call(
-            this,
-            bounds,
-            {
-                activation: INSTANT, 
-				duration: 0, 
-				name: "SparePartsPowerup",
-				width: 13,
-				height: 13,
-				collisionRadius: 7,
-				sprite: game.mediaManager.Sprites.SpareParts
-            }
-        );
-    }
-    SparePartsPowerup.prototype = Object.create(Powerup.prototype);
-    SparePartsPowerup.prototype.constructor = SparePartsPowerup;
+    // function SparePartsPowerup(bounds) {
+    //     Powerup.call(
+    //         this,
+    //         bounds,
+    //         {
+    //             activation: INSTANT, 
+	// 			duration: 0, 
+	// 			name: "SparePartsPowerup",
+				// width: 13,
+				// height: 13,
+				// collisionRadius: 7,
+				// sprite: game.mediaManager.Sprites.SpareParts
+    //         }
+    //     );
+    // }
+    // SparePartsPowerup.prototype = Object.create(Powerup.prototype);
+    // SparePartsPowerup.prototype.constructor = SparePartsPowerup;
 	
-	function InvulnerabilityPowerup(bounds) {
-		Powerup.call(
-			this, 
-			bounds, 
-			{
-				activation: BUTTON_PRESS, 
-				duration: 60 * 10, 
-				name: "InvulnerabilityPowerup",
-				width: 15,
-				height: 19,
-				collisionRadius: 9,
-				sprite: game.mediaManager.Sprites.Invulnerability
-			}
-		);
-	}
-	InvulnerabilityPowerup.prototype = Object.create(Powerup.prototype);
-	InvulnerabilityPowerup.prototype.constructor = InvulnerabilityPowerup;
+	// function InvulnerabilityPowerup(bounds) {
+	// 	Powerup.call(
+	// 		this, 
+	// 		bounds, 
+	// 		{
+				// activation: BUTTON_PRESS, 
+				// duration: 60 * 10, 
+				// name: "InvulnerabilityPowerup",
+				// width: 15,
+				// height: 19,
+				// collisionRadius: 9,
+				// sprite: game.mediaManager.Sprites.Invulnerability
+	// 		}
+	// 	);
+	// }
+	// InvulnerabilityPowerup.prototype = Object.create(Powerup.prototype);
+	// InvulnerabilityPowerup.prototype.constructor = InvulnerabilityPowerup;
 	
-	function TurboThrustPowerup(bounds) {
-		Powerup.call(
-			this,
-			bounds,
-			{
-				activation: BUTTON_PRESS,
-				duration:60 * 2,
-				name: "TurboThrustPowerup",
-				width: 15,
-				height: 16,
-				collisionRadius: 8,
-				sprite: game.mediaManager.Sprites.TurboThrust
-			}
-		);
-	}
-	TurboThrustPowerup.prototype = Object.create(Powerup.prototype);
-	TurboThrustPowerup.prototype.constructor = TurboThrustPowerup;
+	// function TurboThrustPowerup(bounds) {
+	// 	Powerup.call(
+	// 		this,
+	// 		bounds,
+	// 		{
+				// activation: BUTTON_PRESS,
+				// duration:60 * 2,
+				// name: "TurboThrustPowerup",
+				// width: 15,
+				// height: 16,
+				// collisionRadius: 8,
+				// sprite: game.mediaManager.Sprites.TurboThrust
+	// 		}
+	// 	);
+	// }
+	// TurboThrustPowerup.prototype = Object.create(Powerup.prototype);
+	// TurboThrustPowerup.prototype.constructor = TurboThrustPowerup;
 	
     // All AI inherit from this
-    function AIGameObject(playerShip) {
-        GameObject.call(this);
+    // function AIGameObject(playerShip) {
+        // GameObject.call(this);
 
-        this.relativePositionTo = function (object) {
-          var X = object.X - this.X;
-          var Y = object.Y - this.Y;
-          return {x: X, y: Y};
-        };
+        // this.relativePositionTo = function (object) {
+        //   var X = object.X - this.X;
+        //   var Y = object.Y - this.Y;
+        //   return {x: X, y: Y};
+        // };
 
-        this.angleTo = function (object) {
-          var rel = this.relativePositionTo(object);
-          return Math.atan2(rel.y, rel.x);
-        };
+        // this.angleTo = function (object) {
+        //   var rel = this.relativePositionTo(object);
+        //   return Math.atan2(rel.y, rel.x);
+        // };
 
-        this.angleDiffTo = function (object) {
-          var angleDiff, angleToObject;
-          angleToObject = this.angleTo(object);
-          angleDiff = angleToObject - this.Angle;
+        // this.angleDiffTo = function (object) {
+        //   var angleDiff, angleToObject;
+        //   angleToObject = this.angleTo(object);
+        //   angleDiff = angleToObject - this.Angle;
 
-          // when calculating angle diff compensate when the angle swiches to the opposite side
-          // of the angle spectrem. eg: a ship flys from 10deg->0deg->350deg
-          // this is important when doing gradual shifts to angles and not cause
-          // the shift to loop around the circle long ways
-          if ( Math.abs(angleDiff) > Math.PI ) {
-            if (angleDiff > 0) this.Angle += (Math.PI*2);
-            else this.Angle -= (Math.PI*2);
+        //   // when calculating angle diff compensate when the angle swiches to the opposite side
+        //   // of the angle spectrem. eg: a ship flys from 10deg->0deg->350deg
+        //   // this is important when doing gradual shifts to angles and not cause
+        //   // the shift to loop around the circle long ways
+        //   if ( Math.abs(angleDiff) > Math.PI ) {
+        //     if (angleDiff > 0) this.Angle += (Math.PI*2);
+        //     else this.Angle -= (Math.PI*2);
 
-            // recalculate diff now that we have adjusted the angle
-            angleDiff = angleToObject - this.Angle;
-          }
+        //     // recalculate diff now that we have adjusted the angle
+        //     angleDiff = angleToObject - this.Angle;
+        //   }
 
-          return angleDiff;
-        };
+        //   return angleDiff;
+        // };
 		
-		AIGameObject.prototype.handleCollision = function(otherObject) {
-			var thisName = this.constructor.name;
-			var otherName = otherObject.constructor.name;
-			if (otherObject instanceof SludgerMine) {
-				// SludgerMines are weak, so if they collide with anything they should die and the other
-				// object should not get hurt, so return
-				return;
-			} else if (otherObject instanceof Projectile) {				
-				log(thisName + " hit by Projectile: " + otherName);
-				this.Health -= otherObject.Damage;
-				log(thisName + " health is now: " + this.Health);
-				if (this.Health <= 0) {
-					// this object dies
-					log(thisName + " died!");
-					if (this instanceof SludgerMine) {
-						game.mediaManager.Audio.SludgerMinePop.play();
-					} else {
-						game.mediaManager.Audio.SludgerDeath.play();
-					}
-					objectManager.removeObject(this);
-					numEnemiesKilled++;
-					if(otherObject instanceof PhotonSmall || otherObject instanceof PhotonMedium || otherObject instanceof PhotonLarge) {
-						//Only award points if the player was the one to kill the this				
-						playerShip.addToScore(this.PointWorth);
-					}
-				}
-			} else if (otherObject instanceof PlayerShip) {
-				GameObject.prototype.handleCollision.call(this, otherObject);
-				log(thisName + " hit by the player");
-				if(otherObject.isTurboThrusting()) {
-					// Turbo thrusting player instantly kills any enemy (with the exception of the asteroids and enemy base)
-					this.Health = 0;
-				} else {
-					this.Health -= otherObject.CollisionDamage;
-				}
-				log(thisName + " health is now: " + this.Health);
-				// If this dies from a player hitting it, points are still awarded
-				if (this.Health <= 0) {
-					// this dies
-					log(thisName + " died!");
-					if (this instanceof SludgerMine) {
-						game.mediaManager.Audio.SludgerMinePop.play();
-					} else {
-						game.mediaManager.Audio.SludgerDeath.play();
-					}
-					objectManager.removeObject(this);
-					numEnemiesKilled++;				
-					playerShip.addToScore(this.PointWorth);
-				}
-            } else if (otherObject instanceof AIGameObject || otherObject instanceof Asteroid) {
-				GameObject.prototype.handleCollision.call(this, otherObject);
-				log(thisName + " hit by Game Object: " + otherName);
-				this.Health -= otherObject.CollisionDamage;
-				log(thisName + " health is now: " + this.Health);
-				if (this.Health < 0) {
-					// this dies, no points awared as the player had nothing to do with it
-					log(thisName + " died!");
-					if (this instanceof SludgerMine) {
-						game.mediaManager.Audio.SludgerMinePop.play();
-					} else {
-						game.mediaManager.Audio.SludgerDeath.play();
-					}
-					objectManager.removeObject(this);
-					numEnemiesKilled++;
-				}
-			}
-		};
-    }
-    AIGameObject.prototype = Object.create(GameObject.prototype);
-    AIGameObject.prototype.constructor = AIGameObject;
+		// AIGameObject.prototype.handleCollision = function(otherObject) {
+			// var thisName = this.constructor.name;
+			// var otherName = otherObject.constructor.name;
+			// if (otherObject instanceof SludgerMine) {
+			// 	// SludgerMines are weak, so if they collide with anything they should die and the other
+			// 	// object should not get hurt, so return
+			// 	return;
+			// } else if (otherObject instanceof Projectile) {				
+			// 	log(thisName + " hit by Projectile: " + otherName);
+			// 	this.Health -= otherObject.Damage;
+			// 	log(thisName + " health is now: " + this.Health);
+			// 	if (this.Health <= 0) {
+			// 		// this object dies
+			// 		log(thisName + " died!");
+			// 		if (this instanceof SludgerMine) {
+			// 			game.mediaManager.Audio.SludgerMinePop.play();
+			// 		} else {
+			// 			game.mediaManager.Audio.SludgerDeath.play();
+			// 		}
+			// 		objectManager.removeObject(this);
+			// 		numEnemiesKilled++;
+			// 		if(otherObject instanceof PhotonSmall || otherObject instanceof PhotonMedium || otherObject instanceof PhotonLarge) {
+			// 			//Only award points if the player was the one to kill the this				
+			// 			playerShip.addToScore(this.PointWorth);
+			// 		}
+			// 	}
+			// } else if (otherObject instanceof PlayerShip) {
+			// 	GameObject.prototype.handleCollision.call(this, otherObject);
+			// 	log(thisName + " hit by the player");
+			// 	if(otherObject.isTurboThrusting()) {
+			// 		// Turbo thrusting player instantly kills any enemy (with the exception of the asteroids and enemy base)
+			// 		this.Health = 0;
+			// 	} else {
+			// 		this.Health -= otherObject.CollisionDamage;
+			// 	}
+			// 	log(thisName + " health is now: " + this.Health);
+			// 	// If this dies from a player hitting it, points are still awarded
+			// 	if (this.Health <= 0) {
+			// 		// this dies
+			// 		log(thisName + " died!");
+			// 		if (this instanceof SludgerMine) {
+			// 			game.mediaManager.Audio.SludgerMinePop.play();
+			// 		} else {
+			// 			game.mediaManager.Audio.SludgerDeath.play();
+			// 		}
+			// 		objectManager.removeObject(this);
+			// 		numEnemiesKilled++;				
+			// 		playerShip.addToScore(this.PointWorth);
+			// 	}
+            // } else if (otherObject instanceof AIGameObject || otherObject instanceof Asteroid) {
+			// 	GameObject.prototype.handleCollision.call(this, otherObject);
+			// 	log(thisName + " hit by Game Object: " + otherName);
+			// 	this.Health -= otherObject.CollisionDamage;
+			// 	log(thisName + " health is now: " + this.Health);
+			// 	if (this.Health < 0) {
+			// 		// this dies, no points awared as the player had nothing to do with it
+			// 		log(thisName + " died!");
+			// 		if (this instanceof SludgerMine) {
+			// 			game.mediaManager.Audio.SludgerMinePop.play();
+			// 		} else {
+			// 			game.mediaManager.Audio.SludgerDeath.play();
+			// 		}
+			// 		objectManager.removeObject(this);
+			// 		numEnemiesKilled++;
+			// 	}
+			// }
+		// };
+    // }
+    // AIGameObject.prototype = Object.create(GameObject.prototype);
+    // AIGameObject.prototype.constructor = AIGameObject;
 
-    function Projectile(ship) {
-        var tickCountSince;
-        GameObject.call(this);
-        if (ship === undefined) {
-            return;
-        }
+    // function Projectile(ship) {
+        // var tickCountSince;
+        // GameObject.call(this);
+        // if (ship === undefined) {
+        //     return;
+        // }
 
-        this.X = ship.X + (-Math.cos(ship.Angle) * ship.CollisionRadius);
-        this.Y = ship.Y + (-Math.sin(ship.Angle) * ship.CollisionRadius);
-        this.VelocityX = ship.VelocityX;
-        this.VelocityY = ship.VelocityY;
-        this.Lifetime = 0;
-		this.Damage = 0;
+        // this.X = ship.X + (-Math.cos(ship.Angle) * ship.CollisionRadius);
+        // this.Y = ship.Y + (-Math.sin(ship.Angle) * ship.CollisionRadius);
+        // this.VelocityX = ship.VelocityX;
+        // this.VelocityY = ship.VelocityY;
+        // this.Lifetime = 0;
+		// this.Damage = 0;
 
-        tickCountSince = {
-            Creation: 0
-        };
+        // tickCountSince = {
+        //     Creation: 0
+        // };
 
-        this.draw = function (context) {
-            Projectile.prototype.draw.call(this, context);
-            context.drawImage(this.Sprite, this.X - this.Width / 2, this.Y - this.Height / 2);
-        };
+        // this.draw = function (context) {
+        //     Projectile.prototype.draw.call(this, context);
+        //     context.drawImage(this.Sprite, this.X - this.Width / 2, this.Y - this.Height / 2);
+        // };
 
-        this.handleCollision = function (otherObject) {
-            Projectile.prototype.handleCollision.call(this, otherObject);
-            if (otherObject instanceof AIGameObject) {
-                log("Projectile hit something!");
-                objectManager.removeObject(this);
-            }
-        };
+        // this.handleCollision = function (otherObject) {
+        //     Projectile.prototype.handleCollision.call(this, otherObject);
+        //     if (otherObject instanceof AIGameObject) {
+        //         log("Projectile hit something!");
+        //         objectManager.removeObject(this);
+        //     }
+        // };
 
-        this.updateState = function () {
-            var i;
+        // this.updateState = function () {
+        //     var i;
 
-            for (i in tickCountSince) {
-                if (tickCountSince.hasOwnProperty(i)) {
-                    tickCountSince[i] += 1;
-                }
-            }
+        //     for (i in tickCountSince) {
+        //         if (tickCountSince.hasOwnProperty(i)) {
+        //             tickCountSince[i] += 1;
+        //         }
+        //     }
 
-            this.X += this.VelocityX;
-            this.Y += this.VelocityY;
+        //     this.X += this.VelocityX;
+        //     this.Y += this.VelocityY;
 
-            if (tickCountSince.Creation >= this.Lifetime) {
-                objectManager.removeObject(this);
-            }
-        };
-    }
-    Projectile.prototype = Object.create(GameObject.prototype);
-    Projectile.prototype.constructor = Projectile;
+        //     if (tickCountSince.Creation >= this.Lifetime) {
+        //         objectManager.removeObject(this);
+        //     }
+        // };
+    // }
+    // Projectile.prototype = Object.create(GameObject.prototype);
+    // Projectile.prototype.constructor = Projectile;
 
-    function PhotonSmall(ship) {
-        Projectile.call(this, ship);
-        this.Width = 7;
-        this.Height = 7;
-        this.CollisionRadius = 4;
-        this.VelocityX += -Math.cos(ship.Angle) * 10;
-        this.VelocityY += -Math.sin(ship.Angle) * 10;
-        this.Sprite = game.mediaManager.Sprites.PhotonSmall;
-        this.Lifetime = 50;
-		this.Damage = 10;
+    // function PhotonSmall(ship) {
+        // Projectile.call(this, ship);
+        // this.Width = 7;
+        // this.Height = 7;
+        // this.CollisionRadius = 4;
+        // this.VelocityX += -Math.cos(ship.Angle) * 10;
+        // this.VelocityY += -Math.sin(ship.Angle) * 10;
+        // this.Sprite = game.mediaManager.Sprites.PhotonSmall;
+        // this.Lifetime = 50;
+		// this.Damage = 10;
 		
-		this.handleCollision = function(otherObject) {
-			log("PhotonSmall hit: " + otherObject.constructor.name);
+		// this.handleCollision = function(otherObject) {
+		// 	log("PhotonSmall hit: " + otherObject.constructor.name);
 			
-			if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof Powerup) {
-				// Don't want small photons to collide with player base or player
-				return;
-			}
+		// 	if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof Powerup) {
+		// 		// Don't want small photons to collide with player base or player
+		// 		return;
+		// 	}
 			
-			game.mediaManager.Audio.CollisionDefaultWeapon.play();
-			objectManager.removeObject(this);
-		}
-    }
-    PhotonSmall.prototype = Object.create(Projectile.prototype);
-    PhotonSmall.prototype.constructor = PhotonSmall;
+		// 	game.mediaManager.Audio.CollisionDefaultWeapon.play();
+		// 	objectManager.removeObject(this);
+		// }
+    // }
+    // PhotonSmall.prototype = Object.create(Projectile.prototype);
+    // PhotonSmall.prototype.constructor = PhotonSmall;
 	
-	function PhotonMedium(ship, angle) {
-		Projectile.call(this, ship);
-		this.Width = 10;
-		this.Height = 10;
-		this.CollisionRadius = 5;
-		this.VelocityX += -Math.cos(ship.Angle + angle) * 10;
-        this.VelocityY += -Math.sin(ship.Angle + angle) * 10;
-		this.Sprite = game.mediaManager.Sprites.PhotonMedium;
-		this.Lifetime = 50;
-		this.Damage = 15;
+	// function PhotonMedium(ship, angle) {
+		// Projectile.call(this, ship);
+		// this.Width = 10;
+		// this.Height = 10;
+		// this.CollisionRadius = 5;
+		// this.VelocityX += -Math.cos(ship.Angle + angle) * 10;
+        // this.VelocityY += -Math.sin(ship.Angle + angle) * 10;
+		// this.Sprite = game.mediaManager.Sprites.PhotonMedium;
+		// this.Lifetime = 50;
+		// this.Damage = 15;
 		
-		this.handleCollision = function(otherObject) {
-			log("PhotonMedium hit: " + otherObject.constructor.name);
+		// this.handleCollision = function(otherObject) {
+		// 	log("PhotonMedium hit: " + otherObject.constructor.name);
 			
-			if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof PhotonMedium || otherObject instanceof Powerup) {
-				// Don't want medium photons to collide with player base
-				return;
-			}
+		// 	if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof PhotonMedium || otherObject instanceof Powerup) {
+		// 		// Don't want medium photons to collide with player base
+		// 		return;
+		// 	}
 			
-			game.mediaManager.Audio.CollisionDefaultWeapon.play();
-			objectManager.removeObject(this);
-		}
-	}
-	PhotonMedium.prototype = Object.create(Projectile.prototype);
-	PhotonMedium.prototype.constructor = PhotonMedium;
+		// 	game.mediaManager.Audio.CollisionDefaultWeapon.play();
+		// 	objectManager.removeObject(this);
+		// }
+	// }
+	// PhotonMedium.prototype = Object.create(Projectile.prototype);
+	// PhotonMedium.prototype.constructor = PhotonMedium;
 	
-	function PhotonLarge(ship) {
-		Projectile.call(this, ship);
-		this.Width = 15;
-		this.Height = 16;
-		this.CollisionRadius = 8;
-		this.VelocityX += -Math.cos(ship.Angle) * 10;
-        this.VelocityY += -Math.sin(ship.Angle) * 10;
-		this.Sprite = game.mediaManager.Sprites.PhotonLarge;
-		this.Lifetime = 50;
-		this.Damage = 30;
+	// function PhotonLarge(ship) {
+		// Projectile.call(this, ship);
+		// this.Width = 15;
+		// this.Height = 16;
+		// this.CollisionRadius = 8;
+		// this.VelocityX += -Math.cos(ship.Angle) * 10;
+        // this.VelocityY += -Math.sin(ship.Angle) * 10;
+		// this.Sprite = game.mediaManager.Sprites.PhotonLarge;
+		// this.Lifetime = 50;
+		// this.Damage = 30;
 		
-		this.handleCollision = function(otherObject) {
-			log("PhotonLarge hit: " + otherObject.constructor.name);
+		// this.handleCollision = function(otherObject) {
+		// 	log("PhotonLarge hit: " + otherObject.constructor.name);
 			
-			if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof Projectile || otherObject instanceof SludgerMine || otherObject instanceof Powerup) {
-				// Don't want large photons to collide with player base or player
-				// Other projectiles and SludgerMines also do not stop the large photon
-				return;
-			}
+		// 	if (otherObject instanceof Base || otherObject instanceof PlayerShip || otherObject instanceof Projectile || otherObject instanceof SludgerMine || otherObject instanceof Powerup) {
+		// 		// Don't want large photons to collide with player base or player
+		// 		// Other projectiles and SludgerMines also do not stop the large photon
+		// 		return;
+		// 	}
 			
-			game.mediaManager.Audio.CollisionDefaultWeapon.play();
-			objectManager.removeObject(this);
-		}
-	}
-	PhotonLarge.prototype = Object.create(Projectile.prototype);
-	PhotonLarge.prototype.constructor = PhotonLarge;
+		// 	game.mediaManager.Audio.CollisionDefaultWeapon.play();
+		// 	objectManager.removeObject(this);
+		// }
+	// }
+	// PhotonLarge.prototype = Object.create(Projectile.prototype);
+	// PhotonLarge.prototype.constructor = PhotonLarge;
 
-    function PufferProjectile(ship) {
-        Projectile.call(this, ship);
-        this.Width = 17;
-        this.Height = 15;
-        this.CollisionRadius = 10;
-        this.VelocityX += Math.cos(ship.Angle) * 10;
-        this.VelocityY += Math.sin(ship.Angle) * 10;
-        this.Sprite = game.mediaManager.Sprites.PufferShot;
-        this.Lifetime = 50;
-		this.Damage = 20;
+    // function PufferProjectile(ship) {
+        // Projectile.call(this, ship);
+        // this.Width = 17;
+        // this.Height = 15;
+        // this.CollisionRadius = 10;
+        // this.VelocityX += Math.cos(ship.Angle) * 10;
+        // this.VelocityY += Math.sin(ship.Angle) * 10;
+        // this.Sprite = game.mediaManager.Sprites.PufferShot;
+        // this.Lifetime = 50;
+		// this.Damage = 20;
 
-        this.handleCollision = function (otherObject) {
-            if (otherObject instanceof Puffer
-             || otherObject instanceof PufferProjectile || otherObject instanceof Powerup) {
-               return;
-            } else if (otherObject instanceof PlayerShip) {
-                log("PufferShot hit player!");
-				if (otherObject.isInvulnerable()) {
-					game.mediaManager.Audio.InvincibleCollision.play();
-				} else {
-					game.mediaManager.Audio.CollisionGeneral.play();
-				}
-                objectManager.removeObject(this);
-            } else if (otherObject instanceof Projectile) {
-				log("PufferProjectile hit another Projectile!");
-                objectManager.removeObject(this);
-			}
-        };
-    }
-    PufferProjectile.prototype = Object.create(Projectile.prototype);
-    PufferProjectile.prototype.constructor = PufferProjectile;
+        // this.handleCollision = function (otherObject) {
+        //     if (otherObject instanceof Puffer
+        //      || otherObject instanceof PufferProjectile || otherObject instanceof Powerup) {
+        //        return;
+        //     } else if (otherObject instanceof PlayerShip) {
+        //         log("PufferShot hit player!");
+		// 		if (otherObject.isInvulnerable()) {
+		// 			game.mediaManager.Audio.InvincibleCollision.play();
+		// 		} else {
+		// 			game.mediaManager.Audio.CollisionGeneral.play();
+		// 		}
+        //         objectManager.removeObject(this);
+        //     } else if (otherObject instanceof Projectile) {
+		// 		log("PufferProjectile hit another Projectile!");
+        //         objectManager.removeObject(this);
+		// 	}
+        // };
+    // }
+    // PufferProjectile.prototype = Object.create(Projectile.prototype);
+    // PufferProjectile.prototype.constructor = PufferProjectile;
 
-    function QuadBlasterProjectile(ship, angle) {
-        Projectile.call(this, ship);
-        this.Width = 13;
-        this.Height = 11;
-        this.CollisionRadius = 3;
-        this.VelocityX += Math.cos(angle) * 10;
-        this.VelocityY += Math.sin(angle) * 10;
-        this.Sprite = game.mediaManager.Sprites.PhotonQuad;
-        this.Lifetime = 50;
-		this.Damage = 5;
+    // function QuadBlasterProjectile(ship, angle) {
+        // Projectile.call(this, ship);
+        // this.Width = 13;
+        // this.Height = 11;
+        // this.CollisionRadius = 3;
+        // this.VelocityX += Math.cos(angle) * 10;
+        // this.VelocityY += Math.sin(angle) * 10;
+        // this.Sprite = game.mediaManager.Sprites.PhotonQuad;
+        // this.Lifetime = 50;
+		// this.Damage = 5;
 
-        this.handleCollision = function (otherObject) {
-			if (otherObject instanceof Powerup) {
-				return;
-			} else if (otherObject instanceof PlayerShip) {
-                log("QuadBlasterProjectile hit PlayerShip!");
-				if (otherObject.isInvulnerable()) {
-					game.mediaManager.Audio.InvincibleCollision.play();
-				} else {
-					game.mediaManager.Audio.CollisionQuad.play();
-				}
-                objectManager.removeObject(this);
-            } else if (otherObject instanceof Projectile) {
-				log("QuadBlasterProjectile hit another Projectile!");
-                objectManager.removeObject(this);
-			}
-        };
+        // this.handleCollision = function (otherObject) {
+		// 	if (otherObject instanceof Powerup) {
+		// 		return;
+		// 	} else if (otherObject instanceof PlayerShip) {
+        //         log("QuadBlasterProjectile hit PlayerShip!");
+		// 		if (otherObject.isInvulnerable()) {
+		// 			game.mediaManager.Audio.InvincibleCollision.play();
+		// 		} else {
+		// 			game.mediaManager.Audio.CollisionQuad.play();
+		// 		}
+        //         objectManager.removeObject(this);
+        //     } else if (otherObject instanceof Projectile) {
+		// 		log("QuadBlasterProjectile hit another Projectile!");
+        //         objectManager.removeObject(this);
+		// 	}
+        // };
 
-    }
-    QuadBlasterProjectile.prototype = Object.create(Projectile.prototype);
-    QuadBlasterProjectile.prototype.constructor = QuadBlasterProjectile;
+    // }
+    // QuadBlasterProjectile.prototype = Object.create(Projectile.prototype);
+    // QuadBlasterProjectile.prototype.constructor = QuadBlasterProjectile;
 
     function PlayerShip(context) {
         var animationFrames, spriteX, spriteY, rotationAmount, accel, numFramesSince, lives, health, maxSpeed, Bullets, BulletPowerups, OtherPowerups;
@@ -1218,164 +1238,164 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
     PlayerShip.prototype = Object.create(GameObject.prototype);
     PlayerShip.prototype.constructor = PlayerShip;
 
-    function SludgerMine(bounds, playerShip) {
-        var numTicks = 0, spriteX, turnAbility, player, maxSpeed;
-        AIGameObject.call(this, playerShip);
-        this.Width = 24;
-        this.Height = 21;
-        this.CollisionRadius = 11;
-        this.Mass = 4;
-        this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
-        this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
-        this.VelocityX = 0;
-        this.VelocityY = 0;
-        this.Angle = 0;
-        this.Sprite = game.mediaManager.Sprites.SludgerMine;
-        spriteX = (Math.floor(Math.random() * 7)) * this.Width;
-        player = playerShip;
-        turnAbility = 0.09;
-        this.MaxSpeed = 4;
-        this.Acceleration = 0.1;
-		this.Health = 5;
-		this.CollisionDamage = 5;
-		this.PointWorth = 2;
+    // function SludgerMine(bounds, playerShip) {
+        // var numTicks = 0, spriteX, turnAbility, player, maxSpeed;
+        // AIGameObject.call(this, playerShip);
+        // this.Width = 24;
+        // this.Height = 21;
+        // this.CollisionRadius = 11;
+        // this.Mass = 4;
+        // this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
+        // this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
+        // this.VelocityX = 0;
+        // this.VelocityY = 0;
+        // this.Angle = 0;
+        // this.Sprite = game.mediaManager.Sprites.SludgerMine;
+        // spriteX = (Math.floor(Math.random() * 7)) * this.Width;
+        // player = playerShip;
+        // turnAbility = 0.09;
+        // this.MaxSpeed = 4;
+        // this.Acceleration = 0.1;
+		// this.Health = 5;
+		// this.CollisionDamage = 5;
+		// this.PointWorth = 2;
 
-        this.draw = function (context) {
-            SludgerMine.prototype.draw.call(this, context);
-            context.drawImage(this.Sprite, spriteX, 0, this.Width, this.Height, this.X - this.Width / 2, this.Y - this.Height / 2, this.Width, this.Height);
-        };
+        // this.draw = function (context) {
+        //     SludgerMine.prototype.draw.call(this, context);
+        //     context.drawImage(this.Sprite, spriteX, 0, this.Width, this.Height, this.X - this.Width / 2, this.Y - this.Height / 2, this.Width, this.Height);
+        // };
 
-        this.handleCollision = function (otherObject) {
+        // this.handleCollision = function (otherObject) {
 
-            if (otherObject instanceof Sludger || otherObject instanceof SludgerMine || otherObject instanceof EnemyBase) {
-                return;
-            } else {
-				SludgerMine.prototype.handleCollision.call(this, otherObject);
-			}
-        };
+        //     if (otherObject instanceof Sludger || otherObject instanceof SludgerMine || otherObject instanceof EnemyBase) {
+        //         return;
+        //     } else {
+		// 		SludgerMine.prototype.handleCollision.call(this, otherObject);
+		// 	}
+        // };
 
-        this.updateState = function () {
-            var angleToPlayer, angleDiff;
-            numTicks += 1;
+        // this.updateState = function () {
+        //     var angleToPlayer, angleDiff;
+        //     numTicks += 1;
 
-            if (numTicks >= 18) {
-                numTicks = 0;
-                spriteX += this.Width;
-                if (spriteX >= this.Width * 8) {
-                    spriteX = 0;
-                }
-            }
+        //     if (numTicks >= 18) {
+        //         numTicks = 0;
+        //         spriteX += this.Width;
+        //         if (spriteX >= this.Width * 8) {
+        //             spriteX = 0;
+        //         }
+        //     }
 
-            angleToPlayer = this.angleTo(player);
+        //     angleToPlayer = this.angleTo(player);
 
-            angleDiff = angleToPlayer - this.Angle;
+        //     angleDiff = angleToPlayer - this.Angle;
 
-            this.Angle += angleDiff;
+        //     this.Angle += angleDiff;
 
-            if (angleToPlayer <= this.Angle + 0.1 || angleToPlayer > this.Angle - 0.1) {
-                this.calculateAcceleration();
-            }
+        //     if (angleToPlayer <= this.Angle + 0.1 || angleToPlayer > this.Angle - 0.1) {
+        //         this.calculateAcceleration();
+        //     }
 
-            this.X += this.VelocityX;
-            this.Y += this.VelocityY;
-        };
+        //     this.X += this.VelocityX;
+        //     this.Y += this.VelocityY;
+        // };
+    // }
+    // SludgerMine.prototype = Object.create(AIGameObject.prototype);
+    // SludgerMine.prototype.constructor = SludgerMine;
+
+    // function Sludger(bounds, playerShip) {
+        // var numTicks = 0, spriteX, player, ticksToSpawnMine = 0;
+        // AIGameObject.call(this, playerShip);
+        // this.Width = 34;
+        // this.Height = 31;
+        // this.CollisionRadius = 16;
+        // this.Mass = 8;
+        // this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
+        // this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
+        // this.VelocityX = (Math.random() - Math.random()) * 3;
+        // this.VelocityY = (Math.random() - Math.random()) * 3;
+        // this.Angle = 0;
+        // this.Sprite = game.mediaManager.Sprites.Sludger;
+        // spriteX = 0;
+        // player = playerShip;
+		// this.CollisionDamage = 10;
+		// this.Health = 10;
+		// this.PointWorth = 25;
+
+        // this.draw = function (context) {
+        //     Sludger.prototype.draw.call(this, context);
+        //     context.drawImage(this.Sprite, spriteX, 0, this.Width, this.Height, this.X - this.Width / 2, this.Y - this.Height / 2, this.Width, this.Height);
+        // };
+
+        // this.handleCollision = function (otherObject) {
+
+        //     if (otherObject instanceof Sludger || otherObject instanceof SludgerMine || otherObject instanceof EnemyBase) {
+        //         return;
+        //     } else {
+		// 		Sludger.prototype.handleCollision.call(this, otherObject);
+		// 	}
+        // };
+
+        // this.updateState = function () {
+            // var angleToPlayer, angleDiff;
+
+            // this.X += this.VelocityX;
+            // this.Y += this.VelocityY;
+
+            // if (numTicks >= 7) {
+            //     numTicks = 0;
+            //     spriteX += this.Width;
+            //     if (spriteX >= this.Width * 15) {
+            //         spriteX = 0;
+            //     }
+            // } else {
+            //     numTicks += 1;
+            // }
+
+            // if (ticksToSpawnMine > 5 * 60) {
+            //     var newMine = new SludgerMine(bounds, playerShip);
+            //     objectManager.addObject(newMine, true);
+            //     newMine.X = this.X;
+            //     newMine.Y = this.Y;
+            //     ticksToSpawnMine = 0;
+            // } else {
+            //     ticksToSpawnMine++;
+            // }
+        // };
     }
-    SludgerMine.prototype = Object.create(AIGameObject.prototype);
-    SludgerMine.prototype.constructor = SludgerMine;
-
-    function Sludger(bounds, playerShip) {
-        var numTicks = 0, spriteX, player, ticksToSpawnMine = 0;
-        AIGameObject.call(this, playerShip);
-        this.Width = 34;
-        this.Height = 31;
-        this.CollisionRadius = 16;
-        this.Mass = 8;
-        this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
-        this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
-        this.VelocityX = (Math.random() - Math.random()) * 3;
-        this.VelocityY = (Math.random() - Math.random()) * 3;
-        this.Angle = 0;
-        this.Sprite = game.mediaManager.Sprites.Sludger;
-        spriteX = 0;
-        player = playerShip;
-		this.CollisionDamage = 10;
-		this.Health = 10;
-		this.PointWorth = 25;
-
-        this.draw = function (context) {
-            Sludger.prototype.draw.call(this, context);
-            context.drawImage(this.Sprite, spriteX, 0, this.Width, this.Height, this.X - this.Width / 2, this.Y - this.Height / 2, this.Width, this.Height);
-        };
-
-        this.handleCollision = function (otherObject) {
-
-            if (otherObject instanceof Sludger || otherObject instanceof SludgerMine || otherObject instanceof EnemyBase) {
-                return;
-            } else {
-				Sludger.prototype.handleCollision.call(this, otherObject);
-			}
-        };
-
-        this.updateState = function () {
-            var angleToPlayer, angleDiff;
-
-            this.X += this.VelocityX;
-            this.Y += this.VelocityY;
-
-            if (numTicks >= 7) {
-                numTicks = 0;
-                spriteX += this.Width;
-                if (spriteX >= this.Width * 15) {
-                    spriteX = 0;
-                }
-            } else {
-                numTicks += 1;
-            }
-
-            if (ticksToSpawnMine > 5 * 60) {
-                var newMine = new SludgerMine(bounds, playerShip);
-                objectManager.addObject(newMine, true);
-                newMine.X = this.X;
-                newMine.Y = this.Y;
-                ticksToSpawnMine = 0;
-            } else {
-                ticksToSpawnMine++;
-            }
-        };
-    }
-    Sludger.prototype = Object.create(AIGameObject.prototype);
-    Sludger.prototype.constructor = Sludger;
+    // Sludger.prototype = Object.create(AIGameObject.prototype);
+    // Sludger.prototype.constructor = Sludger;
 
     function Puffer(bounds, playerShip) {
         var animationFrames, player, rotationAmount, maxFireRate, minFireRate, numFramesSince, spriteX, turnAbility, ticksToSpawnPhotons = 0;
 
-        AIGameObject.call(this, playerShip);
-        this.Width = 42;
-        this.Height = 49;
-        this.Mass = 10;
-        this.CollisionRadius = 14; // Good balance between wings sticking out and body taking up the whole circle
-        this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
-        this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
-        this.VelocityX = (Math.random() - Math.random()) * 1;
-        this.VelocityY = (Math.random() - Math.random()) * 1;
-        this.Angle = 0; // Straight up
-        spriteX = 0;
+        // AIGameObject.call(this, playerShip);
+        // this.Width = 42;
+        // this.Height = 49;
+        // this.Mass = 10;
+        // this.CollisionRadius = 14; // Good balance between wings sticking out and body taking up the whole circle
+        // this.X = Math.random() * (bounds.Right - bounds.Left + 1) + bounds.Left;
+        // this.Y = Math.random() * (bounds.Bottom - bounds.Top + 1) + bounds.Top;
+        // this.VelocityX = (Math.random() - Math.random()) * 1;
+        // this.VelocityY = (Math.random() - Math.random()) * 1;
+        // this.Angle = 0; // Straight up
+        // spriteX = 0;
         animationFrames = 32;
         rotationAmount = (Math.PI * 2) / animationFrames; // 32 frames of animation in the sprite
         numFramesSince = {
             Shooting: 0
         };
-        player = playerShip;
-        turnAbility = 0.015;
+        // player = playerShip;
+        // turnAbility = 0.015;
         maxFireRate = 3 * 60; // in seconds
         minFireRate = 0.3 * 60; // in seconds
-        this.MaxSpeed = 1;
-        this.Acceleration = 0.1;
-		this.CollisionDamage = 15;
-		this.Health = 50;
-		this.PointWorth = 40;
+        // this.MaxSpeed = 1;
+        // this.Acceleration = 0.1;
+		// this.CollisionDamage = 15;
+		// this.Health = 50;
+		// this.PointWorth = 40;
 
-        this.Sprite = game.mediaManager.Sprites.Puffer;
+        // this.Sprite = game.mediaManager.Sprites.Puffer;
 
         this.draw = function (context) {
             Puffer.prototype.draw.call(this, context);
@@ -1960,6 +1980,10 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
             context.putImageData(pixels, 0, 0);
         };
 
+        // TODO: Delete this
+        var test;
+        var test2;
+
         drawObjects = function (objects, context) {
             var i;
             context.clearRect(0, 0, context.canvas.width, context.canvas.height);
@@ -2006,6 +2030,27 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
                 }
             }
 
+            // var test = new InteractableGameObjectWithMass(context.canvas.width / 2 - 100, context.canvas.height / 2 - 100, 42, 37, Math.PI / 2, game.mediaManager.Sprites.PlayerShip, 0, 0, 12, 30);
+            // test.draw(context, 0, 2, true);
+            if (!test) {
+                NewMediaManager.init();
+                // test = 2;
+                test = new PlayerShipTest(context.canvas.width / 2 - 50, context.canvas.height / 2 - 50, .5, .5);
+                // test2 = new RockoTest(context.canvas.width / 2 - 100, context.canvas.height / 2 - 100, game.mediaManager.Sprites.Rocko, 2, 2);
+                // test = new EnemyBaseTest(context.canvas.width / 2 - 100, context.canvas.height / 2 - 100, game.mediaManager.Sprites.EnemyBase, test2);
+                // console.log(test);
+                // console.log(test2);
+                // console.log(test.relativePositionTo(test.playerShipReference));
+                // console.log(test.angleTo(test.playerShipReference));
+                // console.log(test.angleDiffTo(test.playerShipReference));
+                // // console.log(test);
+                // // console.log(test2);
+            }
+            // test.updateState();
+            test.draw(context, 0, true);
+            // test2.updateState();
+            // test2.draw(context, 0, true);
+
             numMessageTicks++;
             if (numMessageTicks < numMessageTicksMax) {
                 context.fillStyle = '#808080';
@@ -2045,29 +2090,29 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
 
             this.addObject(new EnemyBase(GameBounds, game.PlayerShip));
 
-            for (i = 0; i < 6; i += 1) {
-                this.addObject(new Pebbles(GameBounds));
-            }
+            // for (i = 0; i < 6; i += 1) {
+            //     this.addObject(new Pebbles(GameBounds));
+            // }
 
-            for (i = 0; i < 3; i += 1) {
-                this.addObject(new Rocko(GameBounds));
-            }
+            // for (i = 0; i < 3; i += 1) {
+            //     this.addObject(new Rocko(GameBounds));
+            // }
 
-            for (i = 0; i < 4; i += 1) {
-                this.addObject(new Sludger(GameBounds, game.PlayerShip));
-            }
+            // for (i = 0; i < 4; i += 1) {
+            //     this.addObject(new Sludger(GameBounds, game.PlayerShip));
+            // }
 
             for (i = 0; i < 5; i += 1) {
                 this.addObject(new QuadBlaster(GameBounds, game.PlayerShip));
             }
 
-            for (i = 0; i < 4; i += 1) {
-                this.addObject(new Puffer(GameBounds, game.PlayerShip));
-            }
+            // for (i = 0; i < 4; i += 1) {
+            //     this.addObject(new Puffer(GameBounds, game.PlayerShip));
+            // }
 			
-			for (i = 0; i < 2; i += 1) {
-				this.addObject(new Slicer(GameBounds, game.PlayerShip));
-			}
+			// for (i = 0; i < 2; i += 1) {
+			// 	this.addObject(new Slicer(GameBounds, game.PlayerShip));
+			// }
 
 			// for (i = 0; i < 3; i += 1) {
 				// this.addObject(new SludgerMine(GameBounds, game.PlayerShip));

@@ -1,19 +1,21 @@
 import { GameConfig } from "../config/gameConfig.js";
 
-// Logger class
-export function Logger() {
+export class Logger {
+    getClassName() {
+        return this.constructor.name;
+    }
 
-    Logger.prototype.log = function (message) {
+    log(message) {
         if (GameConfig.debug) {
             try {
                 console.log(message);
             } catch (e) { }
         }
     }
-	
-	Logger.prototype.error = function (message) {
+
+    error(message) {
         try {
             console.error(message);
         } catch (e) { }
-	}
+    }
 }
