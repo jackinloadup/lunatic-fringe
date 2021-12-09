@@ -1,5 +1,5 @@
 import { AiGameObject } from "./AiGameObject.js";
-import { NewMediaManager } from "./NewMediaManager.js";
+import { NewMediaManager } from "./managers/NewMediaManager.js";
 
 export class EnemyBase extends AiGameObject {
     constructor(xLocation, yLocation, playerShip) {
@@ -10,7 +10,11 @@ export class EnemyBase extends AiGameObject {
         super(xLocation, yLocation, 62, 60, 0, NewMediaManager.Sprites.EnemyBase, 0, 0, 28, 100000000, playerShip, 50);
     }
 
+    handleCollision() {
+        // TODO: This overwrites the base handle collision, because the Enemy Base shouldn't do anything when objects collide with it. Handle this better?
+    }
+
     updateState() {
-        // TODO: Fire bullets towards player if player is nearby
+        // TODO: Fire bullets towards player if player is nearby, also handle spawning more enemies
     };
 }

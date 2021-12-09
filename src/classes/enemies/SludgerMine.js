@@ -1,6 +1,6 @@
 import { EnemyBase } from "../enemyBase.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
-import { NewMediaManager } from "../NewMediaManager.js";
+import { NewMediaManager } from "../managers/NewMediaManager.js";
 import { SludgerTest } from "./Sludger.js";
 
 export class SludgerMineTest extends KillableAiGameObject {

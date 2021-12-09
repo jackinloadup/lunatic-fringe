@@ -1,5 +1,5 @@
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
-import { NewMediaManager } from "../NewMediaManager.js";
+import { NewMediaManager } from "../managers/NewMediaManager.js";
 import { SludgerMineTest } from "./SludgerMine.js";
 
 export class SludgerTest extends KillableAiGameObject {

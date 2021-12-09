@@ -25,6 +25,7 @@ export class InteractableGameObject extends GameObject {
 
     /**
      * Handle the drawing of an object with a sprite on the context.
+     * TODO: Remove yoffset, have it be a variable on the object instead. Check to see which objects need a y offset.
      * 
      * @param {*} context The drawing context
      * @param {*} yOffset The y offset when drawing the sprite on the context. This should be zero except in the few instances when raising/lowering the sprite when drawing makes it fit in the collision radius circle better.

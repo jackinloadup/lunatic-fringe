@@ -1,5 +1,5 @@
 import { InteractableGameObject } from "../InteractableGameObject.js";
-import { NewMediaManager } from "../NewMediaManager.js";
+import { NewMediaManager } from "../managers/NewMediaManager.js";
 import { PlayerShipTest } from "../PlayerShip.js";
 
 export class Powerup extends InteractableGameObject {

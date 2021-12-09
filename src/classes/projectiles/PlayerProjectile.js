@@ -1,4 +1,4 @@
-import { NewMediaManager } from "../NewMediaManager.js";
+import { NewMediaManager } from "../managers/NewMediaManager.js";
 import { PlayerBase } from "../PlayerBase.js";
 import { PlayerShipTest } from "../PlayerShip.js";
 import { Powerup } from "../powerups/Powerup.js";

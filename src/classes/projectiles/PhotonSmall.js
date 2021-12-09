@@ -1,4 +1,4 @@
-import { NewMediaManager } from "../NewMediaManager.js";
+import { NewMediaManager } from "../managers/NewMediaManager.js";
 import { PlayerProjectile } from "./PlayerProjectile.js";
 
 export class PhotonSmallTest extends PlayerProjectile {

@@ -1,5 +1,5 @@
 import { InteractableGameObject } from "./InteractableGameObject.js";
-import { NewMediaManager } from "./NewMediaManager.js";
+import { NewMediaManager } from "./managers/NewMediaManager.js";
 
 export class PlayerBase extends InteractableGameObject {
     constructor(xLocation, yLocation) {
@@ -23,5 +23,9 @@ export class PlayerBase extends InteractableGameObject {
                 this.spriteXOffset = 0;
             }
         }
+    }
+
+    handleCollision() {
+        // TODO: This overwrites the base handle collision, because the Player Base shouldn't do anything when objects collide with it. Handle this better?
     }
 }
