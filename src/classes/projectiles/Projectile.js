@@ -1,4 +1,3 @@
-import { AiGameObject } from "../aiGameObject.js";
 import { InteractableGameObject } from "../InteractableGameObject.js";
 
 export class Projectile extends InteractableGameObject {

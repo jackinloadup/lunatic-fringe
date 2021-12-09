@@ -11,7 +11,7 @@ export class NewMediaManager {
 
     // Leave off the extension. MP3 or OGG will be used depending on browser. You must supply both and they must share the same file name. Ugh, this could be better.
     static LoadAudio(name, fileName) {
-        var ext;
+        let ext;
 
         this.Audio[name] = new Audio();
 
@@ -76,7 +76,7 @@ export class NewMediaManager {
     }
 
     static percentageLoaded() {
-        var sprite, numLoaded = 0, total = 0;
+        let sprite, numLoaded = 0, total = 0;
         for (sprite in this.Sprites) {
         if (this.Sprites.hasOwnProperty(sprite)) {
             if (this.Sprites[sprite].Loaded) {

@@ -1,3 +1,3 @@
-export var GameConfig = {
+export let GameConfig = {
     debug: true
 };

@@ -1,9 +1,9 @@
+import { EnemyBase } from "../EnemyBase.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
-import { NewMediaManager } from "../NewMediaManager.js";
-import { ShipRepairsPowerupTest } from "../powerups/ShipRepairsPowerup.js";
-import { PufferProjectileTest } from "../projectiles/PufferProjectile.js";
+import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { PufferProjectile } from "../projectiles/PufferProjectile.js";
 
-export class PufferTest extends KillableAiGameObject {
+export class Puffer extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
         super(xLocation, yLocation, 42, 49, 0, NewMediaManager.Sprites.Puffer, velocityX, velocityY, 14, 10, playerShip, 15, 50, 40);
 
@@ -28,7 +28,7 @@ export class PufferTest extends KillableAiGameObject {
 
     handleCollision(otherObject, objectManager) {
         // Puffers should ignore collisions with other Puffer Projectiles and the enemy base
-        let isIgnorableType = otherObject instanceof PufferProjectileTest || otherObject instanceof EnemyBase
+        let isIgnorableType = otherObject instanceof PufferProjectile || otherObject instanceof EnemyBase
 
         if (!isIgnorableType) {
             super.handleCollision(otherObject, objectManager);
@@ -70,7 +70,7 @@ export class PufferTest extends KillableAiGameObject {
           if (angleDiff < 0.85 && angleDiff > -0.85) {
             let startingX = this.x + (-Math.cos(this.angle) * this.collisionRadius);
             let startingY = this.y + (-Math.sin(this.angle) * this.collisionRadius);
-            let newPufferProjectile = new PufferProjectileTest(startingX, startingY, Math.cos(this.angle) * this.PROJECTILE_SPEED, Math.sin(this.angle) * this.PROJECTILE_SPEED);
+            let newPufferProjectile = new PufferProjectile(startingX, startingY, Math.cos(this.angle) * this.PROJECTILE_SPEED, Math.sin(this.angle) * this.PROJECTILE_SPEED);
             objectManager.addObject(newPufferProjectile, true);
             this.numberOfTicksSinceShooting = 0;
             this.shootingRechargeTime = this.getRechargeTimeForShooting();

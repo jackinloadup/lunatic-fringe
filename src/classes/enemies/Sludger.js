@@ -1,8 +1,9 @@
+import { EnemyBase } from "../EnemyBase.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
 import { SludgerMineTest } from "./SludgerMine.js";
 
-export class SludgerTest extends KillableAiGameObject {
+export class Sludger extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
         super(xLocation, yLocation, 34, 31, 0, NewMediaManager.Sprites.Sludger, velocityX, velocityY, 16, 8, playerShip, 10, 10, 25);
 
@@ -17,7 +18,7 @@ export class SludgerTest extends KillableAiGameObject {
 
     handleCollision(otherObject, objectManager) {
         // Sludgers should ignore collisions with other Sluders, Sludermines, and the EnemyBase
-        let isIgnorableType = otherObject instanceof SludgerTest || otherObject instanceof SludgerMineTest || otherObject instanceof EnemyBase
+        let isIgnorableType = otherObject instanceof Sludger || otherObject instanceof SludgerMineTest || otherObject instanceof EnemyBase
 
         if (!isIgnorableType) {
             super.handleCollision(otherObject, objectManager);

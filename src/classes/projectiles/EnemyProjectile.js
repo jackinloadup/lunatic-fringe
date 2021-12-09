@@ -1,4 +1,4 @@
-import { PlayerShipTest } from "../PlayerShip.js";
+import { PlayerShip } from "../PlayerShip.js";
 import { Projectile } from "./Projectile.js";
 
 export class EnemyProjectile extends Projectile
@@ -12,7 +12,7 @@ export class EnemyProjectile extends Projectile
         // TODO: Change this to be a list of things that _don't_ kill the projectile, like player projectile? Also make sure these interactions are acceptable
         // TODO: Player ship should handle playing sound when hit
         super.handleCollision(otherObject);
-        if (otherObject instanceof AiGameObject || otherObject instanceof PlayerShipTest || otherObject instanceof Projectile) {
+        if (otherObject instanceof AiGameObject || otherObject instanceof PlayerShip || otherObject instanceof Projectile) {
             this.log("Projectile " + this.getClassName() + " hit " + otherObject.getClassName());
             objectManager.removeObject(this);
         }

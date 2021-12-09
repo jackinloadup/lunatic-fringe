@@ -1,6 +1,6 @@
 import { InteractableGameObject } from "../InteractableGameObject.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
-import { PlayerShipTest } from "../PlayerShip.js";
+import { PlayerShip } from "../PlayerShip.js";
 
 export class Powerup extends InteractableGameObject {
     /**
@@ -18,7 +18,7 @@ export class Powerup extends InteractableGameObject {
     handleCollision(otherObject, objectManager) {
         // Collision only matters if it is with the Player ship
         // All powerups play the PowerupWow sound when they are gained by the player, and then they are destroyed
-        if (otherObject instanceof PlayerShipTest) {
+        if (otherObject instanceof PlayerShip) {
             this.log(this.getClassName() + " gained by the player");
             NewMediaManager.Audio.PowerupWow.play();
             objectManager.removeObject(this);

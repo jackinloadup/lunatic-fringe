@@ -1,8 +1,8 @@
-import { AiGameObject } from "./aiGameObject.js";
-import { Asteroid } from "./asteroids/asteroid.js";
+import { AiGameObject } from "./AiGameObject.js";
+import { Asteroid } from "./asteroids/Asteroid.js";
 import { SludgerMineTest } from "./enemies/SludgerMine.js";
 import { NewMediaManager } from "./managers/NewMediaManager.js";
-import { PlayerShipTest } from "./PlayerShip.js";
+import { PlayerShip } from "./PlayerShip.js";
 import { PlayerProjectile } from "./projectiles/PlayerProjectile.js";
 import { Projectile } from "./projectiles/Projectile.js";
 
@@ -16,8 +16,8 @@ export class KillableAiGameObject extends AiGameObject {
 
     handleCollision(otherObject, objectManager) {
         // TODO: Move this into other class files?
-        var thisName = this.getClassName();
-        var otherName = otherObject.getClassName();
+        let thisName = this.getClassName();
+        let otherName = otherObject.getClassName();
         if (otherObject instanceof SludgerMineTest) {
             // SludgerMines are weak, so if they collide with anything they should die and the other
             // object should not get hurt, so return
@@ -47,7 +47,7 @@ export class KillableAiGameObject extends AiGameObject {
                     playerShip.addToScore(this.pointValue);
                 }
             }
-        } else if (otherObject instanceof PlayerShipTest) {
+        } else if (otherObject instanceof PlayerShip) {
             super.handleCollision(otherObject);
             log(thisName + " hit by the player");
             if(otherObject.isTurboThrusting()) {

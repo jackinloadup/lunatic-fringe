@@ -1,23 +1,23 @@
 import { NewVector } from "../utility/newVector.js";
-import { AiGameObject } from "./aiGameObject.js";
+import { AiGameObject } from "./AiGameObject.js";
 import { Asteroid } from "./asteroids/Asteroid.js";
-import { SlicerTest } from "./enemies/Slicer.js";
+import { Slicer } from "./enemies/Slicer.js";
 import { SludgerMineTest } from "./enemies/SludgerMine.js";
 import { InteractableGameObject } from "./InteractableGameObject.js";
 import { KeyStateManager } from "./managers/KeyManager.js";
 import { NewMediaManager } from "./managers/NewMediaManager.js";
-import { DoublePointsPowerupTest } from "./powerups/DoublePointsPowerup.js";
+import { DoublePointsPowerup } from "./powerups/DoublePointsPowerup.js";
 import { DurationPowerup } from "./powerups/DurationPowerup.js";
-import { ExtraFuelPowerupTest } from "./powerups/ExtraFuelPowerup.js";
+import { ExtraFuelPowerup } from "./powerups/ExtraFuelPowerup.js";
 import { Powerup } from "./powerups/Powerup.js";
-import { ShipRepairsPowerupTest } from "./powerups/ShipRepairsPowerup.js";
+import { ShipRepairsPowerup } from "./powerups/ShipRepairsPowerup.js";
 import { StoredDurationPowerup } from "./powerups/StoredDurationPowerup.js";
 import { EnemyProjectile } from "./projectiles/EnemyProjectile.js";
-import { PhotonLargeTest } from "./projectiles/PhotonLarge.js";
-import { PhotonMediumTest } from "./projectiles/PhotonMedium.js";
-import { PhotonSmallTest } from "./projectiles/PhotonSmall.js";
+import { PhotonLarge } from "./projectiles/PhotonLarge.js";
+import { PhotonMedium } from "./projectiles/PhotonMedium.js";
+import { PhotonSmall } from "./projectiles/PhotonSmall.js";
 
-export class PlayerShipTest extends InteractableGameObject {
+export class PlayerShip extends InteractableGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY) {
         // TODO: Fix starting angle....
         // TODO: Make starting position 1 pixel offset from center of canvas to line up better with base?
@@ -157,15 +157,15 @@ export class PlayerShipTest extends InteractableGameObject {
             if (this.numFramesSince.shooting >= this.bulletShootingSpeed) { // 13 matches up best with the original game's rate of fire at 60fps
                 let photon;
                 if (this.bulletState == this.BULLETS.SMALL) {
-                    photon = new PhotonSmallTest(this);
+                    photon = new PhotonSmall(this);
                     NewMediaManager.Audio.PhotonSmall.play();
                 } else if (this.bulletState == this.BULLETS.LARGE) {
-                    photon = new PhotonLargeTest(this);
+                    photon = new PhotonLarge(this);
                     NewMediaManager.Audio.PhotonBig.play();
                 } else if (this.bulletState == this.BULLETS.SPREADSHOT) {
-                    photon = new PhotonMediumTest(this, 0);
-                    let photon2 = new PhotonMediumTest(this, -Math.PI/16);
-                    let photon3 = new PhotonMediumTest(this, Math.PI/16);
+                    photon = new PhotonMedium(this, 0);
+                    let photon2 = new PhotonMedium(this, -Math.PI/16);
+                    let photon3 = new PhotonMedium(this, Math.PI/16);
                     objectManager.addObject(photon2, this);
                     objectManager.addObject(photon3, this);
                     NewMediaManager.Audio.PhotonSpread.play();
@@ -267,9 +267,9 @@ export class PlayerShipTest extends InteractableGameObject {
         } else if (otherObject instanceof AiGameObject) {
             if (!this.isInvulnerable()) {
                 this.updateHealth(-1*otherObject.damageCausedByCollision);
-                if (!(otherObject instanceof SludgerMineTest) && !(otherObject instanceof SlicerTest)) {
+                if (!(otherObject instanceof SludgerMineTest) && !(otherObject instanceof Slicer)) {
                     NewMediaManager.Audio.CollisionGeneral.play();
-                } else if (otherObject instanceof SlicerTest) {
+                } else if (otherObject instanceof Slicer) {
                     NewMediaManager.Audio.SlicerAttack.play();
                 }
             } else {
@@ -369,13 +369,13 @@ export class PlayerShipTest extends InteractableGameObject {
 
         // TODO: Have the powerups contain functions for handling this, where the player ship is passed in. That way logic is contained in the player ship. Also have powerup handle turning powerup off.
         // Apply effect from powerup
-        if (powerupObject instanceof DoublePointsPowerupTest) {
+        if (powerupObject instanceof DoublePointsPowerup) {
             this.scoreMultiplier = 2;
             document.getElementById('doublePointsActive').style.visibility = "visible";
-        } else if (powerupObject instanceof ExtraFuelPowerupTest) {
+        } else if (powerupObject instanceof ExtraFuelPowerup) {
             //Gain back half of the max fuel
             this.updateFuel(this.MAXIMUM_FUEL/2);
-        } else if (powerupObject instanceof ShipRepairsPowerupTest) {
+        } else if (powerupObject instanceof ShipRepairsPowerup) {
             //Give back 1/3 of max health
             this.updateHealth(this.MAXIMUM_HEALTH/3);
         } else if (powerupObject instanceof SpreadShotPowerup) {

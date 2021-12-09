@@ -1,7 +1,7 @@
 import { GameConfig } from "../config/gameConfig.js";
 import { NewVector } from "../utility/newVector.js";
 import { GameObject } from "./GameObject.js";
-import { PlayerShipTest } from "./PlayerShip.js";
+import { PlayerShip } from "./PlayerShip.js";
 
 export class InteractableGameObject extends GameObject {
     constructor(xLocation, yLocation, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass) {
@@ -100,27 +100,27 @@ export class InteractableGameObject extends GameObject {
     calculateAcceleration() {
         let currentVelocity = new NewVector(this.velocityX, this.velocityY);
 
-        var acceleration;
+        let acceleration;
 
         // The ship forces are opposite everything else. It doesn't move, it shifts the universe around it.
         // TODO: Where is this.acceleration set???
-        if (this instanceof PlayerShipTest) {
+        if (this instanceof PlayerShip) {
             acceleration = new NewVector(-Math.cos(this.angle) * this.acceleration, Math.sin(-this.angle) * this.acceleration);
         } else {
             acceleration = new NewVector(Math.cos(this.angle) * this.acceleration, Math.sin(this.angle) * this.acceleration);
         }
 
-        var newVelocity = currentVelocity.add(acceleration);
+        let newVelocity = currentVelocity.add(acceleration);
 
         // Only apply Lorentz factor if acceleration increases speed
         if (newVelocity.magnitude() > currentVelocity.magnitude()) {
             // TODO: This maxSpeed is only defined at the higher level, should it be moved down to this class?
-            var b = 1 - ((currentVelocity.magnitude() * currentVelocity.magnitude()) / (this.maxSpeed * this.maxSpeed));
+            let b = 1 - ((currentVelocity.magnitude() * currentVelocity.magnitude()) / (this.maxSpeed * this.maxSpeed));
 
             // If b is negative then just make it very small to prevent errors in the square root
             if (b <= 0) { b = 0.0000000001; }
 
-            var lorentz_factor = Math.sqrt(b);
+            let lorentz_factor = Math.sqrt(b);
 
             acceleration = acceleration.scale(lorentz_factor);
         }

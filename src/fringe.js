@@ -1,25 +1,7 @@
-﻿import {Vector} from './utility/vector.js';
-import {MediaManager} from './mediaManager.js';
-import { NewMediaManager } from './classes/NewMediaManager.js';
-import { PhotonLargePowerupTest } from './classes/powerups/PhotonLargePowerup.js';
-import { SpreadShotPowerupTest } from './classes/powerups/SpreadShotPowerup.js';
-import { DoublePointsPowerupTest } from './classes/powerups/DoublePointsPowerup.js';
-import { ExtraFuelPowerupTest } from './classes/powerups/ExtraFuelPowerup.js';
-import { ShipRepairsPowerupTest } from './classes/powerups/ShipRepairsPowerup.js';
-import { SparePartsPowerupTest } from './classes/powerups/SparePartsPowerup.js';
-import { InvulnerabilityPowerupTest } from './classes/powerups/InvulnerabilityPowerup.js';
-import { TurboThrustPowerupTest } from './classes/powerups/TurboThrustPowerup.js';
-import { PhotonSmallTest } from './classes/projectiles/PhotonSmall.js';
-import { PhotonMediumTest } from './classes/projectiles/PhotonMedium.js';
-import { PhotonLargeTest } from './classes/projectiles/PhotonLarge.js';
-import { PufferProjectileTest } from './classes/projectiles/PufferProjectile.js';
-import { QuasBlasterProjectileTest } from './classes/projectiles/QuadBlasterProjectile.js';
-import { SludgerMineTest } from './classes/enemies/SludgerMine.js';
-import { SludgerTest } from './classes/enemies/Sludger.js';
-import { PufferTest } from './classes/enemies/Puffer.js';
-import { SlicerTest } from './classes/enemies/Slicer.js';
-import { QuadBlasterTest } from './classes/enemies/QuadBlaster.js';
-import { PlayerShipTest } from './classes/PlayerShip.js';
+﻿import { GameConfig } from './config/gameConfig.js';
+import { NewMediaManager } from './classes/managers/NewMediaManager.js';
+import { GameManager } from './classes/managers/GameManager.js';
+import { KeyStateManager } from './classes/managers/KeyManager.js';
 
 /*  Lunatic Fringe - http://code.google.com/p/lunatic-fringe/
     Copyright (C) 2011-2013 James Carnley, Lucas Riutzel, 
@@ -43,11 +25,11 @@ import { PlayerShipTest } from './classes/PlayerShip.js';
 export function LunaticFringe(canvas, hidden, visibilityChange) {
     "use strict";
 
-    var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
-    var game = this;
-	var Version = "1.26";
-	var isCapsPaused = false;
-	log("Game Version: " + Version);
+    // var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
+    // var game = this;
+	let version = "1.26";
+	// var isCapsPaused = false;
+	log("Game Version: " + version);
 
     if (typeof canvas !== 'object') {
         canvas = document.getElementById(canvas);
@@ -64,8 +46,38 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
 
     // This is simpler than parsing the query string manually. The better regex solutions gave JSLint hell so I removed them.
     if (window.location.href.indexOf("debug=1") !== -1) {
-        DEBUG = true;
+        GameConfig.debug = true;
     }
+
+    // Initialize the media (audio/sprites)
+    NewMediaManager.init();
+
+    // Initialize the game
+    GameManager.initializeGame(canvas.getContext("2d"));
+
+    // Add listeners
+    function handleVisibilityChange() {
+        if (document[hidden]) {
+			// Only pause the game if the game is not paused by Caps Lock
+			if(!GameManager.isPaused) {
+				GameManager.pauseGame();
+			}
+        } else {
+			// Only resume the game if the game is not paused by Caps Lock
+			if(!GameManager.isPaused) {
+				GameManager.resumeGame();
+			}
+        }
+    }
+
+    document.addEventListener(visibilityChange, handleVisibilityChange, false);
+
+    window.addEventListener('resize', function (event) { GameManager.handleResize(event); }, false);
+    window.addEventListener('keyup', function (event) { KeyStateManager.onKeyUp(event); }, false);
+    window.addEventListener('keydown', function (event) { KeyStateManager.onKeyDown(event); }, false);
+
+}
+// TODO: Below is all of the code that used to be in the LunaticFringe class. Once we are sure we don't need any of it anymore remove it
 
     // function log(message) {
     //     if (DEBUG) {
@@ -120,7 +132,7 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
     // };
 
     // This is primarily to make sure media is preloaded, otherwise projectiles only load when fire is pressed and looks funky
-    this.mediaManager = new MediaManager();
+    // this.mediaManager = new MediaManager();
 
     // Game Objects
     // function GameObject() {
@@ -271,7 +283,7 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
 		// 		objectManager.removeObject(this);
 		// 	}
 		// }
-	}
+	// }
 	// Powerup.prototype = Object.create(GameObject.prototype);
 	// Powerup.prototype.constructor = Powerup;
 	
@@ -1362,7 +1374,7 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
             //     ticksToSpawnMine++;
             // }
         // };
-    }
+    // }
     // Sludger.prototype = Object.create(AIGameObject.prototype);
     // Sludger.prototype.constructor = Sludger;
 
@@ -1706,7 +1718,7 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
 
         //   numTicksForColor--;
         // };
-    }
+    // }
     // Star.prototype = Object.create(GameObject.prototype);
     // Star.prototype.constructor = Star;
 
@@ -1740,7 +1752,7 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
         //         }
         //     }
         // };
-    }
+    // }
     // Base.prototype = Object.create(GameObject.prototype);
     // Base.prototype.constructor = Base;
 
@@ -1801,7 +1813,7 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
         //     this.X += this.VelocityX;
         //     this.Y += this.VelocityY;
         // };
-    }
+    // }
     // Asteroid.prototype = Object.create(GameObject.prototype);
     // Asteroid.prototype.constructor = Asteroid;
 
@@ -1831,7 +1843,7 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
     // Rocko.prototype = Object.create(Asteroid.prototype);
     // Rocko.prototype.constructor = Rocko;
 
-    function ObjectManager(canvasContext) {
+    // function ObjectManager(canvasContext) {
         // var objects, collidables, newObject, i, context, playerShip, moveObject, updateObjects, detectCollisions, drawObjects,
         //             GameBounds, checkBounds, handleCollision, setupPositions, numMessageTicks, numMessageTicksMax, message,
         //             isRunning, isPaused;
@@ -2179,9 +2191,9 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
         // } ());
 
         // this.initializeGame();
-    }
+    // }
 
-    objectManager = new ObjectManager(canvas.getContext("2d"));
+    // objectManager = new ObjectManager(canvas.getContext("2d"));
 
     // animationLoop = function() {
     //   // stop loop if paused
@@ -2194,26 +2206,26 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
 
     // animationLoop();
 
-    function handleVisibilityChange() {
-        if (document[hidden]) {
-			// Only pause the game if the game is not paused by Caps Lock
-			if(!isCapsPaused) {
-				objectManager.pauseGame();
-			}
-        } else {
-			// Only resume the game if the game is not paused by Caps Lock
-			if(!isCapsPaused) {
-				objectManager.resumeGame();
-			}
-        }
-    }
+    // function handleVisibilityChange() {
+    //     if (document[hidden]) {
+	// 		// Only pause the game if the game is not paused by Caps Lock
+	// 		if(!isCapsPaused) {
+	// 			objectManager.pauseGame();
+	// 		}
+    //     } else {
+	// 		// Only resume the game if the game is not paused by Caps Lock
+	// 		if(!isCapsPaused) {
+	// 			objectManager.resumeGame();
+	// 		}
+    //     }
+    // }
 
-    document.addEventListener(visibilityChange, handleVisibilityChange, false);
+    // document.addEventListener(visibilityChange, handleVisibilityChange, false);
 
-    window.addEventListener('resize', function (event) { objectManager.handleResize(event); }, false);
-    window.addEventListener('keyup', function (event) { Key.onKeyup(event); }, false);
-    window.addEventListener('keydown', function (event) { Key.onKeydown(event); }, false);
+    // window.addEventListener('resize', function (event) { objectManager.handleResize(event); }, false);
+    // window.addEventListener('keyup', function (event) { Key.onKeyup(event); }, false);
+    // window.addEventListener('keydown', function (event) { Key.onKeydown(event); }, false);
 
-};
+// };
 
 

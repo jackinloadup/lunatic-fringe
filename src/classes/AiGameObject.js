@@ -1,10 +1,5 @@
 import { NewVector } from "../utility/newVector.js";
-import { SludgerMineTest } from "./enemies/SludgerMine.js";
 import { InteractableGameObject } from "./InteractableGameObject.js";
-import { NewMediaManager } from "./managers/NewMediaManager.js";
-import { PhotonSmallTest } from "./projectiles/PhotonSmall.js";
-import { PlayerProjectile } from "./projectiles/PlayerProjectile.js";
-import { Projectile } from "./projectiles/Projectile.js";
 
 export class AiGameObject extends InteractableGameObject {
     constructor(xLocation, yLocation, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass, playerShip, damageCausedByCollision) {

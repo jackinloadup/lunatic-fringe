@@ -1,8 +1,8 @@
 import { SludgerMineTest } from "../enemies/SludgerMine.js";
-import { NewMediaManager } from "../NewMediaManager.js";
+import { NewMediaManager } from "../managers/NewMediaManager.js";
 import { PlayerProjectile } from "./PlayerProjectile.js";
 
-export class PhotonLargeTest extends PlayerProjectile {
+export class PhotonLarge extends PlayerProjectile {
     constructor(xLocation, yLocation, velocityX, velocityY) {
         super(xLocation, yLocation, 15, 16, 0, NewMediaManager.Sprites.PhotonLarge, velocityX, velocityY, 8, 0, 50, 30);
     }

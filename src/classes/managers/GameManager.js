@@ -1,9 +1,9 @@
 import { GameConfig } from "../../config/gameConfig.js";
-import { AiGameObject } from "../aiGameObject.js";
-import { QuadBlasterTest } from "../enemies/QuadBlaster.js";
-import { EnemyBase } from "../enemyBase.js";
+import { AiGameObject } from "../AiGameObject.js";
+import { QuadBlaster } from "../enemies/QuadBlaster.js";
+import { EnemyBase } from "../EnemyBase.js";
 import { PlayerBase } from "../PlayerBase.js";
-import { PlayerShipTest } from "../PlayerShip.js";
+import { PlayerShip } from "../PlayerShip.js";
 import { Star } from "../Star.js";
 import { NewMediaManager } from "./NewMediaManager.js";
 
@@ -38,7 +38,7 @@ export class GameManager {
         // Initalize all of the game objects
         // TODO: Eventually all of the starting cooridinates won't be random and the object addition to the game will be more structred, once levels are added in (also won't start with powerups in world immediately)
         // Create the player
-        this.playerShip = new PlayerShipTest(this.context.canvas.width / 2, this.context.canvas.height / 2, 0, 0);
+        this.playerShip = new PlayerShip(this.context.canvas.width / 2, this.context.canvas.height / 2, 0, 0);
 
         // Add the background stars
         for (let i = 0; i < 600; i++) {
@@ -85,7 +85,7 @@ export class GameManager {
             // TODO: Change this. This is only temporary anyways but it is irking the hell out of me.
             let velocityX = (Math.random() - Math.random()) * 1;
             let velocityY = (Math.random() - Math.random()) * 1
-            this.addObject(new QuadBlasterTest(x, y, velocityX, velocityY, this.playerShip));
+            this.addObject(new QuadBlaster(x, y, velocityX, velocityY, this.playerShip));
         }
 
         // Add all powerups
@@ -174,7 +174,7 @@ export class GameManager {
     static moveObject(object) {
         // TODO: Should this check be here?
         // PlayerShip doesn't move like other objects do
-        if (object instanceof PlayerShipTest) {
+        if (object instanceof PlayerShip) {
             return;
         }
 
@@ -328,7 +328,7 @@ export class GameManager {
 
     // TODO: Figure out what the hell is going on here and make it a real function or leave a comment explaining why it is an IIFE
     static gameLoop = (function () {
-        var i = 0, loops = 0, skipTicks = 1000 / 60, maxFrameSkip = 10, nextGameTick = (new Date()).getTime();
+        let loops = 0, skipTicks = 1000 / 60, maxFrameSkip = 10, nextGameTick = (new Date()).getTime();
 
         return function (resetGameTick) {
             loops = 0;

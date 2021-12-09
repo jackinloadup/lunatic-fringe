@@ -1,6 +1,6 @@
 import { NewMediaManager } from "../managers/NewMediaManager.js";
 import { PlayerBase } from "../PlayerBase.js";
-import { PlayerShipTest } from "../PlayerShip.js";
+import { PlayerShip } from "../PlayerShip.js";
 import { Powerup } from "../powerups/Powerup.js";
 import { Projectile } from "./Projectile.js";
 
@@ -13,7 +13,7 @@ export class PlayerProjectile extends Projectile {
         this.log(this.getClassName() + " hit " + otherObject.getClassName());
 
         // TODO: Make this if statement less dumb, invert condition then won't need else
-        if (otherObject instanceof PlayerBase || otherObject instanceof PlayerShipTest || otherObject instanceof Powerup || otherObject instanceof PlayerProjectile) {
+        if (otherObject instanceof PlayerBase || otherObject instanceof PlayerShip || otherObject instanceof Powerup || otherObject instanceof PlayerProjectile) {
             // Do not want player projectiles to collide with the player base, the player ship, in world powerups, or other player projectiles
             return;
         } else {

@@ -1,8 +1,10 @@
 import { GameConfig } from "../../config/gameConfig.js";
+import { EnemyBase } from "../EnemyBase.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
-import { NewMediaManager } from "../NewMediaManager.js";
+import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { QuasBlasterProjectile } from "../projectiles/QuadBlasterProjectile.js";
 
-export class QuadBlasterTest extends KillableAiGameObject {
+export class QuadBlaster extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
         super(xLocation, yLocation, 40, 50, 0, NewMediaManager.Sprites.QuadBlaster, velocityX, velocityY, 16, 8, playerShip, 15, 40, 30);
 
@@ -78,7 +80,7 @@ export class QuadBlasterTest extends KillableAiGameObject {
 
     handleCollision(otherObject, objectManager) {
         // Quadblaster should ignore collisions with other Quadblasters and the enemy base
-        let isIgnorableType = otherObject instanceof QuadBlasterTest || otherObject instanceof EnemyBase
+        let isIgnorableType = otherObject instanceof QuadBlaster || otherObject instanceof EnemyBase
 
         if (!isIgnorableType) {
             super.handleCollision(otherObject, objectManager);
@@ -120,7 +122,7 @@ export class QuadBlasterTest extends KillableAiGameObject {
             // TODO: Original code had the bullet starting at location of blaster, not on edge of collision radius. Do we want to change that?
             let startingX = this.x + (-Math.cos(this.angle) * this.collisionRadius);
             let startingY = this.y + (-Math.sin(this.angle) * this.collisionRadius);
-            let newQuadBlasterProjectile = new QuadBlasterProjectileTest(startingX, startingY, Math.cos(this.angle) * this.PROJECTILE_SPEED, Math.sin(this.angle) * this.PROJECTILE_SPEED);
+            let newQuadBlasterProjectile = new QuasBlasterProjectile(startingX, startingY, Math.cos(this.angle) * this.PROJECTILE_SPEED, Math.sin(this.angle) * this.PROJECTILE_SPEED);
             objectManager.addObject(newQuadBlasterProjectile, true);
             this.numberOfTicksSinceShooting = 0;
             this.shootingRechargeTime = this.getRechargeTimeForShooting();

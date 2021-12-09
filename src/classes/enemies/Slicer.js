@@ -1,7 +1,8 @@
+import { EnemyBase } from "../EnemyBase.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
-import { NewMediaManager } from "../NewMediaManager.js";
+import { NewMediaManager } from "../managers/NewMediaManager.js";
 
-export class SlicerTest extends KillableAiGameObject {
+export class Slicer extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
         super(xLocation, yLocation, 50, 50, 0, NewMediaManager.Sprites.Slicer, velocityX, velocityY, 14, 50, playerShip, 25, 100, 100);
 
@@ -16,7 +17,7 @@ export class SlicerTest extends KillableAiGameObject {
 
     handleCollision(otherObject, objectManager) {
         // Slicers should ignore collisions with other Slicers and the enemy base
-        let isIgnorableType = otherObject instanceof SlicerTest || otherObject instanceof EnemyBase
+        let isIgnorableType = otherObject instanceof Slicer || otherObject instanceof EnemyBase
 
         if (!isIgnorableType) {
             super.handleCollision(otherObject, objectManager);

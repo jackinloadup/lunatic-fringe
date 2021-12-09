@@ -1,4 +1,4 @@
-import { Asteroid } from "./asteroid.js";
+import { Asteroid } from "./Asteroid.js";
 
 export class Rocko extends Asteroid {
     constructor(xLocation, yLocation, velocityX, velocityY) {
