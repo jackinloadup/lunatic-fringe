@@ -26,6 +26,7 @@ export class CollisionManager {
         this.collisionMatrix[Layer.PLAYER][Layer.PLAYER_PROJECTILE] = false;
 
         // Player projectiles should not collide with the player (see above), powerups, or the player base
+        this.collisionMatrix[Layer.PLAYER_PROJECTILE][Layer.PLAYER_PROJECTILE] = false;
         this.collisionMatrix[Layer.PLAYER_PROJECTILE][Layer.INSTANT_POWERUP] = false;
         this.collisionMatrix[Layer.PLAYER_PROJECTILE][Layer.DURATION_POWERUP] = false;
         this.collisionMatrix[Layer.PLAYER_PROJECTILE][Layer.BULLET_POWERUP] = false;

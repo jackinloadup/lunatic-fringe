@@ -74,7 +74,8 @@ export class PlayerShip extends InteractableGameObject {
 		};
         this.bulletState = this.BULLETS.SMALL;
 		this.DEFAULT_SHOOTING_SPEED = 13; // Shooting speed without powerups and with normal bullets
-		this.bulletShootingSpeed = this.defaultShootingSpeed;
+		this.bulletShootingSpeed = this.DEFAULT_SHOOTING_SPEED;
+        this.PROJECTILE_SPEED = 10;
 		this.scoreMultiplier = 1;
 		// The speed you got at when using the turbo thrust powerup
 		this.SPEED_OF_TURBO_THRUST = 2 * this.MAX_SPEED;
@@ -127,21 +128,30 @@ export class PlayerShip extends InteractableGameObject {
         if (KeyStateManager.isDown(KeyStateManager.SPACE) && !this.atBase && !this.isTurboThrusting()) {
             if (this.numFramesSince.shooting >= this.bulletShootingSpeed) { // 13 matches up best with the original game's rate of fire at 60fps
                 let photon;
+                let photonX = this.x + (-Math.cos(this.angle) * this.collisionRadius)
+                let photonY = this.y + (-Math.sin(this.angle) * this.collisionRadius)
+                let photonVelocityX = -Math.cos(this.angle) * this.PROJECTILE_SPEED;
+                let photonVelocityY = -Math.sin(this.angle) * this.PROJECTILE_SPEED;
                 if (this.bulletState == this.BULLETS.SMALL) {
-                    photon = new PhotonSmall(this);
+                    photon = new PhotonSmall(photonX, photonY, photonVelocityX, photonVelocityY);
                     NewMediaManager.Audio.PhotonSmall.play();
                 } else if (this.bulletState == this.BULLETS.LARGE) {
-                    photon = new PhotonLarge(this);
+                    photon = new PhotonLarge(photonX, photonY, photonVelocityX, photonVelocityY);
                     NewMediaManager.Audio.PhotonBig.play();
                 } else if (this.bulletState == this.BULLETS.SPREADSHOT) {
-                    photon = new PhotonMedium(this, 0);
-                    let photon2 = new PhotonMedium(this, -Math.PI/16);
-                    let photon3 = new PhotonMedium(this, Math.PI/16);
-                    ObjectManager.addObject(photon2, this);
-                    ObjectManager.addObject(photon3, this);
+                    let photonVelocityX2 = -Math.cos(this.angle + (Math.PI / 16)) * this.PROJECTILE_SPEED;
+                    let photonVelocityY2 = -Math.sin(this.angle + (Math.PI / 16)) * this.PROJECTILE_SPEED;
+                    let photonVelocityX3 = -Math.cos(this.angle - (Math.PI / 16)) * this.PROJECTILE_SPEED;
+                    let photonVelocityY3 = -Math.sin(this.angle - (Math.PI / 16)) * this.PROJECTILE_SPEED;
+                    photon = new PhotonMedium(photonX, photonY, photonVelocityX, photonVelocityY);
+                    let photon2 = new PhotonMedium(photonX, photonY, photonVelocityX2, photonVelocityY2);
+                    let photon3 = new PhotonMedium(photonX, photonY, photonVelocityX3, photonVelocityY3);
+                    // TODO: investigate why photon 2 falls behind the other photons when shooting sometimes
+                    ObjectManager.addObject(photon2, true);
+                    ObjectManager.addObject(photon3, true);
                     NewMediaManager.Audio.PhotonSpread.play();
                 }
-                ObjectManager.addObject(photon, this);
+                ObjectManager.addObject(photon, true);
                 this.numFramesSince.shooting = 0;
             }
         }
