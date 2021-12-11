@@ -145,7 +145,6 @@ export class CollisionManager {
         let layer1 = object1.layer;
         let layer2 = object2.layer;
         if (layer1 <= layer2) {
-        } else {
             return this.collisionMatrix[layer2][layer1];
         } else {
             return this.collisionMatrix[layer1][layer2];
@@ -153,6 +152,7 @@ export class CollisionManager {
     }
 
     static isPowerupLayer(layer) {
+        return layer === Layer.INSTANT_POWERUP || layer === Layer.DURATION_POWERUP || layer === Layer.BULLET_POWERUP || layer === Layer.STORED_POWERUP;
     }
 
     static isEnemyLayer(layer) {
