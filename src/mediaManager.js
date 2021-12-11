@@ -20,7 +20,7 @@ export function MediaManager() {
       } else if (this.Audio[name].canPlayType("audio/mpeg") === "probably" || this.Audio[name].canPlayType("audio/mped") === "maybe") {
           ext = ".mp3";
       } else {
-          log("No supported audio format detected.");
+          console.log("No supported audio format detected.");
       }
 
       this.Audio[name].src = fileName + ext;

@@ -141,7 +141,7 @@ export class GameManager {
         this.numMessageTicks = 0;
         this.numMessageTicksMax = ticksToShow;
         this.message = text;
-        log("DisplayMessage called with " + text + " - " + ticksToShow);
+        console.log("DisplayMessage called with " + text + " - " + ticksToShow);
     }
 
     static handleResize() {

@@ -13,10 +13,9 @@ import { PowerupStateManager } from "./PowerupStateManager.js";
 
 export class PlayerShip extends InteractableGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY) {
-        // TODO: Fix starting angle....
         // TODO: Make starting position 1 pixel offset from center of canvas to line up better with base?
         // Collision radius of 12 is a good balance between wings sticking out and body taking up the whole circle
-        // Start at angle of Math.PI / 2 so angle matches sprite. Normally since the canvas is y flipped you would want
+        // Start at angle of Math.PI / 2 so angle matches sprite. Normally since the canvas is y flipped from a normal graph you would want
         //      -Math.PI / 2 to be pointing straight up, but the ships forces are opposites all other objects
         super(xLocation, yLocation, Layer.PLAYER ,42, 37, Math.PI / 2, NewMediaManager.Sprites.PlayerShip, velocityX, velocityY, 12, 10);
         // TODO: Offset the drawing of the sprite by 2 pixels up so it fits in the circle better
@@ -65,6 +64,7 @@ export class PlayerShip extends InteractableGameObject {
             takenDamage: 0
 		}
 
+        this.score = 0;
         this.powerupStateManager = new PowerupStateManager(this);
         // Possible bullet states
 		this.BULLETS = {
@@ -171,7 +171,7 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     addToScore(amount) {
-        score += amount * this.scoreMultiplier;
+        this.score += amount * this.scoreMultiplier;
     }
 
     isInvulnerable() {
@@ -251,26 +251,19 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     handleCollision(otherObject) {
-        // TODO: Clean this up, could definitely be made a bit simpler. Could combine some of the logic for asteroids, projectiles, and ai game objects
-        if (otherObject.layer === Layer.ASTEROID) {
-            super.handleCollision(otherObject);     
-            this.log("Player hit a Asteroid");
-            this.playCollisionSound();
-            if (!this.isInvulnerable()) {
-                this.updateHealth(-1*otherObject.damageCausedByCollision);
-            }
-        } else if (otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE) {
+        if (otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE) {
             this.log("Player was hit by projectile: " + otherObject.getClassName());
-            this.playCollisionSound();
+            this.playCollisionSound(otherObject);
             if (!this.isInvulnerable()) {
                 this.updateHealth(-1*otherObject.damage);
             }
-        } else if (otherObject.layer === Layer.PUFFER || otherObject.layer === Layer.QUAD_BLASTER || otherObject.layer === Layer.SLICER || otherObject.layer === Layer.SLUDGER || otherObject.layer === Layer.SLUDGER_MINE || otherObject.layer === Layer.ENEMY_BASE) {
-            if (!this.isTurboThrusting() || otherObject instanceof EnemyBase) {
+        } else if (otherObject.layer === Layer.ASTEROID || CollisionManager.isEnemyLayer(otherObject.layer)) {
+            this.log("Player hit: " + otherObject.getClassName());
+            if (!this.isTurboThrusting() || otherObject.layer === Layer.ASTEROID || otherObject.layer === Layer.ENEMY_BASE) {
                 // Hitting other objects (besides asteroids and the enemy base) only changes your direction and speed if you are not turbo thrusting
                 super.handleCollision(otherObject);
             }	
-            this.playCollisionSound();
+            this.playCollisionSound(otherObject);
             if (!this.isInvulnerable()) {
                 this.updateHealth(-1*otherObject.damageCausedByCollision);
             }		
@@ -280,8 +273,8 @@ export class PlayerShip extends InteractableGameObject {
             // Make it so that the ship will go towards the Player Base
             // These are the coordinates the Base should be at if the ship is centered on the base
             // TODO: Store these values in the config, along with Enemy base coordinates. Currently rely on having access to context...maybe just get Base location from other object instead?
-            let baseX = context.canvas.width / 2 - (this.width / 2);
-            let baseY = context.canvas.height / 2 - (this.height / 2) + 2.5;
+            let baseX = otherObject.x; //context.canvas.width / 2 - (this.width / 2);
+            let baseY = otherObject.y; //context.canvas.height / 2 - (this.height / 2) + 2.5;
             // There will be rounding error with the program, so don't check that the 
             // values are equal but rather that they are within this threshold
             let threshold = .5; 
@@ -424,7 +417,7 @@ export class PlayerShip extends InteractableGameObject {
 
         // Handle healing from spare parts
         if (this.health < this.MAXIMUM_HEALTH && this.spareParts > 0 && this.numFramesSince.healFromSparePart > 30 && this.numFramesSince.takenDamage > 120) {
-            numFramesSince.healFromSparePart = 0;
+            this.numFramesSince.healFromSparePart = 0;
             this.updateSpareParts(-1);
             this.updateHealth(1);
 

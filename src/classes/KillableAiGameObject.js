@@ -18,7 +18,7 @@ export class KillableAiGameObject extends AiGameObject {
     }
 
     die() {
-        log(thisName + " died!");
+        this.log(this.getClassName() + " died!");
         this.playDeathSound();
         ObjectManager.removeObject(this);
         
@@ -37,39 +37,39 @@ export class KillableAiGameObject extends AiGameObject {
             return;
         } else if (otherObject.layer === Layer.PLAYER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE || otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE) {	
             // TODO: Should projectiles not have physics effects when hit? Currently they don't but maybe they should?			
-            log(thisName + " hit by Projectile: " + otherName);
+            this.log(thisName + " hit by Projectile: " + otherName);
             this.health -= otherObject.damage;
-            log(thisName + " health is now: " + this.health);
+            this.log(thisName + " health is now: " + this.health);
             if (this.health <= 0) {
                 this.die();
 
                 if(otherObject.layer === Layer.PLAYER_PROJECTILE) {
                     //Only award points if the player was the one to kill the this				
-                    playerShip.addToScore(this.pointValue);
+                    this.playerShipReference.addToScore(this.pointValue);
                 }
             }
         } else if (otherObject.layer === Layer.PLAYER) {
             super.handleCollision(otherObject);
-            log(thisName + " hit by the player");
+            this.log(thisName + " hit by the player");
             if(otherObject.isTurboThrusting()) {
                 // Turbo thrusting player instantly kills any enemy (with the exception of the asteroids and enemy base)
                 this.health = 0;
             } else {
                 this.health -= otherObject.damageCausedByCollision;
             }
-            log(thisName + " health is now: " + this.health);
+            this.log(thisName + " health is now: " + this.health);
             // If this dies from a player hitting it, points are still awarded
             if (this.health <= 0) {
                 this.die();
 
                 // Player killed the enemy, award points
-                playerShip.addToScore(this.pointValue);
+                this.playerShipReference.addToScore(this.pointValue);
             }
         } else if (otherObject.layer === Layer.ASTEROID || otherObject.layer === Layer.PUFFER || otherObject.layer === Layer.QUAD_BLASTER || otherObject.layer === Layer.SLICER || otherObject.layer === Layer.SLUDGER) {
             super.handleCollision(otherObject);
-            log(thisName + " hit by Game Object: " + otherName);
+            this.log(thisName + " hit by Game Object: " + otherName);
             this.health -= otherObject.damageCausedByCollision;
-            log(thisName + " health is now: " + this.health);
+            this.log(thisName + " health is now: " + this.health);
             if (this.health < 0) {
                 this.die();
             }
