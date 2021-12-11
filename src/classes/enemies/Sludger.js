@@ -1,11 +1,12 @@
-import { EnemyBase } from "../EnemyBase.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
+import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { ObjectManager } from "../managers/ObjectManager.js";
 import { SludgerMineTest } from "./SludgerMine.js";
 
 export class Sludger extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
-        super(xLocation, yLocation, 34, 31, 0, NewMediaManager.Sprites.Sludger, velocityX, velocityY, 16, 8, playerShip, 10, 10, 25);
+        super(xLocation, yLocation, Layer.SLUDGER, 34, 31, 0, NewMediaManager.Sprites.Sludger, velocityX, velocityY, 16, 8, playerShip, 10, 10, 25);
 
         this.currentTicksInAnimationFrame = 0;
         this.NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES = 7;
@@ -16,17 +17,8 @@ export class Sludger extends KillableAiGameObject {
         this.MINE_SPAWN_TIME = 5 * 60;
     }
 
-    handleCollision(otherObject, objectManager) {
-        // Sludgers should ignore collisions with other Sluders, Sludermines, and the EnemyBase
-        let isIgnorableType = otherObject instanceof Sludger || otherObject instanceof SludgerMineTest || otherObject instanceof EnemyBase
-
-        if (!isIgnorableType) {
-            super.handleCollision(otherObject, objectManager);
-        }
-    }
-
     // TODO: Make object manager a static class...?
-    updateState(objectManager) {
+    updateState() {
         // Handle animation
         // TODO: This logic is the same as in the PlayerBase, make some sort of common function?
         this.currentTicksInAnimationFrame += 1;
@@ -47,7 +39,7 @@ export class Sludger extends KillableAiGameObject {
         if (this.numberOfTicksSinceSpawnedMine > this.MINE_SPAWN_TIME) {
             this.numberOfTicksSinceSpawnedMine = 0;
             let newSludgerMine = new SludgerMineTest(this.x, this.y, 0, 0, this.playerShipReference);
-            objectManager.addObject(newSludgerMine, true);
+            ObjectManager.addObject(newSludgerMine, true);
         }
     }
 }

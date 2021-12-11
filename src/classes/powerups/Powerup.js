@@ -1,6 +1,6 @@
 import { InteractableGameObject } from "../InteractableGameObject.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
-import { PlayerShip } from "../PlayerShip.js";
+import { ObjectManager } from "../managers/ObjectManager.js";
 
 export class Powerup extends InteractableGameObject {
     /**
@@ -8,20 +8,19 @@ export class Powerup extends InteractableGameObject {
      * angle also does not really apply, so set that to 0.
      * TODO: Set mass to 0 here since it doesn't apply to powerups?
      */
-    constructor(xLocation, yLocation, width, height, sprite, collisionRadius, mass) {
-        
-        super(xLocation, yLocation, width, height, 0, sprite, 0, 0, collisionRadius, mass);
+    constructor(xLocation, yLocation, layer, width, height, sprite, collisionRadius, mass) {
+        super(xLocation, yLocation, layer, width, height, 0, sprite, 0, 0, collisionRadius, mass);
 
         this.log(this.getClassName() + " created at: (" + this.x + "," + this.y + ")");
     }
 
-    handleCollision(otherObject, objectManager) {
-        // Collision only matters if it is with the Player ship
-        // All powerups play the PowerupWow sound when they are gained by the player, and then they are destroyed
-        if (otherObject instanceof PlayerShip) {
-            this.log(this.getClassName() + " gained by the player");
-            NewMediaManager.Audio.PowerupWow.play();
-            objectManager.removeObject(this);
-        }
+    handleCollision(otherObject) {
+        this.log(this.getClassName() + " obtained by " + otherObject.getClassName());
+        NewMediaManager.Audio.PowerupWow.play();
+        ObjectManager.removeObject(this);
+    }
+
+    activate(playerShip) {
+        this.error("The activate function should be overwritten by concrete subclasses!");
     }
 }

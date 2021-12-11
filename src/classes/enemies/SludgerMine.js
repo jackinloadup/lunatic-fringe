@@ -1,11 +1,10 @@
-import { EnemyBase } from "../EnemyBase.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
+import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
-import { Sludger } from "./Sludger.js";
 
 export class SludgerMineTest extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
-        super(xLocation, yLocation, 24, 21, 0, NewMediaManager.Sprites.SludgerMine, velocityX, velocityY, 11, 4, playerShip, 5, 5, 2);
+        super(xLocation, yLocation, Layer.SLUDGER_MINE, 24, 21, 0, NewMediaManager.Sprites.SludgerMine, velocityX, velocityY, 11, 4, playerShip, 5, 5, 2);
 
         this.TURN_ABILITY = 0.09;
         this.MAX_SPEED = 4;
@@ -19,13 +18,9 @@ export class SludgerMineTest extends KillableAiGameObject {
         this.spriteXOffset = (Math.floor(Math.random() * this.NUMBER_OF_ANIMATION_FRAMES)) * this.width;
     }
 
-    handleCollision(otherObject, objectManager) {
-        // Sludger mines should ignore collisions with Sluders, other Sludermines, and the EnemyBase
-        let isIgnorableType = otherObject instanceof Sludger || otherObject instanceof SludgerMineTest || otherObject instanceof EnemyBase
-
-        if (!isIgnorableType) {
-            super.handleCollision(otherObject, objectManager);
-        }
+    playDeathSound() {
+        // Override method to play the sludger mine specific death sound
+        NewMediaManager.Audio.SludgerMinePop.play();
     }
 
     updateState() {

@@ -29,7 +29,7 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
     // var game = this;
 	let version = "1.26";
 	// var isCapsPaused = false;
-	log("Game Version: " + version);
+	// log("Game Version: " + version);
 
     if (typeof canvas !== 'object') {
         canvas = document.getElementById(canvas);

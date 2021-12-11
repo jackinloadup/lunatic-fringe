@@ -1,10 +1,10 @@
 import { GameConfig } from "../config/gameConfig.js";
 import { NewVector } from "../utility/newVector.js";
 import { GameObject } from "./GameObject.js";
-import { PlayerShip } from "./PlayerShip.js";
+import { Layer } from "./managers/Layer.js";
 
 export class InteractableGameObject extends GameObject {
-    constructor(xLocation, yLocation, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass) {
+    constructor(xLocation, yLocation, layer, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass) {
         super(xLocation, yLocation);
 
         this.width = width;
@@ -15,28 +15,32 @@ export class InteractableGameObject extends GameObject {
         this.velocityY = velocityY;
         this.collisionRadius = collisionRadius;
         this.mass = mass;
+        this.layer = layer;
         /**
          * The x offset of the sprite to use when drawing. This should be zero unless a sprite is animated in which case it should correspond to whatever the x value is of the desired animation frame in the sprite. 
          *      The updating of this value should be handled in the specific objects updateState function.
-         * The y offset of the sprite should never be needed as all sprite sheets are just one row of sprites, as opposed to multiple rows.
+         * The y offset of the sprite to use when drawing. This should be zero unless a sprite is animated and has multiple rows on the sprite sheet in which case it should correspond to whatever the y value of the desired
+         *      row of the spritesheet is.
          */
         this.spriteXOffset = 0;
+        this.spriteYOffset = 0;
     }
 
     /**
      * Handle the drawing of an object with a sprite on the context.
      * TODO: Remove yoffset, have it be a variable on the object instead. Check to see which objects need a y offset.
+     * TODO: Make spriteYOffset variable instead of 0, needed for player ship and invulnerability
+     * TODO: Remove passed in 3 argument wherever it was passed in, that was removed
      * 
      * @param {*} context The drawing context
      * @param {*} yOffset The y offset when drawing the sprite on the context. This should be zero except in the few instances when raising/lowering the sprite when drawing makes it fit in the collision radius circle better.
-     * @param {*} isPlayerShip 
      */
-    draw(context, yOffset = 0, isPlayerShip = false) {
+    draw(context, yOffset = 0) {
         // handle the drawing that is common between all objects
 
         // Sprite drawing
         // There is no rotation in this drawing since images are not actually rotated, the rotation comes from the sprite sheets
-        context.drawImage(this.sprite, this.spriteXOffset, 0, this.width, this.height, this.x - this.width / 2, this.y - this.height / 2 - yOffset, this.width, this.height);
+        context.drawImage(this.sprite, this.spriteXOffset, this.spriteYOffset, this.width, this.height, this.x - this.width / 2, this.y - this.height / 2 - yOffset, this.width, this.height);
 
         // Common debug drawing
         if (GameConfig.debug) {
@@ -51,7 +55,7 @@ export class InteractableGameObject extends GameObject {
             context.strokeStyle = "blue";
             context.moveTo(this.x, this.y);
             // console.log("drawing line");
-            if (isPlayerShip) {
+            if (this.layer === Layer.PLAYER) {
                 // Player ship forces/angles are opposite everyone else
                 context.lineTo(this.x + -Math.cos(this.angle) * this.collisionRadius * 2, this.y + -Math.sin(this.angle) * this.collisionRadius * 2);
             } else {
@@ -104,10 +108,10 @@ export class InteractableGameObject extends GameObject {
 
         // The ship forces are opposite everything else. It doesn't move, it shifts the universe around it.
         // TODO: Where is this.acceleration set???
-        if (this instanceof PlayerShip) {
-            acceleration = new NewVector(-Math.cos(this.angle) * this.acceleration, Math.sin(-this.angle) * this.acceleration);
+        if (this.layer === Layer.PLAYER) {
+            acceleration = new NewVector(-Math.cos(this.angle) * this.ACCELERATION, Math.sin(-this.angle) * this.ACCELERATION);
         } else {
-            acceleration = new NewVector(Math.cos(this.angle) * this.acceleration, Math.sin(this.angle) * this.acceleration);
+            acceleration = new NewVector(Math.cos(this.angle) * this.ACCELERATION, Math.sin(this.angle) * this.ACCELERATION);
         }
 
         let newVelocity = currentVelocity.add(acceleration);
@@ -115,7 +119,7 @@ export class InteractableGameObject extends GameObject {
         // Only apply Lorentz factor if acceleration increases speed
         if (newVelocity.magnitude() > currentVelocity.magnitude()) {
             // TODO: This maxSpeed is only defined at the higher level, should it be moved down to this class?
-            let b = 1 - ((currentVelocity.magnitude() * currentVelocity.magnitude()) / (this.maxSpeed * this.maxSpeed));
+            let b = 1 - ((currentVelocity.magnitude() * currentVelocity.magnitude()) / (this.MAX_SPEED * this.MAX_SPEED));
 
             // If b is negative then just make it very small to prevent errors in the square root
             if (b <= 0) { b = 0.0000000001; }

@@ -1,53 +1,54 @@
 import { AiGameObject } from "./AiGameObject.js";
-import { Asteroid } from "./asteroids/Asteroid.js";
-import { SludgerMineTest } from "./enemies/SludgerMine.js";
+import { GameServiceManager } from "./managers/GameServiceManager.js";
+import { Layer } from "./managers/Layer.js";
 import { NewMediaManager } from "./managers/NewMediaManager.js";
-import { PlayerShip } from "./PlayerShip.js";
-import { PlayerProjectile } from "./projectiles/PlayerProjectile.js";
-import { Projectile } from "./projectiles/Projectile.js";
+import { ObjectManager } from "./managers/ObjectManager.js";
 
 export class KillableAiGameObject extends AiGameObject {
-    constructor(xLocation, yLocation, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass, playerShip, damageCausedByCollision, health, pointValue) {
-        super(xLocation, yLocation, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass, playerShip, damageCausedByCollision);
+    constructor(xLocation, yLocation, layer, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass, playerShip, damageCausedByCollision, health, pointValue) {
+        super(xLocation, yLocation, layer, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass, playerShip, damageCausedByCollision);
 
         this.health = health;
         this.pointValue = pointValue;
     }
 
-    handleCollision(otherObject, objectManager) {
+    playDeathSound() {
+        // Sludger death sound is used for all enemy deaths except the sludger mine
+        NewMediaManager.Audio.SludgerDeath.play();
+    }
+
+    die() {
+        log(thisName + " died!");
+        this.playDeathSound();
+        ObjectManager.removeObject(this);
+        
+        // Increase count of number of enemies killed, even if not killed by player
+        // TODO: Is this value ever used...?
+        GameServiceManager.increaseEnemiesKilledCount(1);
+    }
+
+    handleCollision(otherObject) {
         // TODO: Move this into other class files?
         let thisName = this.getClassName();
         let otherName = otherObject.getClassName();
-        if (otherObject instanceof SludgerMineTest) {
+        if (otherObject.layer === Layer.SLUDGER_MINE) {
             // SludgerMines are weak, so if they collide with anything they should die and the other
-            // object should not get hurt, so return
+            // object should not get hurt or have their physics be affected, so return
             return;
-        } else if (otherObject instanceof Projectile) {	
+        } else if (otherObject.layer === Layer.PLAYER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE || otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE) {	
             // TODO: Should projectiles not have physics effects when hit? Currently they don't but maybe they should?			
             log(thisName + " hit by Projectile: " + otherName);
             this.health -= otherObject.damage;
             log(thisName + " health is now: " + this.health);
             if (this.health <= 0) {
-                // this object dies
-                log(thisName + " died!");
-                // TODO: Have objects handle their own death, including playing the appropriate sound!
-                if (this instanceof SludgerMineTest) {
-                    NewMediaManager.Audio.SludgerMinePop.play();
-                } else {
-                    NewMediaManager.Audio.SludgerDeath.play();
-                }
-                objectManager.removeObject(this);
-                
-                // TODO: Have game/object manager handle keeping track of number of enemies killed
-                // This could be handled in a removeEnemy method that functions like removeObject?
-                // numEnemiesKilled++;
+                this.die();
 
-                if(otherObject instanceof PlayerProjectile) {
+                if(otherObject.layer === Layer.PLAYER_PROJECTILE) {
                     //Only award points if the player was the one to kill the this				
                     playerShip.addToScore(this.pointValue);
                 }
             }
-        } else if (otherObject instanceof PlayerShip) {
+        } else if (otherObject.layer === Layer.PLAYER) {
             super.handleCollision(otherObject);
             log(thisName + " hit by the player");
             if(otherObject.isTurboThrusting()) {
@@ -59,39 +60,18 @@ export class KillableAiGameObject extends AiGameObject {
             log(thisName + " health is now: " + this.health);
             // If this dies from a player hitting it, points are still awarded
             if (this.health <= 0) {
-                // this dies
-                log(thisName + " died!");
-                // TODO: Have objects handle their own death, including playing the appropriate sound!
-                if (this instanceof SludgerMineTest) {
-                    NewMediaManager.Audio.SludgerMinePop.play();
-                } else {
-                    NewMediaManager.Audio.SludgerDeath.play();
-                }
-                objectManager.removeObject(this);
+                this.die();
 
-                // TODO: Have game/object manager handle keeping track of number of enemies killed
-                // numEnemiesKilled++;
-
+                // Player killed the enemy, award points
                 playerShip.addToScore(this.pointValue);
             }
-        } else if (otherObject instanceof AiGameObject || otherObject instanceof Asteroid) {
+        } else if (otherObject.layer === Layer.ASTEROID || otherObject.layer === Layer.PUFFER || otherObject.layer === Layer.QUAD_BLASTER || otherObject.layer === Layer.SLICER || otherObject.layer === Layer.SLUDGER) {
             super.handleCollision(otherObject);
             log(thisName + " hit by Game Object: " + otherName);
             this.health -= otherObject.damageCausedByCollision;
             log(thisName + " health is now: " + this.health);
             if (this.health < 0) {
-                // this dies, no points awared as the player had nothing to do with it
-                log(thisName + " died!");
-                // TODO: Have objects handle their own death, including playing the appropriate sound!
-                if (this instanceof SludgerMineTest) {
-                    NewMediaManager.Audio.SludgerMinePop.play();
-                } else {
-                    NewMediaManager.Audio.SludgerDeath.play();
-                }
-                objectManager.removeObject(this);
-                
-                // TODO: Have game/object manager handle keeping track of number of enemies killed
-                // numEnemiesKilled++;
+                this.die();
             }
         }
     }

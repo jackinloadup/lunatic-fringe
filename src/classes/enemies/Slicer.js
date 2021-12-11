@@ -1,10 +1,10 @@
-import { EnemyBase } from "../EnemyBase.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
+import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
 
 export class Slicer extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
-        super(xLocation, yLocation, 50, 50, 0, NewMediaManager.Sprites.Slicer, velocityX, velocityY, 14, 50, playerShip, 25, 100, 100);
+        super(xLocation, yLocation, Layer.SLICER, 50, 50, 0, NewMediaManager.Sprites.Slicer, velocityX, velocityY, 14, 50, playerShip, 25, 100, 100);
 
         this.TURN_ABILITY = 0.3;
         this.MAX_SPEED = 10;
@@ -13,15 +13,6 @@ export class Slicer extends KillableAiGameObject {
 
         this.NUMBER_OF_ANIMATION_FRAMES = 26;
         this.ROTATION_AMOUNT = (2 * Math.PI) / this.NUMBER_OF_ANIMATION_FRAMES;
-    }
-
-    handleCollision(otherObject, objectManager) {
-        // Slicers should ignore collisions with other Slicers and the enemy base
-        let isIgnorableType = otherObject instanceof Slicer || otherObject instanceof EnemyBase
-
-        if (!isIgnorableType) {
-            super.handleCollision(otherObject, objectManager);
-        }
     }
 
     updateState() {

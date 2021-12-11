@@ -1,18 +1,18 @@
-import { Puffer } from "../enemies/Puffer.js";
-import { SludgerMineTest } from "../enemies/SludgerMine.js";
+import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
 import { EnemyProjectile } from "./EnemyProjectile.js";
 
 export class PufferProjectile extends EnemyProjectile {
     constructor(xLocation, yLocation, velocityX, velocityY) {
-        super(xLocation, yLocation, 17, 15, 0, NewMediaManager.Sprites.PufferShot, velocityX, velocityY, 10, 0, 50, 20);
+        super(xLocation, yLocation, Layer.PUFFER_PROJECTILE, 17, 15, 0, NewMediaManager.Sprites.PufferShot, velocityX, velocityY, 10, 0, 50, 20);
     }
 
-    handleCollision(otherObject, objectManager) {
-        // In addition to what Puffer projectiles normally ignore, they also shouldn't hit other Puffers or puffer projectiles. They also ignore SludgerMine enemies (it "barrels" through them)
-        // TODO: Should puffer projectiles _not_ hit puffers? Doesn't it make more sense for them to, like everything else does?
-        if (!(otherObject instanceof Puffer || otherObject instanceof PufferProjectile || otherObject instanceof SludgerMineTest)) {
-            super.handleCollision(otherObject, objectManager);
+    handleCollision(otherObject) {
+        // TODO: Player ship should handle playing sound when hit since it could be invulnerable, right? Should sound be played when other things are hit? Player projectile handles plays its sound so this might require more thought
+        // Puffer projectiles "barrel through" Sludger Mines, so don't die when this are hit
+        this.log("Projectile " + this.getClassName() + " hit " + otherObject.getClassName());
+        if (otherObject.layer !== Layer.SLUDGER_MINE) {
+            ObjectManager.removeObject(this);
         }
     }
 }

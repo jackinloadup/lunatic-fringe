@@ -1,12 +1,13 @@
 import { GameConfig } from "../../config/gameConfig.js";
-import { EnemyBase } from "../EnemyBase.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
+import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { ObjectManager } from "../managers/ObjectManager.js";
 import { QuasBlasterProjectile } from "../projectiles/QuadBlasterProjectile.js";
 
 export class QuadBlaster extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
-        super(xLocation, yLocation, 40, 50, 0, NewMediaManager.Sprites.QuadBlaster, velocityX, velocityY, 16, 8, playerShip, 15, 40, 30);
+        super(xLocation, yLocation, Layer.QUAD_BLASTER, 40, 50, 0, NewMediaManager.Sprites.QuadBlaster, velocityX, velocityY, 16, 8, playerShip, 15, 40, 30);
 
         // TODO: Other sprites have sprite offset of 10???? handle this better? might be better as an offset constant or something
         this.BASE_SPRITE_X_OFFEST = 10;
@@ -41,6 +42,7 @@ export class QuadBlaster extends KillableAiGameObject {
     getAngleOfBarrelTowardPlayer() {
         let angleToPlayer = this.angleTo(this.playerShipReference);
 
+        let closest;
         let quadrantAdjusted = [];
         for (let i = 0; i < 4; i++) {
             quadrantAdjusted[i] = this.QUADRANTS[i] + this.angle;
@@ -63,7 +65,7 @@ export class QuadBlaster extends KillableAiGameObject {
 
         // Draw additional debug arc for which barrel is closest to the player
         if (GameConfig.debug) {
-            let barrelAngle = this.getAngleOfBarrelToward();
+            let barrelAngle = this.getAngleOfBarrelTowardPlayer();
             context.beginPath();
             context.strokeStyle = "green";
             context.moveTo(this.x, this.y);
@@ -78,16 +80,7 @@ export class QuadBlaster extends KillableAiGameObject {
         }
     }
 
-    handleCollision(otherObject, objectManager) {
-        // Quadblaster should ignore collisions with other Quadblasters and the enemy base
-        let isIgnorableType = otherObject instanceof QuadBlaster || otherObject instanceof EnemyBase
-
-        if (!isIgnorableType) {
-            super.handleCollision(otherObject, objectManager);
-        }
-    }
-
-    updateState(objectManager) {
+    updateState() {
         this.x += this.velocityX;
         this.y += this.velocityY;
 
@@ -123,7 +116,7 @@ export class QuadBlaster extends KillableAiGameObject {
             let startingX = this.x + (-Math.cos(this.angle) * this.collisionRadius);
             let startingY = this.y + (-Math.sin(this.angle) * this.collisionRadius);
             let newQuadBlasterProjectile = new QuasBlasterProjectile(startingX, startingY, Math.cos(this.angle) * this.PROJECTILE_SPEED, Math.sin(this.angle) * this.PROJECTILE_SPEED);
-            objectManager.addObject(newQuadBlasterProjectile, true);
+            ObjectManager.addObject(newQuadBlasterProjectile, true);
             this.numberOfTicksSinceShooting = 0;
             this.shootingRechargeTime = this.getRechargeTimeForShooting();
           }

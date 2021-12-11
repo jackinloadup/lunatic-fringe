@@ -1,11 +1,12 @@
-import { EnemyBase } from "../EnemyBase.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
+import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { ObjectManager } from "../managers/ObjectManager.js";
 import { PufferProjectile } from "../projectiles/PufferProjectile.js";
 
 export class Puffer extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
-        super(xLocation, yLocation, 42, 49, 0, NewMediaManager.Sprites.Puffer, velocityX, velocityY, 14, 10, playerShip, 15, 50, 40);
+        super(xLocation, yLocation, Layer.PUFFER, 42, 49, 0, NewMediaManager.Sprites.Puffer, velocityX, velocityY, 14, 10, playerShip, 15, 50, 40);
 
         this.TURN_ABILITY = 0.015;
         this.MAX_SPEED = 1;
@@ -26,16 +27,7 @@ export class Puffer extends KillableAiGameObject {
         return (Math.random() * this.MAX_FIRE_RATE) + this.MIN_FIRE_RATE;
     }
 
-    handleCollision(otherObject, objectManager) {
-        // Puffers should ignore collisions with other Puffer Projectiles and the enemy base
-        let isIgnorableType = otherObject instanceof PufferProjectile || otherObject instanceof EnemyBase
-
-        if (!isIgnorableType) {
-            super.handleCollision(otherObject, objectManager);
-        }
-    }
-
-    updateState(objectManager) {
+    updateState() {
         let angleDiff = this.angleDiffTo(this.playerShipReference);
 
         // only move the ship angle toward player as fast as the turn ability will allow.
@@ -71,7 +63,7 @@ export class Puffer extends KillableAiGameObject {
             let startingX = this.x + (-Math.cos(this.angle) * this.collisionRadius);
             let startingY = this.y + (-Math.sin(this.angle) * this.collisionRadius);
             let newPufferProjectile = new PufferProjectile(startingX, startingY, Math.cos(this.angle) * this.PROJECTILE_SPEED, Math.sin(this.angle) * this.PROJECTILE_SPEED);
-            objectManager.addObject(newPufferProjectile, true);
+            ObjectManager.addObject(newPufferProjectile, true);
             this.numberOfTicksSinceShooting = 0;
             this.shootingRechargeTime = this.getRechargeTimeForShooting();
           }

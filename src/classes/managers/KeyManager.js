@@ -1,3 +1,5 @@
+import { GameServiceManager } from "./GameServiceManager.js";
+
 export class KeyStateManager {
     static keysPressed = {};
     static SPACE = 32;
@@ -16,14 +18,9 @@ export class KeyStateManager {
 
     static onKeyDown(event) {
         // TODO: If caps locks was pressed (and is not already registered as being down before this), handle pausing/unpausing depending on the current state
-        // if (event.keyCode == this.CAPSLOCK && this.keysPressed[event.keyCode] != true) {
-        // 	isCapsPaused = !isCapsPaused;
-        // 	if (isCapsPaused) {
-        // 		objectManager.pauseGame();
-        // 	} else {
-        // 		objectManager.resumeGame();
-        // 	}
-        // }
+        if (event.keyCode == this.CAPSLOCK && this.keysPressed[event.keyCode] != true) {
+            GameServiceManager.toggleGamePaused();
+        }
         
         this.keysPressed[event.keyCode] = true;
     }

@@ -23,12 +23,12 @@ export class Star extends GameObject {
 
     updateState() {
         if (this.numberOfTicksForColor <= 0) {
-            if (hasColor) {
-              currentColor = "rgb(0,0,0)";
+            if (this.hasColor) {
+              this.currentColor = "rgb(0,0,0)";
             } else {
-              currentColor = color;
+              this.currentColor = this.color;
             }
-            hasColor = !hasColor; // toggle
+            this.hasColor = !this.hasColor; // toggle
 
             this.numberOfTicksForColor = this.getColorDuration();
           }

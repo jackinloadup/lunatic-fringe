@@ -1,24 +1,20 @@
+import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
-import { PlayerBase } from "../PlayerBase.js";
-import { PlayerShip } from "../PlayerShip.js";
-import { Powerup } from "../powerups/Powerup.js";
+import { ObjectManager } from "../managers/ObjectManager.js";
 import { Projectile } from "./Projectile.js";
 
 export class PlayerProjectile extends Projectile {
     constructor(xLocation, yLocation, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass, lifetime, damage) {
-        super(xLocation, yLocation, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass, lifetime, damage);
+        super(xLocation, yLocation, Layer.PLAYER_PROJECTILE, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass, lifetime, damage);
     }
 
-    handleCollision(otherObject, objectManager) {
+    handleCollision(otherObject) {
         this.log(this.getClassName() + " hit " + otherObject.getClassName());
 
-        // TODO: Make this if statement less dumb, invert condition then won't need else
-        if (otherObject instanceof PlayerBase || otherObject instanceof PlayerShip || otherObject instanceof Powerup || otherObject instanceof PlayerProjectile) {
-            // Do not want player projectiles to collide with the player base, the player ship, in world powerups, or other player projectiles
-            return;
-        } else {
+        if (otherObject.layer !== Layer.PUFFER_PROJECTILE && otherObject.layer !== Layer.QUAD_BLASTER_PROJECTILE) {
+            // Only play the weapon collision sound if not hitting an enemy projectile
             NewMediaManager.Audio.CollisionDefaultWeapon.play();
-            objectManager.removeObject(this);
         }
+        ObjectManager.removeObject(this);
     }
 }

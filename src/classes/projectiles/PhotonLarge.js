@@ -1,4 +1,4 @@
-import { SludgerMineTest } from "../enemies/SludgerMine.js";
+import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
 import { PlayerProjectile } from "./PlayerProjectile.js";
 
@@ -7,10 +7,18 @@ export class PhotonLarge extends PlayerProjectile {
         super(xLocation, yLocation, 15, 16, 0, NewMediaManager.Sprites.PhotonLarge, velocityX, velocityY, 8, 0, 50, 30);
     }
 
-    handleCollision(otherObject, objectManager) {
-        // In addition to what player projectiles normally ignore, the large photon also ignores SludgerMine enemies (it "barrels" through them)
-        if (!(otherObject instanceof SludgerMineTest)) {
-            super.handleCollision(otherObject, objectManager);
+    handleCollision(otherObject) {
+        this.log(this.getClassName() + " hit " + otherObject.getClassName());
+
+        // The large photon also ignores SludgerMine enemies (it "barrels" through them)
+        if (otherObject.layer !== Layer.PUFFER_PROJECTILE && otherObject.layer !== Layer.QUAD_BLASTER_PROJECTILE && otherObject.layer !== Layer.SLUDGER_MINE) {
+            // Only play the weapon collision sound if not hitting an enemy projectile or sludger mine
+            NewMediaManager.Audio.CollisionDefaultWeapon.play();
+        }
+
+        if (otherObject.layer !== Layer.SLUDGER_MINE) {
+            // Only remove object if not hitting a sludger mine, since the large photons barrel through sludger mines
+            ObjectManager.removeObject(this);
         }
     }
 }

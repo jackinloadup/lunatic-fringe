@@ -3,16 +3,18 @@ import { AiGameObject } from "../AiGameObject.js";
 import { QuadBlaster } from "../enemies/QuadBlaster.js";
 import { EnemyBase } from "../EnemyBase.js";
 import { PlayerBase } from "../PlayerBase.js";
-import { PlayerShip } from "../PlayerShip.js";
+import { PlayerShip } from "../player/PlayerShip.js";
 import { Star } from "../Star.js";
+import { CollisionManager } from "./CollisionManager.js";
+import { GameServiceManager } from "./GameServiceManager.js";
 import { NewMediaManager } from "./NewMediaManager.js";
+import { ObjectManager } from "./ObjectManager.js";
 
 export class GameManager {
     // Make some of these have constants naming convention
-    // TODO: Redo this class, I hate how everything is static when really the manager should provide static services but have a non-static class underneath
+    // TODO: Redo this class, I hate how everything is static when really the manager should provide static services but have a non-static class underneath, or something
     static context;
-    static objects;
-    static collidables;
+    static enemiesKilled = 0;
     static GameBounds = {
         LEFT: -2000,
         TOP: -2000,
@@ -27,13 +29,18 @@ export class GameManager {
     static isPaused;
     static isRunning;
     static score;
+    static {
+        // Need to bind animationLoop function to `this` or else we lose the `this` context when requestAnimationFrame calls the function
+        this.animationLoop = this.animationLoop.bind(this);
+    }
 
     static initializeGame(canvasContext) {
         this.context = canvasContext;
-        this.objects = [];
-        this.collidables = [];
         this.isPaused = false;
         this.isRunning = true;
+
+        // Initialize the game service manager
+        GameServiceManager.initialize(this);
 
         // Initalize all of the game objects
         // TODO: Eventually all of the starting cooridinates won't be random and the object addition to the game will be more structred, once levels are added in (also won't start with powerups in world immediately)
@@ -44,15 +51,15 @@ export class GameManager {
         for (let i = 0; i < 600; i++) {
             let x = Math.random() * (this.GameBounds.RIGHT - this.GameBounds.LEFT + 1) + this.GameBounds.LEFT;
             let y = Math.random() * (this.GameBounds.BOTTOM - this.GameBounds.TOP + 1) + this.GameBounds.TOP;
-            this.addObject(new Star(x, y), false)
+            ObjectManager.addObject(new Star(x, y), false)
         }
 
         // Add the player base
         // TODO: Fix this? Currently player base location is based on canvas width, but enemy base is not. So in theory different window sizes mean the base is difference distances from each other....
-        this.playerShip = new PlayerBase(this.context.canvas.width / 2, this.context.canvas.height / 2);
+        ObjectManager.addObject(new PlayerBase(this.context.canvas.width / 2, this.context.canvas.height / 2));
 
         // Add the enemy base
-        this.addObject(new EnemyBase(-1000, -1000, this.playerShip));
+        ObjectManager.addObject(new EnemyBase(-1000, -1000, this.playerShip));
 
         // Add all enemies
             // for (i = 0; i < 6; i += 1) {
@@ -85,7 +92,7 @@ export class GameManager {
             // TODO: Change this. This is only temporary anyways but it is irking the hell out of me.
             let velocityX = (Math.random() - Math.random()) * 1;
             let velocityY = (Math.random() - Math.random()) * 1
-            this.addObject(new QuadBlaster(x, y, velocityX, velocityY, this.playerShip));
+            ObjectManager.addObject(new QuadBlaster(x, y, velocityX, velocityY, this.playerShip));
         }
 
         // Add all powerups
@@ -100,7 +107,7 @@ export class GameManager {
 
 
         // Add the player ship to the object array so it draws on top of most objects
-        this.addObject(this.playerShip);
+        ObjectManager.addObject(this.playerShip);
 
         // Play startup sound
         NewMediaManager.Audio.StartUp.play();
@@ -109,41 +116,22 @@ export class GameManager {
         this.animationLoop();
     }
 
-    static addObject(object, collidable = true) {
-        this.objects.push(objects);
-        if (collidable) {
-            this.collidables.push(object);
-        }
-    }
-
-    static removeObject(object) {
-        for(let i = this.objects.length; i >= 0; i--) {
-            if (this.objects[i] === object) {
-                this.objects.splice(i, 1);
-                break;
-            }
-        }
-
-        for(let i = this.collidables.length; i >= 0; i--) {
-            if (this.collidables[i] === object) {
-                this.collidables.splice(i, 1);
-                break;
-            }
-        }
+    static increaseEnemiesKilledCount(amount) {
+        this.enemiesKilled += amount;
     }
 
     static checkBounds(object) {
-        if (object.x > GameBounds.RIGHT) { 
-            object.x = GameBounds.LEFT + (object.x - GameBounds.RIGHT); 
+        if (object.x > this.GameBounds.RIGHT) { 
+            object.x = this.GameBounds.LEFT + (object.x - this.GameBounds.RIGHT); 
         }
-        else if (object.x < GameBounds.LEFT) { 
-            object.x = GameBounds.RIGHT - (GameBounds.LEFT - object.x); 
+        else if (object.x < this.GameBounds.LEFT) { 
+            object.x = this.GameBounds.RIGHT - (this.GameBounds.LEFT - object.x); 
         }
-        if (object.y > GameBounds.BBOTTOMottom) { 
-            object.y = GameBounds.TOP + (object.y - GameBounds.BOTTOM); 
+        if (object.y > this.GameBounds.BOTTOM) { 
+            object.y = this.GameBounds.TOP + (object.y - this.GameBounds.BOTTOM); 
         }
-        else if (object.Y < GameBounds.TOP) { 
-            object.y = GameBounds.BOTTOM - (GameBounds.TOP - object.y); 
+        else if (object.Y < this.GameBounds.TOP) { 
+            object.y = this.GameBounds.BOTTOM - (this.GameBounds.TOP - object.y); 
         }
     }
 
@@ -164,10 +152,10 @@ export class GameManager {
         let diffX = this.context.canvas.width / 2 - oldCenterX;
         let diffY = this.context.canvas.height / 2 - oldCenterY;
 
-        for (let i = 0; i < this.objects.length; i++) {
-            this.objects[i].x += diffX;
-            this.objects[i].y += diffY;
-            this.checkBounds(this.objects[i]);
+        for (let i = 0; i < ObjectManager.objects.length; i++) {
+            ObjectManager.objects[i].x += diffX;
+            ObjectManager.objects[i].y += diffY;
+            this.checkBounds(ObjectManager.objects[i]);
         }
     }
 
@@ -178,15 +166,17 @@ export class GameManager {
             return;
         }
 
-        object.x -= playerShip.velocityX;
-        object.y -= playerShip.velocityY;
+        object.x -= this.playerShip.velocityX;
+        object.y -= this.playerShip.velocityY;
         this.checkBounds(object);
     }
 
     static updateObjects(objects) {
         for (let i = 0; i < objects.length; i++) {
-            // TODO: Remove process input call here, should be part of PlayerShip update state
-            objects[i].processInput(Key);
+            // TODO: Remove process input call here, should be part of PlayerShip update state...?
+            if (objects[i] instanceof PlayerShip) {
+                objects[i].processInput();
+            }
             this.moveObject(objects[i]);
             objects[i].updateState();
         }
@@ -197,9 +187,10 @@ export class GameManager {
 
         for (let i = 0; i < collidablesSnapshot.length; i++) {
             for (let j = i + 1; j < collidablesSnapshot.length; j++) {
-                if (Math.pow((collidablesSnapshot[j].x - collidablesSnapshot[i].x), 2) + Math.pow((collidablesSnapshot[j].y - collidablesSnapshot[i].y), 2)
+                // first check to see if the layers the objects are on are allowed to collide, if not no point in doing all of the math along with it and calling handle collision on everything
+                if (CollisionManager.doObjectLayersCollide(collidablesSnapshot[i], collidablesSnapshot[j]) && (Math.pow((collidablesSnapshot[j].x - collidablesSnapshot[i].x), 2) + Math.pow((collidablesSnapshot[j].y - collidablesSnapshot[i].y), 2)
                         <=
-                        (collidablesSnapshot[i].collisionRadius + collidablesSnapshot[j].collisionRadius) * (collidablesSnapshot[i].collisionRadius + collidablesSnapshot[j].collisionRadius)) {
+                        Math.pow((collidablesSnapshot[i].collisionRadius + collidablesSnapshot[j].collisionRadius), 2))) {
                     // TODO: Review this. I am not entirely sure what is all going on here, there is probably a more efficient way to go through the collidables array for collisions
                     let oldVelX = collidablesSnapshot[i].velocityX;
                     let oldVelY = collidablesSnapshot[i].velocityY;
@@ -219,8 +210,8 @@ export class GameManager {
     static enemiesRemaining() {
         let numEnemies = 0;
 
-        for (let i = 0; i < this.objects.length; i++) {
-            if (this.objects[i] instanceof AiGameObject && !(this.objects[i] instanceof EnemyBase)) {
+        for (let i = 0; i < ObjectManager.objects.length; i++) {
+            if (ObjectManager.objects[i] instanceof AiGameObject && !(ObjectManager.objects[i] instanceof EnemyBase)) {
                 numEnemies++;
             }
         }
@@ -295,11 +286,11 @@ export class GameManager {
     }
 
     static movePlayerShipTo(x, y) {
-        for (let i = 0; i < this.objects.length; i++) {
-            if (this.objects[i] instanceof PlayerShip) continue;
-            this.objects[i].x -= x;
-            this.objects[i].y -= y;
-            checkBounds(this.objects[i]);
+        for (let i = 0; i < ObjectManager.objects.length; i++) {
+            if (ObjectManager.objects[i] instanceof PlayerShip) continue;
+            ObjectManager.objects[i].x -= x;
+            ObjectManager.objects[i].y -= y;
+            this.checkBounds(ObjectManager.objects[i]);
         }
     }
 
@@ -310,10 +301,19 @@ export class GameManager {
         this.removeObject(this.playerShip)
     }
 
+    static toggleGamePaused() {
+        this.isPaused = !this.isPaused;
+        if (this.isPaused) {
+            this.pauseGame();
+        } else {
+            this.resumeGame();
+        }
+    }
+
     static pauseGame() {
         if (!this.isPaused) {
             this.isPaused = true;
-            console.log('paused')
+            console.log('paused');
         }
     }
 
@@ -338,25 +338,25 @@ export class GameManager {
             }
 
             while ((new Date()).getTime() > nextGameTick && loops < maxFrameSkip) {
-                updateObjects(objects);
-                detectCollisions(collidables);
+                this.updateObjects(ObjectManager.objects);
+                this.detectCollisions(ObjectManager.collidables);
                 nextGameTick += skipTicks;
                 loops += 1;
             }
 
             if (loops) {
-                drawObjects(objects, context);
+                this.drawObjects(ObjectManager.objects, this.context);
             }
         };
     } ());
-
+    
     static animationLoop() {
         // stop loop if paused
-      if (this.isPaused) return;
+        if (this.isPaused) return;
 
-      // Start the game loop
-      this.gameLoop();
-      // requestAnimationFrame is a javascript provided function, see https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame for more details
-      requestAnimationFrame(animationLoop);
+        // Start the game loop
+        this.gameLoop();
+        // requestAnimationFrame is a javascript provided function, see https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame for more details
+        requestAnimationFrame(this.animationLoop);
     }
 }
