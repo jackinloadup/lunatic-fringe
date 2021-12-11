@@ -1,5 +1,5 @@
 import { GameConfig } from "../config/gameConfig.js";
-import { NewVector } from "../utility/newVector.js";
+import { Vector } from "../utility/Vector.js";
 import { GameObject } from "./GameObject.js";
 import { Layer } from "./managers/Layer.js";
 
@@ -102,16 +102,16 @@ export class InteractableGameObject extends GameObject {
     }
 
     calculateAcceleration() {
-        let currentVelocity = new NewVector(this.velocityX, this.velocityY);
+        let currentVelocity = new Vector(this.velocityX, this.velocityY);
 
         let acceleration;
 
         // The ship forces are opposite everything else. It doesn't move, it shifts the universe around it.
         // TODO: Where is this.acceleration set???
         if (this.layer === Layer.PLAYER) {
-            acceleration = new NewVector(-Math.cos(this.angle) * this.ACCELERATION, Math.sin(-this.angle) * this.ACCELERATION);
+            acceleration = new Vector(-Math.cos(this.angle) * this.ACCELERATION, Math.sin(-this.angle) * this.ACCELERATION);
         } else {
-            acceleration = new NewVector(Math.cos(this.angle) * this.ACCELERATION, Math.sin(this.angle) * this.ACCELERATION);
+            acceleration = new Vector(Math.cos(this.angle) * this.ACCELERATION, Math.sin(this.angle) * this.ACCELERATION);
         }
 
         let newVelocity = currentVelocity.add(acceleration);

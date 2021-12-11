@@ -1,4 +1,4 @@
-import { NewVector } from "../utility/newVector.js";
+import { Vector } from "../utility/Vector.js";
 import { InteractableGameObject } from "./InteractableGameObject.js";
 
 export class AiGameObject extends InteractableGameObject {
@@ -12,7 +12,7 @@ export class AiGameObject extends InteractableGameObject {
     relativePositionTo(object) {
         let x = object.x - this.x;
         let y = object.y - this.y;
-        return new NewVector(x,y);
+        return new Vector(x,y);
     }
 
     angleTo(object) {

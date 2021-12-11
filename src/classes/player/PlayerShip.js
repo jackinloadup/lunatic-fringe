@@ -1,4 +1,4 @@
-import { NewVector } from "../../utility/newVector.js";
+import { Vector } from "../../utility/Vector.js";
 import { InteractableGameObject } from "../InteractableGameObject.js";
 import { CollisionManager } from "../managers/CollisionManager.js";
 import { GameServiceManager } from "../managers/GameServiceManager.js";
@@ -302,7 +302,7 @@ export class PlayerShip extends InteractableGameObject {
             } else if (!this.isAccelerating && (Math.abs(otherObject.x - baseX) > threshold || Math.abs(otherObject.y - baseY) > threshold)) {
                 // Only pull the ship in if it is not accelerating
                 
-                let vectorToBase = new NewVector(otherObject.x - baseX, otherObject.y - baseY);
+                let vectorToBase = new Vector(otherObject.x - baseX, otherObject.y - baseY);
                 let playerShipVelocity = new Vector(this.velocityX, this.velocityY);
                 let velocityChange = playerShipVelocity.add(vectorToBase).scale(0.001);
                 let minimumVelocityChangeMagnitude = 0.08;
