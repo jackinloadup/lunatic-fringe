@@ -57,14 +57,17 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
 
     // Add listeners
     function handleVisibilityChange() {
+        console.log('visibility change!', document[hidden])
         if (document[hidden]) {
-			// Only pause the game if the game is not paused by Caps Lock
+			// Only pause the game if the game is not already paused
 			if(!GameManager.isPaused) {
 				GameManager.pauseGame();
 			}
         } else {
-			// Only resume the game if the game is not paused by Caps Lock
-			if(!GameManager.isPaused) {
+			// Only resume the game if the game is currently paused and was not paused by a key press.
+            // Do this so that if the player pauses with a key press and then leaves the browser window 
+            // the game won't unpause until they explicitly do that key press again.
+			if(GameManager.isPaused && !GameManager.wasPausedByKey) {
 				GameManager.resumeGame();
 			}
         }

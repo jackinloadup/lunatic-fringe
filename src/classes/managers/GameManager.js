@@ -27,6 +27,7 @@ export class GameManager {
     static message;
     static playerShip;
     static isPaused;
+    static wasPausedByKey;
     static isRunning;
     static score;
     static {
@@ -37,6 +38,7 @@ export class GameManager {
     static initializeGame(canvasContext) {
         this.context = canvasContext;
         this.isPaused = false;
+        this.wasPausedByKey = false;
         this.isRunning = true;
 
         // Initialize the game service manager
@@ -301,29 +303,28 @@ export class GameManager {
         this.removeObject(this.playerShip)
     }
 
-    static toggleGamePaused() {
-        this.isPaused = !this.isPaused;
-        if (this.isPaused) {
-            this.pauseGame();
+    static toggleGamePaused(activatedByKey) {
+        if (!this.isPaused) {
+            this.pauseGame(activatedByKey);
         } else {
             this.resumeGame();
         }
     }
 
-    static pauseGame() {
-        if (!this.isPaused) {
-            this.isPaused = true;
-            console.log('paused');
+    static pauseGame(activatedByKey = false) {
+        if(activatedByKey) {
+            this.wasPausedByKey = true;
         }
+        this.isPaused = true;
+        console.log('Paused game, was activated by key:', activatedByKey);
     }
 
     static resumeGame() {
-        if (this.isPaused) {
-            this.isPaused = false;
-            this.gameLoop(true);
-            this.animationLoop();
-            console.log('resume')
-        }
+        this.isPaused = false;
+        this.wasPausedByKey = false;
+        this.gameLoop(true);
+        this.animationLoop();
+        console.log('Resumed game');
     }
 
     // TODO: Figure out what the hell is going on here and make it a real function or leave a comment explaining why it is an IIFE

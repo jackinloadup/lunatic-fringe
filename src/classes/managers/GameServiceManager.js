@@ -30,7 +30,7 @@ export class GameServiceManager {
         this.gameManager.movePlayerShipTo(x, y);
     }
 
-    static toggleGamePaused() {
-        this.gameManager.toggleGamePaused();
+    static toggleGamePaused(activatedByKey) {
+        this.gameManager.toggleGamePaused(activatedByKey);
     }
 }
