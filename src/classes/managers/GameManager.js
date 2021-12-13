@@ -56,9 +56,9 @@ export class GameManager {
             ObjectManager.addObject(new Star(x, y), false)
         }
 
-        // Add the player base
+        // Add the player base. Offset the y location by the constant from the player ship here so that it matches the offset the ship uses when docking at the base. This is so that the ship is correctly centered on the base when the game is started.
         // TODO: Fix this? Currently player base location is based on canvas width, but enemy base is not. So in theory different window sizes mean the base is difference distances from each other....
-        ObjectManager.addObject(new PlayerBase(this.context.canvas.width / 2, this.context.canvas.height / 2));
+        ObjectManager.addObject(new PlayerBase(this.context.canvas.width / 2, this.context.canvas.height / 2 + this.playerShip.BASE_DOCKING_OFFSET));
 
         // Add the enemy base
         ObjectManager.addObject(new EnemyBase(-1000, -1000, this.playerShip));

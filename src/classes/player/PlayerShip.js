@@ -40,6 +40,7 @@ export class PlayerShip extends InteractableGameObject {
         this.spriteYOffset = 0; // Start with sprite not showing thrusters
 
         this.isAccelerating = false;
+        this.BASE_DOCKING_OFFSET = 3; // The value offset to use so that the player ship is more centered with the base when docked.
         this.atBase = false;
         this.isLowFuel = false;
 
@@ -273,12 +274,12 @@ export class PlayerShip extends InteractableGameObject {
             // Make it so that the ship will go towards the Player Base
             // These are the coordinates the Base should be at if the ship is centered on the base
             // TODO: Store these values in the config, along with Enemy base coordinates. Currently rely on having access to context...maybe just get Base location from other object instead?
-            let baseX = otherObject.x; //context.canvas.width / 2 - (this.width / 2);
-            let baseY = otherObject.y; //context.canvas.height / 2 - (this.height / 2) + 2.5;
+            let baseX = otherObject.x;
+            let baseY = otherObject.y - this.BASE_DOCKING_OFFSET; // Subtract the docking offset here so that the player ship is centered better on the player base when docked
             // There will be rounding error with the program, so don't check that the 
             // values are equal but rather that they are within this threshold
             let threshold = .5; 
-            if (this.velocityX == 0 && this.velocityY == 0 && Math.abs(otherObject.x - baseX) < threshold && Math.abs(otherObject.y - baseY) < threshold) {
+            if (this.velocityX == 0 && this.velocityY == 0 && Math.abs(baseX - this.x) < threshold && Math.abs(baseY - this.y) < threshold) {
                 //The player ship is stopped at the base
                 
                 if (this.numFramesSince.repair >= 60 && (this.health < this.MAXIMUM_HEALTH || this.fuel < this.MAXIMUM_FUEL)) {
@@ -292,10 +293,10 @@ export class PlayerShip extends InteractableGameObject {
                         this.updateFuel(25);
                     }
                 }
-            } else if (!this.isAccelerating && (Math.abs(otherObject.x - baseX) > threshold || Math.abs(otherObject.y - baseY) > threshold)) {
+            } else if (!this.isAccelerating && (Math.abs(baseX - this.x) > threshold || Math.abs(baseY - this.y) > threshold)) {
                 // Only pull the ship in if it is not accelerating
                 
-                let vectorToBase = new Vector(otherObject.x - baseX, otherObject.y - baseY);
+                let vectorToBase = new Vector(baseX - this.x, baseY - this.y);
                 let playerShipVelocity = new Vector(this.velocityX, this.velocityY);
                 let velocityChange = playerShipVelocity.add(vectorToBase).scale(0.001);
                 let minimumVelocityChangeMagnitude = 0.08;
