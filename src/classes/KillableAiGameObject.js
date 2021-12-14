@@ -1,3 +1,4 @@
+import { Vector } from "../utility/Vector.js";
 import { AiGameObject } from "./AiGameObject.js";
 import { GameServiceManager } from "./managers/GameServiceManager.js";
 import { Layer } from "./managers/Layer.js";
@@ -74,5 +75,13 @@ export class KillableAiGameObject extends AiGameObject {
                 this.die();
             }
         }
+    }
+
+    getNewProjectilePosition() {
+        return new Vector(this.x + (Math.cos(this.angle) * this.collisionRadius), this.y + (Math.sin(this.angle) * this.collisionRadius));
+    }
+
+    getNewProjectileVelocity(projectileSpeed, angleOffset = 0) {
+        return new Vector(this.velocityX + (Math.cos(this.angle + angleOffset) * projectileSpeed), this.velocityY + (Math.sin(this.angle + angleOffset) * projectileSpeed));
     }
 }

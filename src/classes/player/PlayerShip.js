@@ -87,6 +87,11 @@ export class PlayerShip extends InteractableGameObject {
         this.invulnerabilityActive = false;
     }
 
+    // Need separate function for other objects here since the angles are opposite other things.
+    getNewProjectileVelocity(projectileSpeed, angleOffset = 0) {
+        return new Vector(this.velocityX + (-Math.cos(this.angle + angleOffset) * projectileSpeed), this.velocityY + (-Math.sin(this.angle + angleOffset) * projectileSpeed));
+    }
+
     processInput() {
         this.isAccelerating = false;
 
@@ -129,24 +134,21 @@ export class PlayerShip extends InteractableGameObject {
         if (KeyStateManager.isDown(KeyStateManager.SPACE) && !this.atBase && !this.isTurboThrusting()) {
             if (this.numFramesSince.shooting >= this.bulletShootingSpeed) { // 13 matches up best with the original game's rate of fire at 60fps
                 let photon;
-                let photonX = this.x + (-Math.cos(this.angle) * this.collisionRadius)
-                let photonY = this.y + (-Math.sin(this.angle) * this.collisionRadius)
-                let photonVelocityX = -Math.cos(this.angle) * this.PROJECTILE_SPEED;
-                let photonVelocityY = -Math.sin(this.angle) * this.PROJECTILE_SPEED;
+                let photonX = this.x + (-Math.cos(this.angle) * this.collisionRadius);
+                let photonY = this.y + (-Math.sin(this.angle) * this.collisionRadius);
+                let photonVelocity = this.getNewProjectileVelocity(this.PROJECTILE_SPEED);
                 if (this.bulletState == this.BULLETS.SMALL) {
-                    photon = new PhotonSmall(photonX, photonY, photonVelocityX, photonVelocityY);
+                    photon = new PhotonSmall(photonX, photonY, photonVelocity.x, photonVelocity.y);
                     NewMediaManager.Audio.PhotonSmall.play();
                 } else if (this.bulletState == this.BULLETS.LARGE) {
-                    photon = new PhotonLarge(photonX, photonY, photonVelocityX, photonVelocityY);
+                    photon = new PhotonLarge(photonX, photonY, photonVelocity.x, photonVelocity.y);
                     NewMediaManager.Audio.PhotonBig.play();
                 } else if (this.bulletState == this.BULLETS.SPREADSHOT) {
-                    let photonVelocityX2 = -Math.cos(this.angle + (Math.PI / 16)) * this.PROJECTILE_SPEED;
-                    let photonVelocityY2 = -Math.sin(this.angle + (Math.PI / 16)) * this.PROJECTILE_SPEED;
-                    let photonVelocityX3 = -Math.cos(this.angle - (Math.PI / 16)) * this.PROJECTILE_SPEED;
-                    let photonVelocityY3 = -Math.sin(this.angle - (Math.PI / 16)) * this.PROJECTILE_SPEED;
-                    photon = new PhotonMedium(photonX, photonY, photonVelocityX, photonVelocityY);
-                    let photon2 = new PhotonMedium(photonX, photonY, photonVelocityX2, photonVelocityY2);
-                    let photon3 = new PhotonMedium(photonX, photonY, photonVelocityX3, photonVelocityY3);
+                    let photonVelocity2 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, (Math.PI / 16));
+                    let photonVelocity3 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, -(Math.PI / 16));
+                    photon = new PhotonMedium(photonX, photonY, photonVelocity.x, photonVelocity.y);
+                    let photon2 = new PhotonMedium(photonX, photonY, photonVelocity2.x, photonVelocity2.y);
+                    let photon3 = new PhotonMedium(photonX, photonY, photonVelocity3.x, photonVelocity3.y);
                     // TODO: investigate why photon 2 falls behind the other photons when shooting sometimes
                     ObjectManager.addObject(photon2, true);
                     ObjectManager.addObject(photon3, true);

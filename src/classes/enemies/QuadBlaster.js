@@ -113,9 +113,9 @@ export class QuadBlaster extends KillableAiGameObject {
             let angleRatio = angleToPlayer/barrelToPlayer;
           if (angleRatio < 1.15 && angleRatio > 0.85) {
             // TODO: Original code had the bullet starting at location of blaster, not on edge of collision radius. Do we want to change that?
-            let startingX = this.x + (-Math.cos(this.angle) * this.collisionRadius);
-            let startingY = this.y + (-Math.sin(this.angle) * this.collisionRadius);
-            let newQuadBlasterProjectile = new QuasBlasterProjectile(startingX, startingY, Math.cos(this.angle) * this.PROJECTILE_SPEED, Math.sin(this.angle) * this.PROJECTILE_SPEED);
+            let newProjectilePosition = this.getNewProjectilePosition();
+            let newProjectileVelocity = this.getNewProjectileVelocity(this.PROJECTILE_SPEED);
+            let newQuadBlasterProjectile = new QuasBlasterProjectile(newProjectilePosition.x, newProjectilePosition.y, newProjectileVelocity.x, newProjectileVelocity.y);
             ObjectManager.addObject(newQuadBlasterProjectile, true);
             this.numberOfTicksSinceShooting = 0;
             this.shootingRechargeTime = this.getRechargeTimeForShooting();
