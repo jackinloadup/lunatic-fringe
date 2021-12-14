@@ -331,20 +331,26 @@ export class GameManager {
     static gameLoop = (function () {
         let loops = 0, skipTicks = 1000 / 60, maxFrameSkip = 10, nextGameTick = (new Date()).getTime();
 
-        return function (resetGameTick) {
+        return function (resetGameTick, advanceOneFrame = false) {
             loops = 0;
+            let shouldAdvanceOneFrame = advanceOneFrame;
 
             if (resetGameTick === true) {
                 nextGameTick = (new Date()).getTime();
             }
 
-            while ((new Date()).getTime() > nextGameTick && loops < maxFrameSkip) {
+            while (((new Date()).getTime() > nextGameTick && loops < maxFrameSkip) || (shouldAdvanceOneFrame)) {
                 this.updateObjects(ObjectManager.objects);
                 this.detectCollisions(ObjectManager.collidables);
                 nextGameTick += skipTicks;
                 loops += 1;
+
+                if (shouldAdvanceOneFrame) {
+                    shouldAdvanceOneFrame = false;
+                }
             }
 
+            // Even if we process 10 frames, we only want to draw once (no point in drawing older frames)
             if (loops) {
                 this.drawObjects(ObjectManager.objects, this.context);
             }
@@ -359,5 +365,13 @@ export class GameManager {
         this.gameLoop();
         // requestAnimationFrame is a javascript provided function, see https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame for more details
         requestAnimationFrame(this.animationLoop);
+    }
+
+    static advanceOneFrame() {
+        // One want to advance one frame if the game is paused, or else it doesn't really make any sense to advance one frame
+        if (GameConfig.debug && this.isPaused) {
+            console.log("Advancing the game one frame");
+            this.gameLoop(true, true);
+        }
     }
 }

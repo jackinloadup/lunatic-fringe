@@ -8,6 +8,7 @@ export class KeyStateManager {
     static RIGHT = 39;
     static DOWN = 40;
 	static CAPSLOCK = 20;
+    static A = 65;
 	static V = 86;
 	static B = 66;
 	static K = 75;
@@ -17,9 +18,13 @@ export class KeyStateManager {
     }
 
     static onKeyDown(event) {
-        // If caps locks was pressed (and is not already registered as being down before this), handle pausing/unpausing depending on the current state
-        if (event.keyCode == this.CAPSLOCK && this.keysPressed[event.keyCode] != true) {
+        if (event.keyCode == this.CAPSLOCK && this.keysPressed[event.keyCode] !== true) {
+            // If caps locks was pressed (and is not already registered as being down before this), handle pausing/unpausing depending on the current state
             GameServiceManager.toggleGamePaused(true);
+        } else if (event.keyCode == this.A && this.keysPressed[event.keyCode] !== true) {
+            // If A was pressed (and is not already registered as being down before this), call game manager
+            // to handle advancing the game by one frame (useful for debugging)
+            GameServiceManager.advanceOneFrame();
         }
         
         this.keysPressed[event.keyCode] = true;

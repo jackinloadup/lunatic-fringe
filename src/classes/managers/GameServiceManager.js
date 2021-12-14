@@ -33,4 +33,8 @@ export class GameServiceManager {
     static toggleGamePaused(activatedByKey) {
         this.gameManager.toggleGamePaused(activatedByKey);
     }
+
+    static advanceOneFrame() {
+        this.gameManager.advanceOneFrame();
+    }
 }
