@@ -132,7 +132,7 @@ export class GameManager {
         if (object.y > this.GameBounds.BOTTOM) { 
             object.y = this.GameBounds.TOP + (object.y - this.GameBounds.BOTTOM); 
         }
-        else if (object.Y < this.GameBounds.TOP) { 
+        else if (object.y < this.GameBounds.TOP) { 
             object.y = this.GameBounds.BOTTOM - (this.GameBounds.TOP - object.y); 
         }
     }
