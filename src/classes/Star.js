@@ -2,7 +2,7 @@ import { GameObject } from "./GameObject.js";
 
 export class Star extends GameObject {
     constructor(xLocation, yLocation) {
-        super(xLocation, yLocation);
+        super(xLocation, yLocation, 1, 1);
 
         this.TWINKLE_MAX = 1 * 60;
         this.TWINKLE_MIN = 0.2 * 60;

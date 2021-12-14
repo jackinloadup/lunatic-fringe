@@ -5,10 +5,8 @@ import { Layer } from "./managers/Layer.js";
 
 export class InteractableGameObject extends GameObject {
     constructor(xLocation, yLocation, layer, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass) {
-        super(xLocation, yLocation);
+        super(xLocation, yLocation, width, height);
 
-        this.width = width;
-        this.height = height;
         this.angle = angle; // TODO: Remove angle from here? Most things don't need it
         this.sprite = sprite;
         this.velocityX = velocityX;
