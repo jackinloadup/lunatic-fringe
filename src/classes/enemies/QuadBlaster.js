@@ -17,7 +17,9 @@ export class QuadBlaster extends KillableAiGameObject {
         this.NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES = 10;
         this.NUMBER_OF_ANIMATION_FRAMES = 8;
         // A full animation of the sprite is actually 1/4th of a turn for this enemy, so multiply number of frames times 4 here
-        this.ROTATION_AMOUNT = (2 * Math.PI) / (this.NUMBER_OF_ANIMATION_FRAMES * 4);
+        // NOTE: The third and fourth sprite images in the sprite sheet are the same (which is how the quadblaster gets its pause in the animation). This means the rotation
+        // amount is actually one LESS than the number of animation frames, and between frames 3 and 4 the angle should not change since the quadblaster didn't "rotate"
+        this.ROTATION_AMOUNT = (2 * Math.PI) / ((this.NUMBER_OF_ANIMATION_FRAMES - 1) * 4);
         this.MAX_FIRE_RATE = 3 * 60;
         this.MIN_FIRE_RATE = 0.3 * 60;
         this.PROJECTILE_SPEED = 10;
@@ -60,7 +62,7 @@ export class QuadBlaster extends KillableAiGameObject {
 
     draw(context) {
         super.draw(context, 0, false);
-        // Drawing means we are in the scene...?
+        // Drawing means we are in the scene
         this.inScene = true;
 
         // Draw additional debug arc for which barrel is closest to the player
@@ -91,14 +93,17 @@ export class QuadBlaster extends KillableAiGameObject {
         this.inScene = false;
 
         // Handle animation
-        // TODO: This logic is the same as in the PlayerBase, make some sort of common function?
         this.currentTicksInAnimationFrame += 1;
         if (this.currentTicksInAnimationFrame >= this.NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES) {
             this.currentTicksInAnimationFrame = 0;
             this.spriteXOffset += this.width;
-            this.angle += this.ROTATION_AMOUNT;
-            if (this.angle > Math.PI) {
-                this.angle -= 2 * Math.PI;
+            // Only update the angle if this is not the transition to the 4th frame (which is the same as the 3rd frame, meaning the sprite doesn't actually "turn")
+            // Note that the x offset of the 4th frame is width*3, since the first frame has offset 0
+            if (this.spriteXOffset != this.width * 3 + this.BASE_SPRITE_X_OFFEST) {
+                this.angle += this.ROTATION_AMOUNT;
+                if (this.angle > Math.PI) {
+                    this.angle -= 2 * Math.PI;
+                }
             }
             if (this.spriteXOffset >= (this.width * this.NUMBER_OF_ANIMATION_FRAMES)) {
                 this.spriteXOffset = this.BASE_SPRITE_X_OFFEST;
