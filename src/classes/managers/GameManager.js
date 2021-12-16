@@ -9,18 +9,13 @@ import { CollisionManager } from "./CollisionManager.js";
 import { GameServiceManager } from "./GameServiceManager.js";
 import { NewMediaManager } from "./NewMediaManager.js";
 import { ObjectManager } from "./ObjectManager.js";
+import { GameBound } from "./GameBound.js";
 
 export class GameManager {
     // Make some of these have constants naming convention
     // TODO: Redo this class, I hate how everything is static when really the manager should provide static services but have a non-static class underneath, or something
     static context;
     static enemiesKilled = 0;
-    static GameBounds = {
-        LEFT: -2000,
-        TOP: -2000,
-        RIGHT: 2000,
-        BOTTOM: 2000
-    };
     // TODO: Improve this? Don't really need two variables for keeping track of time, just subtract until 0?
     static numMessageTicks;
     static numMessageTicksMax;
@@ -51,8 +46,8 @@ export class GameManager {
 
         // Add the background stars
         for (let i = 0; i < 600; i++) {
-            let x = Math.random() * (this.GameBounds.RIGHT - this.GameBounds.LEFT + 1) + this.GameBounds.LEFT;
-            let y = Math.random() * (this.GameBounds.BOTTOM - this.GameBounds.TOP + 1) + this.GameBounds.TOP;
+            let x = Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT;
+            let y = Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP;
             ObjectManager.addObject(new Star(x, y), false)
         }
 
@@ -89,8 +84,8 @@ export class GameManager {
 			// }
 
         for (let i = 0; i < 5; i++) {
-            let x = Math.random() * (this.GameBounds.RIGHT - this.GameBounds.LEFT + 1) + this.GameBounds.LEFT;
-            let y = Math.random() * (this.GameBounds.BOTTOM - this.GameBounds.TOP + 1) + this.GameBounds.TOP;
+            let x = Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT;
+            let y = Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP;
             // TODO: Change this. This is only temporary anyways but it is irking the hell out of me.
             let velocityX = (Math.random() - Math.random()) * 1;
             let velocityY = (Math.random() - Math.random()) * 1
@@ -123,17 +118,17 @@ export class GameManager {
     }
 
     static checkBounds(object) {
-        if (object.x > this.GameBounds.RIGHT) { 
-            object.x = this.GameBounds.LEFT + (object.x - this.GameBounds.RIGHT); 
+        if (object.x > GameBound.RIGHT) { 
+            object.x = GameBound.LEFT + (object.x - GameBound.RIGHT); 
         }
-        else if (object.x < this.GameBounds.LEFT) { 
-            object.x = this.GameBounds.RIGHT - (this.GameBounds.LEFT - object.x); 
+        else if (object.x < GameBound.LEFT) { 
+            object.x = GameBound.RIGHT - (GameBound.LEFT - object.x); 
         }
-        if (object.y > this.GameBounds.BOTTOM) { 
-            object.y = this.GameBounds.TOP + (object.y - this.GameBounds.BOTTOM); 
+        if (object.y > GameBound.BOTTOM) { 
+            object.y = GameBound.TOP + (object.y - GameBound.BOTTOM); 
         }
-        else if (object.y < this.GameBounds.TOP) { 
-            object.y = this.GameBounds.BOTTOM - (this.GameBounds.TOP - object.y); 
+        else if (object.y < GameBound.TOP) { 
+            object.y = GameBound.BOTTOM - (GameBound.TOP - object.y); 
         }
     }
 
@@ -162,7 +157,6 @@ export class GameManager {
     }
 
     static moveObject(object) {
-        // TODO: Should this check be here?
         // PlayerShip doesn't move like other objects do
         if (object instanceof PlayerShip) {
             return;
@@ -174,13 +168,16 @@ export class GameManager {
     }
 
     static updateObjects(objects) {
-        for (let i = 0; i < objects.length; i++) {
+        // create copy of array here since some objects can be deleted or removed during these steps
+        let objectsSnapshot = objects.slice(0);
+
+        for (let i = 0; i < objectsSnapshot.length; i++) {
             // TODO: Remove process input call here, should be part of PlayerShip update state...?
-            if (objects[i] instanceof PlayerShip) {
-                objects[i].processInput();
+            if (objectsSnapshot[i] instanceof PlayerShip) {
+                objectsSnapshot[i].processInput();
             }
-            this.moveObject(objects[i]);
-            objects[i].updateState();
+            this.moveObject(objectsSnapshot[i]);
+            objectsSnapshot[i].updateState();
         }
     };
 
@@ -299,8 +296,8 @@ export class GameManager {
     static endGame() {
         this.isPaused = true;
         this.isRunning = false;
-        this.displayMessage("You achieved a score of " + score + " before the fringe took you", 99999999999);
-        this.removeObject(this.playerShip)
+        this.displayMessage("You achieved a score of " + this.playerShip.score + " before the fringe took you", 99999999999);
+        ObjectManager.removeObject(this.playerShip)
     }
 
     static toggleGamePaused(activatedByKey) {

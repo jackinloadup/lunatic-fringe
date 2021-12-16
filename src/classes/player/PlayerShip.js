@@ -1,6 +1,7 @@
 import { Vector } from "../../utility/Vector.js";
 import { InteractableGameObject } from "../InteractableGameObject.js";
 import { CollisionManager } from "../managers/CollisionManager.js";
+import { GameBound } from "../managers/GameBound.js";
 import { GameServiceManager } from "../managers/GameServiceManager.js";
 import { KeyStateManager } from "../managers/KeyManager.js";
 import { Layer } from "../managers/Layer.js";
@@ -85,6 +86,9 @@ export class PlayerShip extends InteractableGameObject {
 
         this.turboThrustActive = false;
         this.invulnerabilityActive = false;
+
+        // Player starts with 3 lives
+        this.lives = 3;
     }
 
     // Need separate function for other objects here since the angles are opposite other things.
@@ -366,12 +370,12 @@ export class PlayerShip extends InteractableGameObject {
                 GameServiceManager.displayMessage(this.lives + " lives left", 60 * 5)
             }
             // TODO: Fixes this. Probably just make it a function objectManager deals with.
-            GameServiceManager.movePlayerShipTo(Math.random() * (ObjectManager.GameBounds.Right - ObjectManager.GameBounds.Left + 1) + ObjectManager.GameBounds.Left, Math.random() * (ObjectManager.GameBounds.Bottom - ObjectManager.GameBounds.Top + 1) + ObjectManager.GameBounds.Top);
+            GameServiceManager.movePlayerShipTo(Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT, Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP);
 
             // reset health and fuel and spare parts to full
             this.log("Setting ship back to max health/fuel/spare parts");
             this.updateHealth(this.MAXIMUM_HEALTH);
-            this.updateFuel(this.MAXIMUM_HEALTH);
+            this.updateFuel(this.MAXIMUM_FUEL);
             this.updateSpareParts(this.MAXIMUM_SPARE_PARTS);
 
             // deactivate all active powerups
@@ -380,7 +384,7 @@ export class PlayerShip extends InteractableGameObject {
             // NOTE: You do not gain any stored powerups when you die (nor do you lose the ones you had)
 
             // reset all number of frames values
-            for (i in this.numFramesSince) {
+            for (let i in this.numFramesSince) {
                 if (this.numFramesSince.hasOwnProperty(i)) {
                     this.numFramesSince[i] = 0;
                 }
