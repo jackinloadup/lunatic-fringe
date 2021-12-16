@@ -43,16 +43,21 @@ export class QuadBlaster extends KillableAiGameObject {
 
     getAngleOfBarrelTowardPlayer() {
         let angleToPlayer = this.angleTo(this.playerShipReference);
+        
 
-        let closest;
+        let closest = null;
         let quadrantAdjusted = [];
         for (let i = 0; i < 4; i++) {
             quadrantAdjusted[i] = this.QUADRANTS[i] + this.angle;
+            // Keep the angle between -Math.PI and Math.PI
             if (quadrantAdjusted[i] > Math.PI) {
-                quadrantAdjusted[i] -= Math.PI *2;
+                quadrantAdjusted[i] -= 2 * Math.PI;
+            } else if (quadrantAdjusted[i] < -Math.PI) {
+                quadrantAdjusted[i] += 2 * Math.PI;
             }
             // Set closest if it is not defined or if the new value is smaller than the existing closest value
-            if (!closest || Math.abs(quadrantAdjusted[i] - angleToPlayer) < Math.abs(closest - angleToPlayer)) {
+            // NOTE: Can't use !closest check here instead of closest == null because when angles are exactly multiples of 90 degrees one of them will be 0, and !0 is equal to true in javascript
+            if (closest == null || Math.abs(quadrantAdjusted[i] - angleToPlayer) < Math.abs(closest - angleToPlayer)) {
                 closest = quadrantAdjusted[i];
             }
         }
@@ -116,15 +121,15 @@ export class QuadBlaster extends KillableAiGameObject {
             let barrelToPlayer = this.getAngleOfBarrelTowardPlayer();
             let angleToPlayer = this.angleTo(this.playerShipReference);
             let angleRatio = angleToPlayer/barrelToPlayer;
-          if (angleRatio < 1.15 && angleRatio > 0.85) {
-            // TODO: Original code had the bullet starting at location of blaster, not on edge of collision radius. Do we want to change that?
-            let newProjectilePosition = this.getNewProjectilePosition();
-            let newProjectileVelocity = this.getNewProjectileVelocity(this.PROJECTILE_SPEED);
-            let newQuadBlasterProjectile = new QuasBlasterProjectile(newProjectilePosition.x, newProjectilePosition.y, newProjectileVelocity.x, newProjectileVelocity.y);
-            ObjectManager.addObject(newQuadBlasterProjectile, true);
-            this.numberOfTicksSinceShooting = 0;
-            this.shootingRechargeTime = this.getRechargeTimeForShooting();
-          }
+            if (angleRatio < 1.15 && angleRatio > 0.85) {
+                let angleOffset = barrelToPlayer - this.angle;
+                let newProjectilePosition = this.getNewProjectilePosition(angleOffset);
+                let newProjectileVelocity = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, angleOffset);
+                let newQuadBlasterProjectile = new QuasBlasterProjectile(newProjectilePosition.x, newProjectilePosition.y, newProjectileVelocity.x, newProjectileVelocity.y);
+                ObjectManager.addObject(newQuadBlasterProjectile, true);
+                this.numberOfTicksSinceShooting = 0;
+                this.shootingRechargeTime = this.getRechargeTimeForShooting();
+            }
         }
     }
 }

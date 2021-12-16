@@ -77,8 +77,8 @@ export class KillableAiGameObject extends AiGameObject {
         }
     }
 
-    getNewProjectilePosition() {
-        return new Vector(this.x + (Math.cos(this.angle) * this.collisionRadius), this.y + (Math.sin(this.angle) * this.collisionRadius));
+    getNewProjectilePosition(angleOffset = 0) {
+        return new Vector(this.x + (Math.cos(this.angle + angleOffset) * this.collisionRadius), this.y + (Math.sin(this.angle + angleOffset) * this.collisionRadius));
     }
 
     getNewProjectileVelocity(projectileSpeed, angleOffset = 0) {
