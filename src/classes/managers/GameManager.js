@@ -10,6 +10,10 @@ import { GameServiceManager } from "./GameServiceManager.js";
 import { NewMediaManager } from "./NewMediaManager.js";
 import { ObjectManager } from "./ObjectManager.js";
 import { GameBound } from "./GameBound.js";
+import { Vector } from "../../utility/Vector.js";
+import { RandomUtil } from "../../utility/RandomUtil.js";
+import { Pebbles } from "../asteroids/Pebbles.js";
+import { Rocko } from "../asteroids/Rocko.js";
 
 export class GameManager {
     // Make some of these have constants naming convention
@@ -59,13 +63,17 @@ export class GameManager {
         ObjectManager.addObject(new EnemyBase(-1000, -1000, this.playerShip));
 
         // Add all enemies
-            // for (i = 0; i < 6; i += 1) {
-            //     this.addObject(new Pebbles(GameBounds));
-            // }
+        for (let i = 0; i < 6; i++) {
+            let randomPosition = this.getRandomStartingPosition();
+            let randomVelocity = this.getRandomStartingVelocity(2);
+            ObjectManager.addObject(new Pebbles(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y));
+        }
 
-            // for (i = 0; i < 3; i += 1) {
-            //     this.addObject(new Rocko(GameBounds));
-            // }
+        for (let i = 0; i < 3; i += 1) {
+            let randomPosition = this.getRandomStartingPosition();
+            let randomVelocity = this.getRandomStartingVelocity(3);
+            ObjectManager.addObject(new Rocko(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y));
+        }
 
             // for (i = 0; i < 4; i += 1) {
             //     this.addObject(new Sludger(GameBounds, game.PlayerShip));
@@ -84,12 +92,9 @@ export class GameManager {
 			// }
 
         for (let i = 0; i < 5; i++) {
-            let x = Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT;
-            let y = Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP;
-            // TODO: Change this. This is only temporary anyways but it is irking the hell out of me.
-            let velocityX = (Math.random() - Math.random()) * 1;
-            let velocityY = (Math.random() - Math.random()) * 1
-            ObjectManager.addObject(new QuadBlaster(x, y, velocityX, velocityY, this.playerShip));
+            let randomPosition = this.getRandomStartingPosition();
+            let randomVelocity = this.getRandomStartingVelocity(1);
+            ObjectManager.addObject(new QuadBlaster(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y, this.playerShip));
         }
 
         // Add all powerups
@@ -111,6 +116,14 @@ export class GameManager {
 
         // Start the game by kicking off an animation loop
         this.animationLoop();
+    }
+
+    static getRandomStartingPosition() {
+        return new Vector(RandomUtil.randomNumber(GameBound.LEFT, GameBound.RIGHT), RandomUtil.randomNumber(GameBound.TOP, GameBound.BOTTOM));
+    }
+
+    static getRandomStartingVelocity(maxStartingSpeed) {
+        return new Vector(RandomUtil.randomNumber(-maxStartingSpeed, maxStartingSpeed), RandomUtil.randomNumber(-maxStartingSpeed, maxStartingSpeed));
     }
 
     static increaseEnemiesKilledCount(amount) {
