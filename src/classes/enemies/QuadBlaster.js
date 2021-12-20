@@ -66,7 +66,7 @@ export class QuadBlaster extends KillableAiGameObject {
     }
 
     draw(context) {
-        super.draw(context, 0, false);
+        super.draw(context, 0);
         // Drawing means we are in the scene
         this.inScene = true;
 

@@ -1,5 +1,6 @@
 import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { ObjectManager } from "../managers/ObjectManager.js";
 import { EnemyProjectile } from "./EnemyProjectile.js";
 
 export class PufferProjectile extends EnemyProjectile {
