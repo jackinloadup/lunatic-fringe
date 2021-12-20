@@ -2,7 +2,7 @@ import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
-import { SludgerMineTest } from "./SludgerMine.js";
+import { SludgerMine } from "./SludgerMine.js";
 
 export class Sludger extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
@@ -22,10 +22,10 @@ export class Sludger extends KillableAiGameObject {
         // Handle animation
         // TODO: This logic is the same as in the PlayerBase, make some sort of common function?
         this.currentTicksInAnimationFrame += 1;
-        if (this.currentTicksInAnimationFrame >= NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES) {
+        if (this.currentTicksInAnimationFrame >= this.NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES) {
             this.currentTicksInAnimationFrame = 0;
             this.spriteXOffset += this.width;
-            if (this.spriteXOffset >= (this.width * NUMBER_OF_ANIMATION_FRAMES)) {
+            if (this.spriteXOffset >= (this.width * this.NUMBER_OF_ANIMATION_FRAMES)) {
                 this.spriteXOffset = 0;
             }
         }
@@ -38,7 +38,7 @@ export class Sludger extends KillableAiGameObject {
         this.numberOfTicksSinceSpawnedMine++;
         if (this.numberOfTicksSinceSpawnedMine > this.MINE_SPAWN_TIME) {
             this.numberOfTicksSinceSpawnedMine = 0;
-            let newSludgerMine = new SludgerMineTest(this.x, this.y, 0, 0, this.playerShipReference);
+            let newSludgerMine = new SludgerMine(this.x, this.y, 0, 0, this.playerShipReference);
             ObjectManager.addObject(newSludgerMine, true);
         }
     }
