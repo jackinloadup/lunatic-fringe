@@ -2,7 +2,7 @@ import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
 
-export class SludgerMineTest extends KillableAiGameObject {
+export class SludgerMine extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
         super(xLocation, yLocation, Layer.SLUDGER_MINE, 24, 21, 0, NewMediaManager.Sprites.SludgerMine, velocityX, velocityY, 11, 4, playerShip, 5, 5, 2);
 
@@ -27,10 +27,10 @@ export class SludgerMineTest extends KillableAiGameObject {
         // Handle animation
         // TODO: This logic is the same as in the PlayerBase, make some sort of common function?
         this.currentTicksInAnimationFrame += 1;
-        if (this.currentTicksInAnimationFrame >= NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES) {
+        if (this.currentTicksInAnimationFrame >= this.NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES) {
             this.currentTicksInAnimationFrame = 0;
             this.spriteXOffset += this.width;
-            if (this.spriteXOffset >= (this.width * NUMBER_OF_ANIMATION_FRAMES)) {
+            if (this.spriteXOffset >= (this.width * this.NUMBER_OF_ANIMATION_FRAMES)) {
                 this.spriteXOffset = 0;
             }
         }
