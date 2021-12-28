@@ -9,6 +9,6 @@ export class ShipRepairsPowerup extends InstantPowerup {
 
     activate(playerShip) {
         // Regain back 1/3 of the ship help
-        playerShip.updateHealth(playerShip.MAXIMUM_HEALTH / 3);
+        playerShip.updateHealth(Math.floor(playerShip.MAXIMUM_HEALTH / 3));
     }
 }

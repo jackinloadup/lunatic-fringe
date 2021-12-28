@@ -20,6 +20,10 @@ export class Powerup extends InteractableGameObject {
         ObjectManager.removeObject(this);
     }
 
+    updateState() {
+        // Do nothing as powerups have no state to update
+    }
+
     activate(playerShip) {
         this.error("The activate function should be overwritten by concrete subclasses!");
     }
