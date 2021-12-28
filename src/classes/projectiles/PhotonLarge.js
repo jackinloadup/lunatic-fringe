@@ -1,5 +1,6 @@
 import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { ObjectManager } from "../managers/ObjectManager.js";
 import { PlayerProjectile } from "./PlayerProjectile.js";
 
 export class PhotonLarge extends PlayerProjectile {

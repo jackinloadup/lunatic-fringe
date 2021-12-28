@@ -14,6 +14,17 @@ import { Vector } from "../../utility/Vector.js";
 import { RandomUtil } from "../../utility/RandomUtil.js";
 import { Pebbles } from "../asteroids/Pebbles.js";
 import { Rocko } from "../asteroids/Rocko.js";
+import { Puffer } from "../enemies/Puffer.js";
+import { Sludger } from "../enemies/Sludger.js";
+import { Slicer } from "../enemies/Slicer.js";
+import { PhotonLargePowerup } from "../powerups/PhotonLargePowerup.js";
+import { SpreadShotPowerup } from "../powerups/SpreadShotPowerup.js";
+import { DoublePointsPowerup } from "../powerups/DoublePointsPowerup.js";
+import { ExtraFuelPowerup } from "../powerups/ExtraFuelPowerup.js";
+import { ShipRepairsPowerup } from "../powerups/ShipRepairsPowerup.js";
+import { SparePartsPowerup } from "../powerups/SparePartsPowerup.js";
+import { InvulnerabilityPowerup } from "../powerups/InvulnerabilityPowerup.js";
+import { TurboThrustPowerup } from "../powerups/TurboThrustPowerup.js";
 
 export class GameManager {
     // Make some of these have constants naming convention
@@ -47,6 +58,9 @@ export class GameManager {
         // TODO: Eventually all of the starting cooridinates won't be random and the object addition to the game will be more structred, once levels are added in (also won't start with powerups in world immediately)
         // Create the player
         this.playerShip = new PlayerShip(this.context.canvas.width / 2, this.context.canvas.height / 2, 0, 0);
+        // Player starts with turbo thrust and invulnerability powerups
+        this.playerShip.powerupStateManager.obtainPowerup(new InvulnerabilityPowerup(0, 0));
+        this.playerShip.powerupStateManager.obtainPowerup(new TurboThrustPowerup(0, 0));
 
         // Add the background stars
         for (let i = 0; i < 600; i++) {
@@ -75,21 +89,23 @@ export class GameManager {
             ObjectManager.addObject(new Rocko(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y));
         }
 
-            // for (i = 0; i < 4; i += 1) {
-            //     this.addObject(new Sludger(GameBounds, game.PlayerShip));
-            // }
+        for (let i = 0; i < 4; i += 1) {
+            let randomPosition = this.getRandomStartingPosition();
+            let randomVelocity = this.getRandomStartingVelocity(3);
+            ObjectManager.addObject(new Sludger(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y, this.playerShip));
+        }
 
-            // for (i = 0; i < 4; i += 1) {
-            //     this.addObject(new Puffer(GameBounds, game.PlayerShip));
-            // }
+        for (let i = 0; i < 4; i += 1) {
+            let randomPosition = this.getRandomStartingPosition();
+            let randomVelocity = this.getRandomStartingVelocity(1);
+            ObjectManager.addObject(new Puffer(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y, this.playerShip));
+        }
 			
-			// for (i = 0; i < 2; i += 1) {
-			// 	this.addObject(new Slicer(GameBounds, game.PlayerShip));
-			// }
-
-			// for (i = 0; i < 3; i += 1) {
-				// this.addObject(new SludgerMine(GameBounds, game.PlayerShip));
-			// }
+        for (let i = 0; i < 2; i += 1) {
+            let randomPosition = this.getRandomStartingPosition();
+            let randomVelocity = this.getRandomStartingVelocity(1);
+            ObjectManager.addObject(new Slicer(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y, this.playerShip));
+        }
 
         for (let i = 0; i < 5; i++) {
             let randomPosition = this.getRandomStartingPosition();
@@ -98,14 +114,23 @@ export class GameManager {
         }
 
         // Add all powerups
-            // this.addObject(new PhotonLargePowerup(GameBounds));
-            // this.addObject(new SpreadShotPowerup(GameBounds));
-            // this.addObject(new DoublePointsPowerup(GameBounds));
-            // this.addObject(new ExtraFuelPowerup(GameBounds));
-            // this.addObject(new ShipRepairsPowerup(GameBounds));
-            // this.addObject(new InvulnerabilityPowerup(GameBounds));
-            // this.addObject(new TurboThrustPowerup(GameBounds));
-            // this.addObject(new SparePartsPowerup(GameBounds));
+        // Note that this is temporary since when levels are implemented they powerups will not be spawned in at the start of the game
+        let randomLargePhotonPowerupPosition = this.getRandomStartingPosition();
+        ObjectManager.addObject(new PhotonLargePowerup(randomLargePhotonPowerupPosition.x, randomLargePhotonPowerupPosition.y));
+        let randomSpreadShotPowerupPosition = this.getRandomStartingPosition();
+        ObjectManager.addObject(new SpreadShotPowerup(randomSpreadShotPowerupPosition.x, randomSpreadShotPowerupPosition.y));
+        let randomDoublePointsPowerupPosition = this.getRandomStartingPosition();
+        ObjectManager.addObject(new DoublePointsPowerup(randomDoublePointsPowerupPosition.x, randomDoublePointsPowerupPosition.y));
+        let randomExtraFuelPowerupPosition = this.getRandomStartingPosition();
+        ObjectManager.addObject(new ExtraFuelPowerup(randomExtraFuelPowerupPosition.x, randomExtraFuelPowerupPosition.y));
+        let randomShipRepairsPowerupPosition = this.getRandomStartingPosition();
+        ObjectManager.addObject(new ShipRepairsPowerup(randomShipRepairsPowerupPosition.x, randomShipRepairsPowerupPosition.y));
+        let randomInvulnerabilityPowerupPosition = this.getRandomStartingPosition();
+        ObjectManager.addObject(new InvulnerabilityPowerup(randomInvulnerabilityPowerupPosition.x, randomInvulnerabilityPowerupPosition.y));
+        let randomTurboThrustPowerupPosition = this.getRandomStartingPosition();
+        ObjectManager.addObject(new TurboThrustPowerup(randomTurboThrustPowerupPosition.x, randomTurboThrustPowerupPosition.y));
+        let randomSparePartsPowerupPosition = this.getRandomStartingPosition();
+        ObjectManager.addObject(new SparePartsPowerup(randomSparePartsPowerupPosition.x, randomSparePartsPowerupPosition.y));
 
 
         // Add the player ship to the object array so it draws on top of most objects
