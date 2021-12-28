@@ -47,6 +47,7 @@ export class PlayerShip extends InteractableGameObject {
 
         this.lowFuelSoundPlayCount = 0;
         this.LOW_FUEL_SOUND_PLAY_COUNT_MAX = 3;
+        // TODO: Fix the low fuel sound
         NewMediaManager.Audio.LowFuel.addEventListener('ended', function() {
             if (this.lowFuelSoundPlayCount < this.LOW_FUEL_SOUND_PLAY_COUNT_MAX) {
                 NewMediaManager.Audio.LowFuel.play();
@@ -279,7 +280,6 @@ export class PlayerShip extends InteractableGameObject {
             this.atBase = true;
             // Make it so that the ship will go towards the Player Base
             // These are the coordinates the Base should be at if the ship is centered on the base
-            // TODO: Store these values in the config, along with Enemy base coordinates. Currently rely on having access to context...maybe just get Base location from other object instead?
             let baseX = otherObject.x;
             let baseY = otherObject.y - this.BASE_DOCKING_OFFSET; // Subtract the docking offset here so that the player ship is centered better on the player base when docked
             // There will be rounding error with the program, so don't check that the 
@@ -351,7 +351,6 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     die() {
-        // TODO: Many object manager references in here....import that static service once it is made
         NewMediaManager.Audio.PlayerDeath.play();
 
         this.velocityX = 0;
@@ -369,7 +368,6 @@ export class PlayerShip extends InteractableGameObject {
             } else {
                 GameServiceManager.displayMessage(this.lives + " lives left", 60 * 5)
             }
-            // TODO: Fixes this. Probably just make it a function objectManager deals with.
             GameServiceManager.movePlayerShipTo(Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT, Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP);
 
             // reset health and fuel and spare parts to full
@@ -397,7 +395,7 @@ export class PlayerShip extends InteractableGameObject {
 
         if (this.atBase) {
             // remove the at base indicator so that if we have left the base it goes away
-            // TODO: Is this necessary? Where is it used that we need to store the value in the object that we are at base?
+            // Used when determing is the Kill hotkey should work or if the player should be allowed to fire bullets (not allowed when at base)
             this.atBase = false;
         }
 

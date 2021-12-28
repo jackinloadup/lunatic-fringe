@@ -1,6 +1,4 @@
 // Vector helper class
-// TODO: Replace original class with this one once refactor is completed
-
 export class Vector {
     constructor(x, y) {
         this.x = x || 0;

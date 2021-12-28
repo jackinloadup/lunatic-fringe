@@ -105,7 +105,6 @@ export class InteractableGameObject extends GameObject {
         let acceleration;
 
         // The ship forces are opposite everything else. It doesn't move, it shifts the universe around it.
-        // TODO: Where is this.acceleration set???
         if (this.layer === Layer.PLAYER) {
             acceleration = new Vector(-Math.cos(this.angle) * this.ACCELERATION, Math.sin(-this.angle) * this.ACCELERATION);
         } else {

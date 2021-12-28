@@ -6,7 +6,7 @@ export class Star extends GameObject {
 
         this.TWINKLE_MAX = 1 * 60;
         this.TWINKLE_MIN = 0.2 * 60;
-        this.color =  ("rgb(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + ")"); // TODO: Randomize color
+        this.color =  ("rgb(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + ")");
         this.currentColor = this.color;
         this.numberOfTicksForColor = this.getColorDuration();
         this.hasColor = true;

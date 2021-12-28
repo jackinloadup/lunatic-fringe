@@ -11,7 +11,6 @@ export class Projectile extends InteractableGameObject {
     }
 
     updateState() {
-        // TODO: Increase tick count since creation and destory projectile if past lifetime
         this.tickCountSinceCreation += 1;
 
         if (this.tickCountSinceCreation >= this.lifetime) {
