@@ -1,4 +1,3 @@
-import { GameConfig } from "../../config/gameConfig.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/NewMediaManager.js";
@@ -10,7 +9,6 @@ export class Slicer extends KillableAiGameObject {
         this.TURN_ABILITY = 0.3;
         this.MAX_SPEED = 10;
         this.ACCELERATION = 0.175;
-        // TODO: Offset the drawing of the sprite by 2 pixels up so it fits in the circle better
 
         this.NUMBER_OF_ANIMATION_FRAMES = 26;
         this.ROTATION_AMOUNT = (2 * Math.PI) / this.NUMBER_OF_ANIMATION_FRAMES;
@@ -53,7 +51,8 @@ export class Slicer extends KillableAiGameObject {
         // +this.angle: The angle the ship is currently pointing.
         // +(2 * Math.PI): The only purpose of this is to make sure the frame angle is positive, without changing the angle for the calculations (since 2 * Math.PI is a full circle rotation). This makes the calculation easier since it means we don't have to deal with negative numbers
         // % (2 * Math.PI): Takes whatever the result of the calculation with the above values is and makes it between 0 (inclusive) and 2 * Math.PI (exclusive).
-        // TODO: Due to the isometric sprite view there are some instances where the angles don't line up great with the sprite (barely). So in the future might want to look into how to make the angles match up with the sprite a little better.
+        // FUTURE TODO: Due to the isometric sprite view there are some instances where the angles don't line up great with the sprite (barely). So in the future might want to look into how to make the angles match up with the sprite a little better.
+        // Note that there are also not the same number of frames for each quadrant of the slicer, which leads to futher complexity getting correct angles.
         let frameAngle = ((Math.PI / 2) + this.ROTATION_AMOUNT / 2 + this.angle + (2 * Math.PI)) % (2 * Math.PI);
         let frame = Math.floor(frameAngle/this.ROTATION_AMOUNT);
 

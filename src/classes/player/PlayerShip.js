@@ -14,12 +14,12 @@ import { PowerupStateManager } from "./PowerupStateManager.js";
 
 export class PlayerShip extends InteractableGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY) {
-        // TODO: Make starting position 1 pixel offset from center of canvas to line up better with base?
         // Collision radius of 12 is a good balance between wings sticking out and body taking up the whole circle
         // Start at angle of Math.PI / 2 so angle matches sprite. Normally since the canvas is y flipped from a normal graph you would want
         //      -Math.PI / 2 to be pointing straight up, but the ships forces are opposites all other objects
         super(xLocation, yLocation, Layer.PLAYER ,42, 37, Math.PI / 2, NewMediaManager.Sprites.PlayerShip, velocityX, velocityY, 12, 10);
-        // TODO: Offset the drawing of the sprite by 2 pixels up so it fits in the circle better
+        // Offset the drawing of the sprite by 2 pixels in the y direction so it fits in the collision circle better
+        this.imageYOffset = 2;
 
         this.MAX_SPEED = 12;
         this.ACCELERATION = 0.1;

@@ -17,7 +17,6 @@ export class Sludger extends KillableAiGameObject {
         this.MINE_SPAWN_TIME = 5 * 60;
     }
 
-    // TODO: Make object manager a static class...?
     updateState() {
         // Handle animation
         // TODO: This logic is the same as in the PlayerBase, make some sort of common function?

@@ -17,6 +17,6 @@ export class EnemyBase extends AiGameObject {
     }
 
     updateState() {
-        // TODO: Fire bullets towards player if player is nearby, also handle spawning more enemies
+        // FUTURE TODO: Fire bullets towards player if player is nearby, also handle spawning more enemies
     };
 }

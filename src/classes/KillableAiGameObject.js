@@ -29,7 +29,6 @@ export class KillableAiGameObject extends AiGameObject {
     }
 
     handleCollision(otherObject) {
-        // TODO: Move this into other class files?
         let thisName = this.getClassName();
         let otherName = otherObject.getClassName();
         if (otherObject.layer === Layer.SLUDGER_MINE) {
@@ -37,7 +36,8 @@ export class KillableAiGameObject extends AiGameObject {
             // object should not get hurt or have their physics be affected, so return
             return;
         } else if (otherObject.layer === Layer.PLAYER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE || otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE) {	
-            // TODO: Should projectiles not have physics effects when hit? Currently they don't but maybe they should?			
+            // FUTURE TODO: Based on some small gameplay clips I found, projectiles should cause physics affects on the colliding object! (Based on the gameplay where enemy base bullet affects physics of
+            // player ship). So we will still want to call super.handleCollision here, as well as give all of the projectiles a mass value.?			
             this.log(thisName + " hit by Projectile: " + otherName);
             this.health -= otherObject.damage;
             this.log(thisName + " health is now: " + this.health);

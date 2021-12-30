@@ -7,7 +7,7 @@ export class InteractableGameObject extends GameObject {
     constructor(xLocation, yLocation, layer, width, height, angle, sprite, velocityX, velocityY, collisionRadius, mass) {
         super(xLocation, yLocation, width, height);
 
-        this.angle = angle; // TODO: Remove angle from here? Most things don't need it
+        this.angle = angle;
         this.sprite = sprite;
         this.velocityX = velocityX;
         this.velocityY = velocityY;
@@ -15,30 +15,29 @@ export class InteractableGameObject extends GameObject {
         this.mass = mass;
         this.layer = layer;
         /**
-         * The x offset of the sprite to use when drawing. This should be zero unless a sprite is animated in which case it should correspond to whatever the x value is of the desired animation frame in the sprite. 
+         * spriteXOffset: The x offset of the sprite to use when drawing. This should be zero unless a sprite is animated in which case it should correspond to whatever the x value is of the desired animation frame in the sprite. 
          *      The updating of this value should be handled in the specific objects updateState function.
-         * The y offset of the sprite to use when drawing. This should be zero unless a sprite is animated and has multiple rows on the sprite sheet in which case it should correspond to whatever the y value of the desired
+         * spriteYOffset: The y offset of the sprite to use when drawing. This should be zero unless a sprite is animated and has multiple rows on the sprite sheet in which case it should correspond to whatever the y value of the desired
          *      row of the spritesheet is.
+         * imageYOffset: The image y offset to use when drawing the sprite. This should be zero unless a sprite needs to have the image drawn off-center in the y direction in order for it to be positioned better within the collision circle.
          */
         this.spriteXOffset = 0;
         this.spriteYOffset = 0;
+        this.imageYOffset = 0;
     }
 
     /**
      * Handle the drawing of an object with a sprite on the context.
-     * TODO: Remove yoffset, have it be a variable on the object instead. Check to see which objects need a y offset.
-     * TODO: Make spriteYOffset variable instead of 0, needed for player ship and invulnerability
-     * TODO: Remove passed in 3 argument wherever it was passed in, that was removed
      * 
      * @param {*} context The drawing context
      * @param {*} yOffset The y offset when drawing the sprite on the context. This should be zero except in the few instances when raising/lowering the sprite when drawing makes it fit in the collision radius circle better.
      */
-    draw(context, yOffset = 0) {
+    draw(context) {
         // handle the drawing that is common between all objects
 
         // Sprite drawing
         // There is no rotation in this drawing since images are not actually rotated, the rotation comes from the sprite sheets
-        context.drawImage(this.sprite, this.spriteXOffset, this.spriteYOffset, this.width, this.height, this.x - this.width / 2, this.y - this.height / 2 - yOffset, this.width, this.height);
+        context.drawImage(this.sprite, this.spriteXOffset, this.spriteYOffset, this.width, this.height, this.x - this.width / 2, this.y - this.height / 2 - this.imageYOffset, this.width, this.height);
 
         // Common debug drawing
         if (GameConfig.debug) {
