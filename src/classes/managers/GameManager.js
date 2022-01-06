@@ -1,5 +1,4 @@
 import { GameConfig } from "../../config/gameConfig.js";
-import { AiGameObject } from "../AiGameObject.js";
 import { QuadBlaster } from "../enemies/QuadBlaster.js";
 import { EnemyBase } from "../EnemyBase.js";
 import { PlayerBase } from "../PlayerBase.js";
@@ -7,9 +6,10 @@ import { PlayerShip } from "../player/PlayerShip.js";
 import { Star } from "../Star.js";
 import { CollisionManager } from "./CollisionManager.js";
 import { GameServiceManager } from "./GameServiceManager.js";
+import { Layer } from "./Layer.js";
 import { NewMediaManager } from "./NewMediaManager.js";
 import { ObjectManager } from "./ObjectManager.js";
-import { GameBound } from "./GameBound.js";
+import { GameBound, GameBoundSize } from "./GameBound.js";
 import { Vector } from "../../utility/Vector.js";
 import { RandomUtil } from "../../utility/RandomUtil.js";
 import { Pebbles } from "../asteroids/Pebbles.js";
@@ -28,12 +28,9 @@ import { TurboThrustPowerup } from "../powerups/TurboThrustPowerup.js";
 
 export class GameManager {
     // Make some of these have constants naming convention
-    // TODO: Redo this class, I hate how everything is static when really the manager should provide static services but have a non-static class underneath, or something
     static context;
     static enemiesKilled = 0;
-    // TODO: Improve this? Don't really need two variables for keeping track of time, just subtract until 0?
     static numMessageTicks;
-    static numMessageTicksMax;
     static message;
     static playerShip;
     static isPaused;
@@ -55,7 +52,7 @@ export class GameManager {
         GameServiceManager.initialize(this);
 
         // Initalize all of the game objects
-        // TODO: Eventually all of the starting cooridinates won't be random and the object addition to the game will be more structred, once levels are added in (also won't start with powerups in world immediately)
+        // FUTURE TODO: Eventually all of the starting cooridinates won't be random and the object addition to the game will be more structred, once levels are added in (also won't start with powerups in world immediately)
         // Create the player
         this.playerShip = new PlayerShip(this.context.canvas.width / 2, this.context.canvas.height / 2, 0, 0);
         // Player starts with turbo thrust and invulnerability powerups
@@ -70,11 +67,17 @@ export class GameManager {
         }
 
         // Add the player base. Offset the y location by the constant from the player ship here so that it matches the offset the ship uses when docking at the base. This is so that the ship is correctly centered on the base when the game is started.
+        let playerBaseLocation = new Vector(this.context.canvas.width / 2, this.context.canvas.height / 2 + this.playerShip.BASE_DOCKING_OFFSET);
         // TODO: Fix this? Currently player base location is based on canvas width, but enemy base is not. So in theory different window sizes mean the base is difference distances from each other....
-        ObjectManager.addObject(new PlayerBase(this.context.canvas.width / 2, this.context.canvas.height / 2 + this.playerShip.BASE_DOCKING_OFFSET));
+        ObjectManager.addObject(new PlayerBase(playerBaseLocation.x, playerBaseLocation.y));
 
         // Add the enemy base
-        ObjectManager.addObject(new EnemyBase(-1000, -1000, this.playerShip));
+        // Since the player base is centered based on the starting canvas size (so that it is centered on the screen), base enemy base location on player base location and game bounds so that the two bases are always the same distance from each other
+        // Since the GameBoundSize is half of the width and height of the game bounds, subtract that from both coordinates so the enemy base is halfway across the world in both directions (and subtract it since player position is guaranteed to be positive
+        // so subtracting the GameBoundSize should make the coordinates of the enemy base still be within the GameBounds values).
+        let enemyBaseLocation = playerBaseLocation.subtract(new Vector(GameBoundSize, GameBoundSize));
+        console.log(enemyBaseLocation);
+        ObjectManager.addObject(new EnemyBase(enemyBaseLocation.x, enemyBaseLocation.y, this.playerShip));
 
         // Add all enemies
         for (let i = 0; i < 6; i++) {
@@ -171,8 +174,7 @@ export class GameManager {
     }
 
     static displayMessage(text, ticksToShow) {
-        this.numMessageTicks = 0;
-        this.numMessageTicksMax = ticksToShow;
+        this.numMessageTicks = ticksToShow;
         this.message = text;
         console.log("DisplayMessage called with " + text + " - " + ticksToShow);
     }
@@ -246,11 +248,15 @@ export class GameManager {
         }
     };
 
+    // FUTURE TODO: In the future when levels are implemented this should be changed so that when enemies are spawned in a counter is set
+    // to keep track of current number of enemies, that way it doesn't have to iterate through all objects every time.
     static enemiesRemaining() {
         let numEnemies = 0;
 
+        let object;
         for (let i = 0; i < ObjectManager.objects.length; i++) {
-            if (ObjectManager.objects[i] instanceof AiGameObject && !(ObjectManager.objects[i] instanceof EnemyBase)) {
+            object = ObjectManager.objects[i]
+            if (CollisionManager.isEnemyLayer(object.layer) && object.layer !== Layer.ENEMY_BASE) {
                 numEnemies++;
             }
         }
@@ -315,8 +321,8 @@ export class GameManager {
             }
         }
 
-        this.numMessageTicks++;
-        if (this.numMessageTicks < this.numMessageTicksMax) {
+        this.numMessageTicks--;
+        if (this.numMessageTicks > 0) {
             context.fillStyle = '#808080';
             context.font = 'bold 30px sans-serif';
             context.textBaseline = 'bottom';

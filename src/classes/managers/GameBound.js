@@ -1,7 +1,9 @@
 // Create an "Enum" for the game bounds
+export const GameBoundSize = 2000;
+
 export const GameBound = {
-    LEFT: -2000,
-    TOP: -2000,
-    RIGHT: 2000,
-    BOTTOM: 2000
+    LEFT: -GameBoundSize,
+    TOP: -GameBoundSize,
+    RIGHT: GameBoundSize,
+    BOTTOM: GameBoundSize
 }

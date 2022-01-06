@@ -19,7 +19,7 @@ export class GameServiceManager {
     }
 
     static enemiesRemaining() {
-        this.gameManager.enemiesRemaining();
+        return this.gameManager.enemiesRemaining();
     }
 
     static displayMessage(text, ticksToShow) {

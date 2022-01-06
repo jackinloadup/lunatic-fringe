@@ -154,7 +154,7 @@ export class PlayerShip extends InteractableGameObject {
                     photon = new PhotonMedium(photonX, photonY, photonVelocity.x, photonVelocity.y);
                     let photon2 = new PhotonMedium(photonX, photonY, photonVelocity2.x, photonVelocity2.y);
                     let photon3 = new PhotonMedium(photonX, photonY, photonVelocity3.x, photonVelocity3.y);
-                    // TODO: investigate why photon 2 falls behind the other photons when shooting sometimes
+                    // FUTURE TODO: investigate why photon 2 falls behind the other photons when shooting sometimes. This appears to also be a problem with the old code.
                     ObjectManager.addObject(photon2, true);
                     ObjectManager.addObject(photon3, true);
                     NewMediaManager.Audio.PhotonSpread.play();
@@ -399,9 +399,9 @@ export class PlayerShip extends InteractableGameObject {
             this.atBase = false;
         }
 
-        // TODO: Move this inside of the game manager, player should not be in charge of this.
-        if (GameServiceManager.enemiesRemaining() == 0) {
-            GameServiceManager.displayMessage("You conquered the fringe with a score of " + score, 99999999);
+        // FUTURE TODO: When levels are added in it will not be possible to "conquer the fringe", so just leave this here for now and remove it when levels are implemented.
+        if (GameServiceManager.enemiesRemaining() === 0) {
+            GameServiceManager.displayMessage("You conquered the fringe with a score of " + this.score, 99999999);
             this.velocityX = 0;
             this.velocityY = 0;
             ObjectManager.removeObject(this);
@@ -426,7 +426,7 @@ export class PlayerShip extends InteractableGameObject {
             this.updateSpareParts(-1);
             this.updateHealth(1);
 
-            // TODO: I don't remember if there was a sound played here. I'll leave it out for now until I know for sure there was one
+            // FUTURE TODO: I don't remember if there was a sound played here. I'll leave it out for now until I know for sure there was one
         }
     }
 }
