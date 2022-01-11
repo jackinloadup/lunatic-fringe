@@ -5,7 +5,7 @@ window.onload = function Initialize() {
     document.getElementById('fringeCanvas').width = window.innerWidth;
     document.getElementById('fringeCanvas').height = window.innerHeight;
 
-    var hidden, visibilityChange;
+    let hidden, visibilityChange;
     if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
       hidden = "hidden";
       visibilityChange = "visibilitychange";
