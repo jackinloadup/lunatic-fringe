@@ -25,11 +25,8 @@ import { KeyStateManager } from './classes/managers/KeyManager.js';
 export function LunaticFringe(canvas, hidden, visibilityChange) {
     "use strict";
 
-    // var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
-    // var game = this;
 	let version = "2.0";
-	// var isCapsPaused = false;
-	// log("Game Version: " + version);
+	log("Game Version: " + version);
 
     if (typeof canvas !== 'object') {
         canvas = document.getElementById(canvas);
