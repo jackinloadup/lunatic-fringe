@@ -1,4 +1,4 @@
-import {LunaticFringe} from './fringe.js';
+import {LunaticFringe} from './Fringe.js';
 
 window.onload = function Initialize() {
     console.log("Initializing game");
