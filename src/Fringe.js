@@ -26,7 +26,7 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
     "use strict";
 
 	let version = "2.0";
-	log("Game Version: " + version);
+	console.log("Game Version: " + version);
 
     if (typeof canvas !== 'object') {
         canvas = document.getElementById(canvas);
