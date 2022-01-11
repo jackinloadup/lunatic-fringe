@@ -9,7 +9,7 @@ export class PufferProjectile extends EnemyProjectile {
     }
 
     handleCollision(otherObject) {
-        // TODO: Player ship should handle playing sound when hit since it could be invulnerable, right? Should sound be played when other things are hit? Player projectile handles plays its sound so this might require more thought
+        // We only want to play a sound when the player is hit, so don't handle playing sound here, have player handle it.
         // Puffer projectiles "barrel through" Sludger Mines, so don't die when this are hit
         this.log("Projectile " + this.getClassName() + " hit " + otherObject.getClassName());
         if (otherObject.layer !== Layer.SLUDGER_MINE) {

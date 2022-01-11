@@ -4,7 +4,7 @@ import { InstantPowerup } from "./InstantPowerup.js";
 
 export class SparePartsPowerup extends InstantPowerup {
     constructor(xLocation, yLocation) {
-        super(xLocation, yLocation, Layer.INSTANT_POWERUP, 13, 13, NewMediaManager.Sprites.SpareParts, 7, 0);
+        super(xLocation, yLocation, Layer.INSTANT_POWERUP, 13, 13, NewMediaManager.Sprites.SpareParts, 7);
     }
 
     activate(playerShip) {

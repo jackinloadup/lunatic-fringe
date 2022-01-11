@@ -10,10 +10,6 @@ export class GameServiceManager {
         this.gameManager = gameManager;
     }
 
-    static increaseEnemiesKilledCount(amount) {
-        this.gameManager.increaseEnemiesKilledCount(amount);
-    }
-
     static endGame() {
         this.gameManager.endGame();
     }

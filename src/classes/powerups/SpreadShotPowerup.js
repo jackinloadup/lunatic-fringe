@@ -4,7 +4,7 @@ import { PlayerProjectilePowerup } from "./PlayerProjectilePowerup.js";
 
 export class SpreadShotPowerup extends PlayerProjectilePowerup {
     constructor(xLocation, yLocation) {
-        super(xLocation, yLocation, Layer.BULLET_POWERUP, 19, 16, NewMediaManager.Sprites.SpreadShot, 9, 0, 60 * 60, 'spreadShotActive', 39);
+        super(xLocation, yLocation, Layer.BULLET_POWERUP, 19, 16, NewMediaManager.Sprites.SpreadShot, 9, 60 * 60, 'spreadShotActive', 39);
     }
 
     activate(playerShip) {

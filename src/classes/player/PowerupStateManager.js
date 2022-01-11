@@ -17,7 +17,7 @@ export class PowerupStateManager {
         } else if (powerup.layer === Layer.BULLET_POWERUP) {
             // If other bullet powerups are active, deactivate them first.
             if (this.bulletPowerup) {
-                this.bulletPowerup.deactivate(this.player);
+                this.bulletPowerup.powerup.deactivate(this.player);
                 this.bulletPowerup = null;
             }
             powerup.activate(this.player);

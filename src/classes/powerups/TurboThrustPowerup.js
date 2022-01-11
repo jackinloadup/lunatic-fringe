@@ -4,7 +4,7 @@ import { StoredDurationPowerup } from "./StoredDurationPowerup.js";
 
 export class TurboThrustPowerup extends StoredDurationPowerup {
     constructor(xLocation, yLocation) {
-        super(xLocation, yLocation, Layer.STORED_POWERUP, 15, 16, NewMediaManager.Sprites.TurboThrust, 8, 0, 60 * 2, 'turboThrustAvailable', 'B');
+        super(xLocation, yLocation, Layer.STORED_POWERUP, 15, 16, NewMediaManager.Sprites.TurboThrust, 8, 60 * 2, 'turboThrustAvailable', 'B');
     }
 
     activate(playerShip) {

@@ -4,7 +4,7 @@ import { PlayerProjectilePowerup } from "./PlayerProjectilePowerup.js";
 
 export class PhotonLargePowerup extends PlayerProjectilePowerup {
     constructor(xLocation, yLocation) {
-        super(xLocation, yLocation, Layer.BULLET_POWERUP, 15, 16, NewMediaManager.Sprites.PhotonLarge, 8, 0, 60 * 30, 'photonLargeActive', 60);
+        super(xLocation, yLocation, Layer.BULLET_POWERUP, 15, 16, NewMediaManager.Sprites.PhotonLarge, 8, 60 * 30, 'photonLargeActive', 60);
     }
 
     activate(playerShip) {

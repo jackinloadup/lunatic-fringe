@@ -22,10 +22,6 @@ export class KillableAiGameObject extends AiGameObject {
         this.log(this.getClassName() + " died!");
         this.playDeathSound();
         ObjectManager.removeObject(this);
-        
-        // Increase count of number of enemies killed, even if not killed by player
-        // TODO: Is this value ever used...?
-        GameServiceManager.increaseEnemiesKilledCount(1);
     }
 
     handleCollision(otherObject) {
@@ -71,7 +67,7 @@ export class KillableAiGameObject extends AiGameObject {
             this.log(thisName + " hit by Game Object: " + otherName);
             this.health -= otherObject.damageCausedByCollision;
             this.log(thisName + " health is now: " + this.health);
-            if (this.health < 0) {
+            if (this.health <= 0) {
                 this.die();
             }
         }

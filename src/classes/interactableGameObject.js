@@ -65,37 +65,44 @@ export class InteractableGameObject extends GameObject {
     }
 
     handleCollision(otherObject) {
-        let dx, dy, phi, magnitude_1, magnitude_2, direction_1, direction_2, new_xspeed_1, new_xspeed_2, new_yspeed_1, new_yspeed_2, final_xspeed_1, final_yspeed_1;
-			
 			if (this.mass == 0 && otherObject.mass == 0) {
 				// This is bad because this means the new speed calculations will result in NaN
 				error("Both objects had a mass of 0! Objects were: " + this.constructor.name + " and " + otherObject.constructor.name);
 			}
-			
-            dx = this.x - otherObject.x;
-            dy = this.y - otherObject.y;
 
-            phi = Math.atan2(dy, dx);
+            // To understand how this calculation works, https://imada.sdu.dk/~rolf/Edu/DM815/E10/2dcollisions.pdf is helpful in explaining it without trig functions
+            // Trig functions are used here because it is less computationally intensive then doing all of the vector calculations
+            let dx = this.x - otherObject.x;
+            let dy = this.y - otherObject.y;
 
-            magnitude_1 = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
-            magnitude_2 = Math.sqrt(otherObject.velocityX * otherObject.velocityX + otherObject.velocityY * otherObject.velocityY);
+            let phi = Math.atan2(dy, dx);
 
-            direction_1 = Math.atan2(this.velocityY, this.velocityX);
-            direction_2 = Math.atan2(otherObject.velocityY, otherObject.velocityX);
+            let thisMagnitude = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
+            let otherObjectMagnitude = Math.sqrt(otherObject.velocityX * otherObject.velocityX + otherObject.velocityY * otherObject.velocityY);
 
-            new_xspeed_1 = magnitude_1 * Math.cos(direction_1 - phi);
-            new_yspeed_1 = magnitude_1 * Math.sin(direction_1 - phi);
+            let thisAngle = Math.atan2(this.velocityY, this.velocityX);
+            let otherObjectAngle = Math.atan2(otherObject.velocityY, otherObject.velocityX);
 
-            new_xspeed_2 = magnitude_2 * Math.cos(direction_2 - phi);
+            // Essentially this is getting the magnitude of the projection of thisVelocity onto the vector <dx, dy>
+            let thisSpeedInNormalDirection = thisMagnitude * Math.cos(thisAngle - phi);
+            // Essentially this is getting the magnitude of the porjection of thisVelocity onto a vector tangent to <dx, dy>. This works because to get a tangent vector you can use the same difference angle as before and subtract 90 degrees, 
+            // but this is the same thing as just taking the sine of the difference angle instead of the cosine
+            let thisSpeedInTangentDirection = thisMagnitude * Math.sin(thisAngle - phi);
 
-            // TODO: Check this in the instance where 1 of the masses is 0, make sure it works how we want it to
-            final_xspeed_1 = ((this.mass - otherObject.mass) * new_xspeed_1 + (otherObject.mass + otherObject.mass) * new_xspeed_2) / (this.mass + otherObject.mass);
+            // Essentially this is getting the magnitude of the projection of otherObjectVelocity onto the vector <dx, dy>
+            let otherObjectSpeedInNormalDirection = otherObjectMagnitude * Math.cos(otherObjectAngle - phi);
 
-            // TODO: Do we need the final y speed to factor in mass like the final x speed is???
-            final_yspeed_1 = new_yspeed_1;
+            // Calculate new speed in the normal direction, using the one-dimensional collision formula and the original speeds of this and otherObject in the normal direction
+            // NOTE: otherObject.mass + otherObject.mass = 2 * otherObject.mass, but is less computationally intensive
+            // NOTE: When otherObject mass is 0, the speed of this object in the normal direction won't change
+            let thisNewSpeedInNormalDirection = ((this.mass - otherObject.mass) * thisSpeedInNormalDirection + (otherObject.mass + otherObject.mass) * otherObjectSpeedInNormalDirection) / (this.mass + otherObject.mass);
 
-            this.velocityX = Math.cos(phi) * final_xspeed_1 + Math.cos(phi + Math.PI / 2) * final_yspeed_1;
-            this.velocityY = Math.sin(phi) * final_xspeed_1 + Math.sin(phi + Math.PI / 2) * final_yspeed_1;
+            // NOTE: Since there are no forces acting in the tangent direction of the collision, the new tangent speed is the same as the original tangent speed
+            let thisNewSpeedInTangentDirection = thisSpeedInTangentDirection;
+
+            // Convert the speeds in the normal and tangent directions back into x and y coordinates
+            this.velocityX = Math.cos(phi) * thisNewSpeedInNormalDirection + Math.cos(phi + Math.PI / 2) * thisNewSpeedInTangentDirection;
+            this.velocityY = Math.sin(phi) * thisNewSpeedInNormalDirection + Math.sin(phi + Math.PI / 2) * thisNewSpeedInTangentDirection;
     }
 
     calculateAcceleration() {
@@ -114,7 +121,8 @@ export class InteractableGameObject extends GameObject {
 
         // Only apply Lorentz factor if acceleration increases speed
         if (newVelocity.magnitude() > currentVelocity.magnitude()) {
-            // TODO: This maxSpeed is only defined at the higher level, should it be moved down to this class?
+            // NOTE: MAX_SPEED is not defined in this class as not every class extended from this calls calculateAcceleration. All classes that use this function should define a MAX_SPEED. This function should probably move into 
+            // a subclass of objects that actually use it but for now it will remain here
             let b = 1 - ((currentVelocity.magnitude() * currentVelocity.magnitude()) / (this.MAX_SPEED * this.MAX_SPEED));
 
             // If b is negative then just make it very small to prevent errors in the square root

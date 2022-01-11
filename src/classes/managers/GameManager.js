@@ -29,7 +29,6 @@ import { TurboThrustPowerup } from "../powerups/TurboThrustPowerup.js";
 export class GameManager {
     // Make some of these have constants naming convention
     static context;
-    static enemiesKilled = 0;
     static numMessageTicks;
     static message;
     static playerShip;
@@ -41,6 +40,11 @@ export class GameManager {
         // Need to bind animationLoop function to `this` or else we lose the `this` context when requestAnimationFrame calls the function
         this.animationLoop = this.animationLoop.bind(this);
     }
+
+    // Variables used to run the game loop
+    static SKIP_TICKS = 1000 / 60
+    static MAX_FRAME_SKIP = 10
+    static nextGameTick //NOTE: Should be set right before game starts so that it is as recent as possible
 
     static initializeGame(canvasContext) {
         this.context = canvasContext;
@@ -68,7 +72,6 @@ export class GameManager {
 
         // Add the player base. Offset the y location by the constant from the player ship here so that it matches the offset the ship uses when docking at the base. This is so that the ship is correctly centered on the base when the game is started.
         let playerBaseLocation = new Vector(this.context.canvas.width / 2, this.context.canvas.height / 2 + this.playerShip.BASE_DOCKING_OFFSET);
-        // TODO: Fix this? Currently player base location is based on canvas width, but enemy base is not. So in theory different window sizes mean the base is difference distances from each other....
         ObjectManager.addObject(new PlayerBase(playerBaseLocation.x, playerBaseLocation.y));
 
         // Add the enemy base
@@ -142,6 +145,9 @@ export class GameManager {
         // Play startup sound
         NewMediaManager.Audio.StartUp.play();
 
+        // Set the current time to be the next game tick right before the animation loop starts to make it as recent as possible
+        this.nextGameTick = (new Date()).getTime();
+
         // Start the game by kicking off an animation loop
         this.animationLoop();
     }
@@ -152,10 +158,6 @@ export class GameManager {
 
     static getRandomStartingVelocity(maxStartingSpeed) {
         return new Vector(RandomUtil.randomNumber(-maxStartingSpeed, maxStartingSpeed), RandomUtil.randomNumber(-maxStartingSpeed, maxStartingSpeed));
-    }
-
-    static increaseEnemiesKilledCount(amount) {
-        this.enemiesKilled += amount;
     }
 
     static checkBounds(object) {
@@ -212,7 +214,8 @@ export class GameManager {
         let objectsSnapshot = objects.slice(0);
 
         for (let i = 0; i < objectsSnapshot.length; i++) {
-            // TODO: Remove process input call here, should be part of PlayerShip update state...?
+            // So this is here because we want to process player input before moving objects or updating states since input can affect the movement of the ship and creation of bullets
+            // This probably could be handled better but will be staying this way for now.
             if (objectsSnapshot[i] instanceof PlayerShip) {
                 objectsSnapshot[i].processInput();
             }
@@ -264,7 +267,8 @@ export class GameManager {
         return numEnemies;
     }
 
-    // TODO: What is this used for? Could this be used to cause the static effect on the radar when that is added in?
+    // FUTURE TODO: It appears that this can be used to cause static throughout the image as well as making it darker. In the original game when you started the game it would fade in with a static effect,
+    // so chances are that is what this can be used for in the future. Also could probably be adapted to work for when systems are implemented and the static that can be on screen from it
     static staticEffect(percentWorking) {
         let pixels = this.context.getImageData(0, 0, this.context.canvas.width, this.context.canvas.height);
         let pixelData = pixels.data;
@@ -370,35 +374,30 @@ export class GameManager {
         console.log('Resumed game');
     }
 
-    // TODO: Figure out what the hell is going on here and make it a real function or leave a comment explaining why it is an IIFE
-    static gameLoop = (function () {
-        let loops = 0, skipTicks = 1000 / 60, maxFrameSkip = 10, nextGameTick = (new Date()).getTime();
+    static gameLoop(resetGameTick, advanceOneFrame = false) {
+        let loops = 0;
+        let shouldAdvanceOneFrame = advanceOneFrame;
 
-        return function (resetGameTick, advanceOneFrame = false) {
-            loops = 0;
-            let shouldAdvanceOneFrame = advanceOneFrame;
+        if (resetGameTick === true) {
+            GameManager.nextGameTick = (new Date()).getTime();
+        }
 
-            if (resetGameTick === true) {
-                nextGameTick = (new Date()).getTime();
+        while (((new Date()).getTime() > GameManager.nextGameTick && loops < GameManager.MAX_FRAME_SKIP) || (shouldAdvanceOneFrame)) {
+            this.updateObjects(ObjectManager.objects);
+            this.detectCollisions(ObjectManager.collidables);
+            GameManager.nextGameTick += GameManager.SKIP_TICKS;
+            loops += 1;
+
+            if (shouldAdvanceOneFrame) {
+                shouldAdvanceOneFrame = false;
             }
+        }
 
-            while (((new Date()).getTime() > nextGameTick && loops < maxFrameSkip) || (shouldAdvanceOneFrame)) {
-                this.updateObjects(ObjectManager.objects);
-                this.detectCollisions(ObjectManager.collidables);
-                nextGameTick += skipTicks;
-                loops += 1;
-
-                if (shouldAdvanceOneFrame) {
-                    shouldAdvanceOneFrame = false;
-                }
-            }
-
-            // Even if we process 10 frames, we only want to draw once (no point in drawing older frames)
-            if (loops) {
-                this.drawObjects(ObjectManager.objects, this.context);
-            }
-        };
-    } ());
+        // Even if we process 10 frames, we only want to draw once (no point in drawing older frames)
+        if (loops) {
+            this.drawObjects(ObjectManager.objects, this.context);
+        }
+    }
     
     static animationLoop() {
         // stop loop if paused

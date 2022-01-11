@@ -33,7 +33,7 @@ export class QuadBlaster extends KillableAiGameObject {
             Math.PI
         ];
 
-        // TODO: Is this necessary? How much does this improve performance? Is there another reason to do this? Check original commit
+        // FUTURE TODO: Might as well leave this in as it prevents unnecessary checks when enemy is not on the screen (although would be issue if screen is super small...). Will be worth looking into to see if we want to change this or if we also want to do this for other enemies that have projectiles aka the Puffer.
         this.inScene = false;
     }
 

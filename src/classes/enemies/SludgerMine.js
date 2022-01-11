@@ -25,7 +25,6 @@ export class SludgerMine extends KillableAiGameObject {
 
     updateState() {
         // Handle animation
-        // TODO: This logic is the same as in the PlayerBase, make some sort of common function?
         this.currentTicksInAnimationFrame += 1;
         if (this.currentTicksInAnimationFrame >= this.NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES) {
             this.currentTicksInAnimationFrame = 0;

@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/gameConfig.js";
 import { Vector } from "../../utility/Vector.js";
 import { InteractableGameObject } from "../InteractableGameObject.js";
 import { CollisionManager } from "../managers/CollisionManager.js";
@@ -13,6 +14,10 @@ import { PhotonSmall } from "../projectiles/PhotonSmall.js";
 import { PowerupStateManager } from "./PowerupStateManager.js";
 
 export class PlayerShip extends InteractableGameObject {
+    // Use static values here since the 'this' context is not the Player Ship object in the low fuel event listener, so just pull the values off of the player ship class statically.
+    static LOW_FUEL_SOUND_PLAY_COUNT_MAX = 3;
+    static lowFuelSoundPlayCount = 1;
+
     constructor(xLocation, yLocation, velocityX, velocityY) {
         // Collision radius of 12 is a good balance between wings sticking out and body taking up the whole circle
         // Start at angle of Math.PI / 2 so angle matches sprite. Normally since the canvas is y flipped from a normal graph you would want
@@ -31,6 +36,7 @@ export class PlayerShip extends InteractableGameObject {
         this.updateDocumentHealth();
         this.MAXIMUM_FUEL = 1500;
         this.fuel = this.MAXIMUM_FUEL;
+        this.FEUL_SOUND_THRESHOLD = this.MAXIMUM_FUEL / 5;
         this.updateDocumentFuel();
         this.MAXIMUM_SPARE_PARTS = 100;
         this.spareParts = this.MAXIMUM_SPARE_PARTS
@@ -44,16 +50,13 @@ export class PlayerShip extends InteractableGameObject {
         this.BASE_DOCKING_OFFSET = 3; // The value offset to use so that the player ship is more centered with the base when docked.
         this.atBase = false;
         this.isLowFuel = false;
-
-        this.lowFuelSoundPlayCount = 0;
-        this.LOW_FUEL_SOUND_PLAY_COUNT_MAX = 3;
-        // TODO: Fix the low fuel sound
+        // Setup the repeating of the low fuel sound
         NewMediaManager.Audio.LowFuel.addEventListener('ended', function() {
-            if (this.lowFuelSoundPlayCount < this.LOW_FUEL_SOUND_PLAY_COUNT_MAX) {
+            if (PlayerShip.lowFuelSoundPlayCount < PlayerShip.LOW_FUEL_SOUND_PLAY_COUNT_MAX) {
                 NewMediaManager.Audio.LowFuel.play();
-                this.lowFuelSoundPlayCount++;
+                PlayerShip.lowFuelSoundPlayCount++;
             } else {
-                this.lowFuelSoundPlayCount = 0;
+                PlayerShip.lowFuelSoundPlayCount = 1;
             }
         });
 
@@ -100,7 +103,7 @@ export class PlayerShip extends InteractableGameObject {
     processInput() {
         this.isAccelerating = false;
 
-        // TODO: Move updates frames into update state? Combine the two functions?? Why does it need to be separate? really this should just be part of the updateState for the player ship since no other objects have this function...
+        // So we need to do this here since some of the input processing relies on the number of frames since (like turning or shooting). Could probably be in its own function but will just be left here for now.
         for (let i in this.numFramesSince) {
             if (this.numFramesSince.hasOwnProperty(i)) {
                 this.numFramesSince[i] += 1;
@@ -276,7 +279,7 @@ export class PlayerShip extends InteractableGameObject {
                 this.updateHealth(-1*otherObject.damageCausedByCollision);
             }		
         } else if (otherObject.layer === Layer.PLAYER_BASE && !this.isTurboThrusting()) {
-            // TODO: Clean up this code at all?
+            // FUTURE TODO: Revisit ship being pulled into base, possible using gameplay footage to make it more accurate
             this.atBase = true;
             // Make it so that the ship will go towards the Player Base
             // These are the coordinates the Base should be at if the ship is centered on the base
@@ -391,8 +394,6 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     updateState() {
-        // TODO: Should all of this.numFramesSince values be updated here???
-
         if (this.atBase) {
             // remove the at base indicator so that if we have left the base it goes away
             // Used when determing is the Kill hotkey should work or if the player should be allowed to fire bullets (not allowed when at base)
@@ -411,12 +412,10 @@ export class PlayerShip extends InteractableGameObject {
         this.powerupStateManager.updatePowerupState();
 
         // Handle playing the initial low fuel sound
-        // TODO: Move this const elsewhere?
-        const fuelSoundThreshold = (this.MAXIMUM_FUEL / 5);
-        if (this.fuel < fuelSoundThreshold && !this.isLowFuel) {
+        if (this.fuel < this.FEUL_SOUND_THRESHOLD && !this.isLowFuel) {
             NewMediaManager.Audio.LowFuel.play();
             this.isLowFuel = true;
-        } else if (this.fuel > fuelSoundThreshold && this.isLowFuel) {
+        } else if (this.fuel > this.FEUL_SOUND_THRESHOLD && this.isLowFuel) {
             this.isLowFuel = false;
         }
 
