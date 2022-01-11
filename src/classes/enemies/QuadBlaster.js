@@ -1,7 +1,7 @@
-import { GameConfig } from "../../config/gameConfig.js";
+import { GameConfig } from "../../config/GameConfig.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { NewMediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
 import { QuasBlasterProjectile } from "../projectiles/QuadBlasterProjectile.js";
 

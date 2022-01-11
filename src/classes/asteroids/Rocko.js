@@ -1,4 +1,4 @@
-import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { NewMediaManager } from "../managers/MediaManager.js";
 import { Asteroid } from "./Asteroid.js";
 
 export class Rocko extends Asteroid {

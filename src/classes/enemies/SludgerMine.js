@@ -1,6 +1,6 @@
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { NewMediaManager } from "../managers/MediaManager.js";
 
 export class SludgerMine extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
@@ -34,11 +34,36 @@ export class SludgerMine extends KillableAiGameObject {
             }
         }
 
-        let angleToPlayer = this.angleTo(this.playerShipReference);
-        let angleDifference = angleToPlayer - this.angle;
-        this.angle += angleDifference;
+        let angleDiff = this.angleDiffTo(this.playerShipReference);
+        // only move the mine angle toward player as fast as the turn ability will allow.
+        if (angleDiff > 0) {
+            if (this.TURN_ABILITY > angleDiff) {
+                // only turn angle difference
+                this.angle += angleDiff;
+            } else { 
+                // turn maximum amount possible
+                this.angle += this.TURN_ABILITY;
+            }
+        } else {
+            // Will handle if angleDiff = 0 since this next statement will be guaranteed to be true so we will add angleDiff to the angle, which would be 0 (meaning the angle would not change)
+            if (-1 * this.TURN_ABILITY < angleDiff) {
+                // only turn angle difference
+                // Note that the angle different here is already negative
+                this.angle += angleDiff;
+            } else { 
+                // turn maximum amount possible
+                this.angle += -1 * this.TURN_ABILITY;
+            }
+        }
 
-        if (angleToPlayer <= this.angle + 0.1 || angleToPlayer > this.angle - 0.1) {
+        // Keep angle between -Math.PI and Math.PI
+        if (this.angle > Math.PI) {
+            this.angle -= 2 * Math.PI;
+        } else if (this.angle < -Math.PI) {
+            this.angle += 2 * Math.PI;
+        }
+
+        if (angleDiff <= this.angle + 0.1 || angleDiff > this.angle - 0.1) {
             this.calculateAcceleration();
         }
 

@@ -1,12 +1,11 @@
 import { InteractableGameObject } from "./InteractableGameObject.js";
 import { Layer } from "./managers/Layer.js";
-import { NewMediaManager } from "./managers/NewMediaManager.js";
+import { NewMediaManager } from "./managers/MediaManager.js";
 
 export class PlayerBase extends InteractableGameObject {
     constructor(xLocation, yLocation) {
         /**
          * The width, height, angle (which doesn't really apply), sprite, velocityX, velocityY, collisionRadius, and mass are always the same for a PlayerBase.
-         * While the xLocation and yLocation values are also always the same when a new PlayerBase is created, leaving that as a value to pass in for now.
          */
         super(xLocation, yLocation, Layer.PLAYER_BASE, 42, 32, 0, NewMediaManager.Sprites.Base, 0, 0, 30, 0);
 

@@ -1,5 +1,5 @@
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { NewMediaManager } from "../managers/MediaManager.js";
 import { EnemyProjectile } from "./EnemyProjectile.js";
 
 export class QuasBlasterProjectile extends EnemyProjectile {

@@ -1,4 +1,4 @@
-import { GameConfig } from "../config/gameConfig.js";
+import { GameConfig } from "../config/GameConfig.js";
 
 export class Logger {
     getClassName() {

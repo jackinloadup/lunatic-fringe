@@ -1,5 +1,5 @@
-﻿import { GameConfig } from './config/gameConfig.js';
-import { NewMediaManager } from './classes/managers/NewMediaManager.js';
+﻿import { GameConfig } from './config/GameConfig.js';
+import { NewMediaManager } from './classes/managers/MediaManager.js';
 import { GameManager } from './classes/managers/GameManager.js';
 import { KeyStateManager } from './classes/managers/KeyManager.js';
 
@@ -27,7 +27,7 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
 
     // var animationLoop, objectManager, mediaManager, Key, DEBUG = true, numEnemiesKilled = 0, score = 0;
     // var game = this;
-	let version = "1.26";
+	let version = "2.0";
 	// var isCapsPaused = false;
 	// log("Game Version: " + version);
 

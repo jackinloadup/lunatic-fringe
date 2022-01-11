@@ -1,4 +1,4 @@
-import { GameConfig } from "../config/gameConfig.js";
+import { GameConfig } from "../config/GameConfig.js";
 import { Vector } from "../utility/Vector.js";
 import { GameObject } from "./GameObject.js";
 import { Layer } from "./managers/Layer.js";

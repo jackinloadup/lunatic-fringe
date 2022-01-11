@@ -8,7 +8,7 @@ export class DurationPowerup extends Powerup {
         this.documentElementId = documentElementId;
     }
 
-    deactivate(playerShip) {
+    deactivate() {
         this.error("The deactivate function should be overwritten by concrete subclasses!");
     }
 }

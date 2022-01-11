@@ -1,8 +1,7 @@
 import { Vector } from "../utility/Vector.js";
 import { AiGameObject } from "./AiGameObject.js";
-import { GameServiceManager } from "./managers/GameServiceManager.js";
 import { Layer } from "./managers/Layer.js";
-import { NewMediaManager } from "./managers/NewMediaManager.js";
+import { NewMediaManager } from "./managers/MediaManager.js";
 import { ObjectManager } from "./managers/ObjectManager.js";
 
 export class KillableAiGameObject extends AiGameObject {

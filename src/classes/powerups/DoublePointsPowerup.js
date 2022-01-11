@@ -1,5 +1,5 @@
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { NewMediaManager } from "../managers/MediaManager.js";
 import { DurationPowerup } from "./DurationPowerup.js";
 
 export class DoublePointsPowerup extends DurationPowerup {

@@ -1,4 +1,4 @@
-import { GameConfig } from "../../config/gameConfig.js";
+import { GameConfig } from "../../config/GameConfig.js";
 import { QuadBlaster } from "../enemies/QuadBlaster.js";
 import { EnemyBase } from "../EnemyBase.js";
 import { PlayerBase } from "../PlayerBase.js";
@@ -7,7 +7,7 @@ import { Star } from "../Star.js";
 import { CollisionManager } from "./CollisionManager.js";
 import { GameServiceManager } from "./GameServiceManager.js";
 import { Layer } from "./Layer.js";
-import { NewMediaManager } from "./NewMediaManager.js";
+import { NewMediaManager } from "./MediaManager.js";
 import { ObjectManager } from "./ObjectManager.js";
 import { GameBound, GameBoundSize } from "./GameBound.js";
 import { Vector } from "../../utility/Vector.js";

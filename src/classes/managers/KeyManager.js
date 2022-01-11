@@ -1,4 +1,4 @@
-import { GameConfig } from "../../config/gameConfig.js";
+import { GameConfig } from "../../config/GameConfig.js";
 import { GameServiceManager } from "./GameServiceManager.js";
 
 export class KeyStateManager {

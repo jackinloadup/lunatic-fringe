@@ -1,5 +1,5 @@
 import { InteractableGameObject } from "../InteractableGameObject.js";
-import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { NewMediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
 
 export class Powerup extends InteractableGameObject {
@@ -23,7 +23,7 @@ export class Powerup extends InteractableGameObject {
         // Do nothing as powerups have no state to update
     }
 
-    activate(playerShip) {
+    activate() {
         this.error("The activate function should be overwritten by concrete subclasses!");
     }
 }

@@ -1,4 +1,3 @@
-import { GameConfig } from "../../config/gameConfig.js";
 import { Vector } from "../../utility/Vector.js";
 import { InteractableGameObject } from "../InteractableGameObject.js";
 import { CollisionManager } from "../managers/CollisionManager.js";
@@ -6,7 +5,7 @@ import { GameBound } from "../managers/GameBound.js";
 import { GameServiceManager } from "../managers/GameServiceManager.js";
 import { KeyStateManager } from "../managers/KeyManager.js";
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/NewMediaManager.js";
+import { NewMediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
 import { PhotonLarge } from "../projectiles/PhotonLarge.js";
 import { PhotonMedium } from "../projectiles/PhotonMedium.js";

@@ -31,8 +31,8 @@ export class Star extends GameObject {
             this.hasColor = !this.hasColor; // toggle
 
             this.numberOfTicksForColor = this.getColorDuration();
-          }
+        }
 
-          this.numberOfTicksForColor--;
+        this.numberOfTicksForColor--;
     }
 }

@@ -1,4 +1,3 @@
-import { Layer } from "../managers/Layer.js";
 import { DurationPowerup } from "./DurationPowerup.js";
 
 export class StoredDurationPowerup extends DurationPowerup {
