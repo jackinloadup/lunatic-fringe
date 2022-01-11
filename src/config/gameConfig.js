@@ -1,3 +1,3 @@
 export let GameConfig = {
-    debug: true
+    debug: false
 };
