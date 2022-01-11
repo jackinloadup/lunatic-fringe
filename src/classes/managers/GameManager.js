@@ -79,7 +79,6 @@ export class GameManager {
         // Since the GameBoundSize is half of the width and height of the game bounds, subtract that from both coordinates so the enemy base is halfway across the world in both directions (and subtract it since player position is guaranteed to be positive
         // so subtracting the GameBoundSize should make the coordinates of the enemy base still be within the GameBounds values).
         let enemyBaseLocation = playerBaseLocation.subtract(new Vector(GameBoundSize, GameBoundSize));
-        console.log(enemyBaseLocation);
         ObjectManager.addObject(new EnemyBase(enemyBaseLocation.x, enemyBaseLocation.y, this.playerShip));
 
         // Add all enemies
