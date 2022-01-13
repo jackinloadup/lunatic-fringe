@@ -6,7 +6,8 @@ import { SludgerMine } from "./SludgerMine.js";
 
 export class Sludger extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
-        super(xLocation, yLocation, Layer.SLUDGER, 34, 31, 0, NewMediaManager.Sprites.Sludger, velocityX, velocityY, 16, 8, playerShip, 10, 10, 25);
+        // According to gameplay footage killing a Sludger was worth 50 points
+        super(xLocation, yLocation, Layer.SLUDGER, 34, 31, 0, NewMediaManager.Sprites.Sludger, velocityX, velocityY, 16, 8, playerShip, 10, 10, 50);
 
         this.currentTicksInAnimationFrame = 0;
         this.NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES = 7;

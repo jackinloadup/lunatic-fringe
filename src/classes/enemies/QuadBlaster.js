@@ -7,7 +7,8 @@ import { QuasBlasterProjectile } from "../projectiles/QuadBlasterProjectile.js";
 
 export class QuadBlaster extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
-        super(xLocation, yLocation, Layer.QUAD_BLASTER, 40, 50, 0, NewMediaManager.Sprites.QuadBlaster, velocityX, velocityY, 16, 8, playerShip, 15, 40, 30);
+        // According to gameplay footage killing a QuadBlaster was worth 50 points
+        super(xLocation, yLocation, Layer.QUAD_BLASTER, 40, 50, 0, NewMediaManager.Sprites.QuadBlaster, velocityX, velocityY, 16, 8, playerShip, 15, 40, 50);
 
         // For some reason the QuadBlaster sprite has an offset of 10 pixels on the spritesheet, so account for that with a constant here
         this.BASE_SPRITE_X_OFFEST = 10;
