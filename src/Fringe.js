@@ -25,7 +25,7 @@ import { KeyStateManager } from './classes/managers/KeyManager.js';
 export function LunaticFringe(canvas, hidden, visibilityChange) {
     "use strict";
 
-	let version = "2.0";
+	let version = "2.1";
 	console.log("Game Version: " + version);
 
     if (typeof canvas !== 'object') {

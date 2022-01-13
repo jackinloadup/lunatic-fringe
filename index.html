@@ -1,7 +1,8 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
-    <!--
+	<!--
         Lunatic Fringe - http://code.google.com/p/lunatic-fringe/
         Copyright (C) 2011-2012 James Carnley
 
@@ -18,46 +19,57 @@
         You should have received a copy of the GNU Affero General Public License
         along with this program.  If not, see <http://www.gnu.org/licenses/>.
     -->
-    <title>Lunatic Fringe</title>
-    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
-    <link rel="shortcut icon" href="favicon.ico" />
-    <link rel="stylesheet" type="text/css" href="main.css">
-    <script src="src/initializeGame.js" type="module"></script>
+	<title>Lunatic Fringe</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="main.css">
+	<script src="src/initializeGame.js" type="module"></script>
 </head>
+
 <body>
-    <canvas id="fringeCanvas" style="position: absolute; top: 0px; left: 0px;"></canvas>
-    <div id="hud">
-		<div id="healthDiv">
-			     Health: <progress id="health" value="100" max="100"></progress>
+	<div id="game-container">
+		<div id="scanner">
+			<canvas id="scannerCanvas" style="position: absolute; top: 0px; left: 0px;"></canvas>
 		</div>
-		<div id="fuelDiv">
-                   Fuel: <progress id="fuel" value="1500" max="1500"></progress>
+		<div id="hud">
+			<div id="radar">
+
+			</div>
+			<div id="info-panel">
+				<div id="healthDiv">
+					Health: <progress id="health" value="100" max="100"></progress>
+				</div>
+				<div id="fuelDiv">
+					Fuel: <progress id="fuel" value="1500" max="1500"></progress>
+				</div>
+				<div id="sparePartsDiv">
+					Spare Parts: <progress id="spareParts" value="100" max="100"></progress>
+				</div>
+				<div>
+					<span id="invulnerabilityAvailable" style="visibility: hidden;">
+						<img src="images/Invulnerability.png" alt="Invulnerability Available" height="19" width="15">
+					</span>
+					<span id="turboThrustAvailable" style="visibility: hidden;">
+						<img src="images/TurboThrust.png" alt="Turbo Thrust Available" height="16" width="15">
+					</span>
+				</div>
+				<div>
+					<span>Active Powerups:</span>
+				</div>
+				<div>
+					<span id="doublePointsActive" style="visibility: hidden;">
+						<img src="images/DoublePoints.png" alt="Double Points Active" height="16" width="15">
+					</span>
+					<span id="spreadShotActive" style="visibility: hidden;">
+						<img src="images/SpreadShot.png" alt="Spread Shot Active" height="16" width="19">
+					</span>
+					<span id="photonLargeActive" style="visibility: hidden;">
+						<img src="images/PhotonLarge.png" alt="Photon Large Active" height="16" width="15">
+					</span>
+				</div>
+			</div>
 		</div>
-        <div id="sparePartsDiv">
-			Spare Parts: <progress id="spareParts" value="100" max="100"></progress>
-		</div>
-		<div>
-			<span id="invulnerabilityAvailable" style="visibility: hidden;">
-				<img src="images/Invulnerability.png" alt="Invulnerability Available" height="19" width="15">
-			</span>
-			<span id="turboThrustAvailable" style="visibility: hidden;">
-				<img src="images/TurboThrust.png" alt="Turbo Thrust Available" height="16" width="15">
-			</span>
-		</div>
-		<div>
-			<span>Active Powerups:</span>
-		</div>
-		<div>
-			<span id="doublePointsActive" style="visibility: hidden;">
-				<img src="images/DoublePoints.png" alt="Double Points Active" height="16" width="15">
-			</span>
-			<span id="spreadShotActive" style="visibility: hidden;">
-				<img src="images/SpreadShot.png" alt="Spread Shot Active" height="16" width="19">
-			</span>
-			<span id="photonLargeActive" style="visibility: hidden;">
-				<img src="images/PhotonLarge.png" alt="Photon Large Active" height="16" width="15">
-			</span>
-		</div>
-    </div>
+	</div>
 </body>
+
 </html>

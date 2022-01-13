@@ -1,9 +1,10 @@
+import { DocumentManager } from './classes/managers/DocumentManager.js';
 import {LunaticFringe} from './Fringe.js';
 
 window.onload = function Initialize() {
     console.log("Initializing game");
-    document.getElementById('fringeCanvas').width = window.innerWidth;
-    document.getElementById('fringeCanvas').height = window.innerHeight;
+    let scannerDimensions = DocumentManager.getElementDimensions('scanner');
+    DocumentManager.setElementDimensions('scannerCanvas', scannerDimensions);
 
     let hidden, visibilityChange;
     if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
@@ -20,5 +21,5 @@ window.onload = function Initialize() {
       visibilityChange = "webkitvisibilitychange";
     }
 
-    new LunaticFringe('fringeCanvas', hidden, visibilityChange);
+    new LunaticFringe('scannerCanvas', hidden, visibilityChange);
 }

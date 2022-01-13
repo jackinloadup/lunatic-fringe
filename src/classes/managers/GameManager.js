@@ -25,6 +25,7 @@ import { ShipRepairsPowerup } from "../powerups/ShipRepairsPowerup.js";
 import { SparePartsPowerup } from "../powerups/SparePartsPowerup.js";
 import { InvulnerabilityPowerup } from "../powerups/InvulnerabilityPowerup.js";
 import { TurboThrustPowerup } from "../powerups/TurboThrustPowerup.js";
+import { DocumentManager } from "./DocumentManager.js";
 
 export class GameManager {
     // Make some of these have constants naming convention
@@ -184,8 +185,9 @@ export class GameManager {
         let oldCenterX = this.context.canvas.width / 2;
         let oldCenterY = this.context.canvas.height / 2;
 
-        this.context.canvas.width = window.innerWidth;
-        this.context.canvas.height = window.innerHeight;
+        let scannerDimensions = DocumentManager.getElementDimensions('scanner');
+        this.context.canvas.width = scannerDimensions.x;
+        this.context.canvas.height = scannerDimensions.y;
 
         let diffX = this.context.canvas.width / 2 - oldCenterX;
         let diffY = this.context.canvas.height / 2 - oldCenterY;

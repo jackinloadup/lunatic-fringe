@@ -1,20 +1,43 @@
-html, body {
-    color: White;
-    background-color: Black;
-    margin: 0px;
-    padding: 0px;
+body {
+    margin: 0;
+    padding: 0;
+
+    color: white;
+}
+
+body * {
+    box-sizing: border-box;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: row;
+
+    background-color: black;
+
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+}
+
+#scanner {
+    flex: 1;
 }
 
 #hud {
-    position: absolute;
-    top: 0;
-    right: 0;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
 }
 
-#hud > * {
-    margin: 1em;
+#radar {
+    height: 300px;
+    border: 1px solid white;
 }
 
-progress {
-  background: green;
+#info-panel {
+    flex: 1;
+    border: 1px solid white;
 }
