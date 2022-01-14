@@ -7,6 +7,6 @@ export class DocumentManager {
     }
 
     static getElementDimensions(elementName) {
-        return new Vector(document.getElementById(elementName).offsetWidth, document.getElementById(elementName).offsetHeight)
+        return new Vector(document.getElementById(elementName).clientWidth, document.getElementById(elementName).clientHeight)
     }
 }
