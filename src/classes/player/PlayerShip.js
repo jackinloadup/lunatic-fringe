@@ -1,6 +1,7 @@
 import { Vector } from "../../utility/Vector.js";
 import { InteractableGameObject } from "../InteractableGameObject.js";
 import { CollisionManager } from "../managers/CollisionManager.js";
+import { DocumentManager } from "../managers/DocumentManager.js";
 import { GameBound } from "../managers/GameBound.js";
 import { GameServiceManager } from "../managers/GameServiceManager.js";
 import { KeyStateManager } from "../managers/KeyManager.js";
@@ -21,7 +22,7 @@ export class PlayerShip extends InteractableGameObject {
         // Collision radius of 12 is a good balance between wings sticking out and body taking up the whole circle
         // Start at angle of Math.PI / 2 so angle matches sprite. Normally since the canvas is y flipped from a normal graph you would want
         //      -Math.PI / 2 to be pointing straight up, but the ships forces are opposites all other objects
-        super(xLocation, yLocation, Layer.PLAYER ,42, 37, Math.PI / 2, NewMediaManager.Sprites.PlayerShip, velocityX, velocityY, 12, 10);
+        super(xLocation, yLocation, Layer.PLAYER, 42, 37, Math.PI / 2, NewMediaManager.Sprites.PlayerShip, velocityX, velocityY, 12, 10);
         // Offset the drawing of the sprite by 2 pixels in the y direction so it fits in the collision circle better
         this.imageYOffset = 2;
 
@@ -70,6 +71,7 @@ export class PlayerShip extends InteractableGameObject {
 		}
 
         this.score = 0;
+        this.updateDocumentScore();
         this.powerupStateManager = new PowerupStateManager(this);
         // Possible bullet states
 		this.BULLETS = {
@@ -182,6 +184,12 @@ export class PlayerShip extends InteractableGameObject {
 
     addToScore(amount) {
         this.score += amount * this.scoreMultiplier;
+
+        this.updateDocumentScore();
+    }
+
+    updateDocumentScore() {
+        DocumentManager.updateScore(this.score);
     }
 
     isInvulnerable() {
@@ -228,8 +236,8 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     updateDocumentFuel() {
-        // Update the document
-        document.getElementById('fuel').setAttribute('value', this.fuel);
+        // Update the document, sending percentage of fuel remaining
+        DocumentManager.updateFuelBar(this.fuel / this.MAXIMUM_FUEL * 100);
     }
 
     updateSpareParts(sparePartsChange) {
@@ -245,8 +253,8 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     updateDocumentSpareParts() {
-        // Update the document
-        document.getElementById('spareParts').setAttribute('value', this.spareParts);
+        // Update the document, sending percentage of spare parts remaining
+        DocumentManager.updateSparePartsBar(this.spareParts / this.MAXIMUM_SPARE_PARTS * 100);
     }
 
     playCollisionSound(otherObject) {
