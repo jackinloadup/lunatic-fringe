@@ -5,7 +5,7 @@ import { EnemyProjectile } from "./EnemyProjectile.js";
 
 export class PufferProjectile extends EnemyProjectile {
     constructor(xLocation, yLocation, velocityX, velocityY) {
-        super(xLocation, yLocation, Layer.PUFFER_PROJECTILE, 17, 15, 0, NewMediaManager.Sprites.PufferShot, velocityX, velocityY, 10, 0, 50, 20);
+        super(xLocation, yLocation, Layer.PUFFER_PROJECTILE, 17, 15, 0, NewMediaManager.Sprites.PufferShot, velocityX, velocityY, 10, 0, 50, 80);
     }
 
     handleCollision(otherObject) {

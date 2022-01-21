@@ -3,6 +3,6 @@ import { PlayerProjectile } from "./PlayerProjectile.js";
 
 export class PhotonMedium extends PlayerProjectile {
     constructor(xLocation, yLocation, velocityX, velocityY) {
-        super(xLocation, yLocation, 10, 10, 0, NewMediaManager.Sprites.PhotonMedium, velocityX, velocityY, 5, 0, 50, 15);
+        super(xLocation, yLocation, 10, 10, 0, NewMediaManager.Sprites.PhotonMedium, velocityX, velocityY, 5, 0, 50, 60);
     }
 }

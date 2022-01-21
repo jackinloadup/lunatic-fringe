@@ -11,6 +11,7 @@ import { ObjectManager } from "../managers/ObjectManager.js";
 import { PhotonLarge } from "../projectiles/PhotonLarge.js";
 import { PhotonMedium } from "../projectiles/PhotonMedium.js";
 import { PhotonSmall } from "../projectiles/PhotonSmall.js";
+import { PlayerSystemsManager } from "./PlayerSystemsManager.js";
 import { PowerupStateManager } from "./PowerupStateManager.js";
 
 export class PlayerShip extends InteractableGameObject {
@@ -28,12 +29,8 @@ export class PlayerShip extends InteractableGameObject {
 
         this.MAX_SPEED = 12;
         this.ACCELERATION = 0.1;
-        this.damageCausedByCollision = 10;
+        this.damageCausedByCollision = 40;
 
-        this.currentLives = 3;
-        this.MAXIMUM_HEALTH = 100;
-        this.health = this.MAXIMUM_HEALTH;
-        this.updateDocumentHealth();
         this.MAXIMUM_FUEL = 1500;
         this.fuel = this.MAXIMUM_FUEL;
         this.FEUL_SOUND_THRESHOLD = this.MAXIMUM_FUEL / 5;
@@ -41,6 +38,8 @@ export class PlayerShip extends InteractableGameObject {
         this.MAXIMUM_SPARE_PARTS = 100;
         this.spareParts = this.MAXIMUM_SPARE_PARTS
         this.updateDocumentSpareParts();
+
+        this.playerSystemsManager = new PlayerSystemsManager();
 
         this.NUMBER_OF_ANIMATION_FRAMES = 32;
         this.ROTATION_AMOUNT = (2 * Math.PI) / this.NUMBER_OF_ANIMATION_FRAMES;
@@ -60,6 +59,15 @@ export class PlayerShip extends InteractableGameObject {
             }
         });
 
+        this.FRAMES_BETWEEN_ENGINE_CHECK = 5; // 60 frames per second
+        this.enginesFunctioning = true;
+        this.FRAMES_BETWEEN_TURN_JETS_CHECK = 60; // 60 frames per second
+        this.turnJetsFunctioning = true;
+        this.TURN_JET_MALFUNCTIONING_DIRECTIONS = {
+            LEFT: 0,
+            RIGHT: 1
+        }
+        this.turnJetsMalfunctioningDirection = this.TURN_JET_MALFUNCTIONING_DIRECTIONS.LEFT;
         this.numFramesSince = {
             left: 0,
             right: 0,
@@ -67,7 +75,9 @@ export class PlayerShip extends InteractableGameObject {
 			repair: 0,
 			death: 0,
             healFromSparePart: 0,
-            takenDamage: 0
+            takenDamage: 0,
+            engineCheck: 0,
+            turnJetsCheck: 0
 		}
 
         this.score = 0;
@@ -94,6 +104,7 @@ export class PlayerShip extends InteractableGameObject {
 
         // Player starts with 3 lives
         this.lives = 3;
+        this.updateLivesDocument();
     }
 
     // Need separate function for other objects here since the angles are opposite other things.
@@ -113,7 +124,13 @@ export class PlayerShip extends InteractableGameObject {
         
         this.powerupStateManager.updateDurations();
 
-        if (KeyStateManager.isDown(KeyStateManager.UP) && this.fuel > 0 && !this.isTurboThrusting()) {
+        if (this.numFramesSince.engineCheck > this.FRAMES_BETWEEN_ENGINE_CHECK) {
+            // Perform an engine functioning check
+            let failedToUseEngines = Math.random() < .95 * (100 - this.playerSystemsManager.enginesCondition.operatingPercentage) / 100;
+            this.enginesFunctioning = !failedToUseEngines;
+            this.numFramesSince.engineCheck = 0;
+        }
+        if (KeyStateManager.isDown(KeyStateManager.UP) && this.fuel > 0 && !this.isTurboThrusting() && this.enginesFunctioning) {
             this.isAccelerating = true;
             this.updateFuel(-1);
             this.calculateAcceleration();
@@ -122,7 +139,19 @@ export class PlayerShip extends InteractableGameObject {
             this.spriteYOffset = 0;
         }
 
-        if (KeyStateManager.isDown(KeyStateManager.LEFT) && this.numFramesSince.left >= 3 && !this.isTurboThrusting()) {
+        if (this.numFramesSince.turnJetsCheck > this.FRAMES_BETWEEN_TURN_JETS_CHECK) {
+            // Perform a turn jets functioning check
+            let failedToUseTurnJets = Math.random() < .9 * (100 - this.playerSystemsManager.turnJetsCondition.operatingPercentage) / 100;
+            if (failedToUseTurnJets && Math.random() < .5) {
+                // If turns jets are malfunctioning, 50% chance to randomly select the direction in which they are malfunctioning (could be same direction)
+                // Results in an average of about a 25% chance of flipping direction each time turn jets fail
+                this.turnJetsMalfunctioningDirection = Math.floor(Math.random() * 2);
+            }
+            this.turnJetsFunctioning = !failedToUseTurnJets;
+            this.numFramesSince.turnJetsCheck = 0;
+        }
+        let shouldTurnLeft = (this.turnJetsFunctioning && KeyStateManager.isDown(KeyStateManager.LEFT)) || (this.turnJetsMalfunctioningDirection === this.TURN_JET_MALFUNCTIONING_DIRECTIONS.LEFT && !this.turnJetsFunctioning)
+        if (shouldTurnLeft && this.numFramesSince.left >= 3 && !this.isTurboThrusting() ) {
             this.numFramesSince.left = 0;
             this.spriteXOffset -= this.width;
             this.angle -= this.ROTATION_AMOUNT;
@@ -131,7 +160,8 @@ export class PlayerShip extends InteractableGameObject {
             }
         }
 
-        if (KeyStateManager.isDown(KeyStateManager.RIGHT) && this.numFramesSince.right >= 3 && !this.isTurboThrusting()) {
+        let shouldTurnRight = (this.turnJetsFunctioning && KeyStateManager.isDown(KeyStateManager.RIGHT)) || (this.turnJetsMalfunctioningDirection === this.TURN_JET_MALFUNCTIONING_DIRECTIONS.RIGHT && !this.turnJetsFunctioning)
+        if (shouldTurnRight && this.numFramesSince.right >= 3 && !this.isTurboThrusting()) {
             this.numFramesSince.right = 0;
             this.spriteXOffset += this.width;
             this.angle += this.ROTATION_AMOUNT;
@@ -142,28 +172,34 @@ export class PlayerShip extends InteractableGameObject {
 
         if (KeyStateManager.isDown(KeyStateManager.SPACE) && !this.atBase && !this.isTurboThrusting()) {
             if (this.numFramesSince.shooting >= this.bulletShootingSpeed) { // 13 matches up best with the original game's rate of fire at 60fps
-                let photon;
-                let photonX = this.x + (-Math.cos(this.angle) * this.collisionRadius);
-                let photonY = this.y + (-Math.sin(this.angle) * this.collisionRadius);
-                let photonVelocity = this.getNewProjectileVelocity(this.PROJECTILE_SPEED);
-                if (this.bulletState == this.BULLETS.SMALL) {
-                    photon = new PhotonSmall(photonX, photonY, photonVelocity.x, photonVelocity.y);
-                    NewMediaManager.Audio.PhotonSmall.play();
-                } else if (this.bulletState == this.BULLETS.LARGE) {
-                    photon = new PhotonLarge(photonX, photonY, photonVelocity.x, photonVelocity.y);
-                    NewMediaManager.Audio.PhotonBig.play();
-                } else if (this.bulletState == this.BULLETS.SPREADSHOT) {
-                    let photonVelocity2 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, (Math.PI / 16));
-                    let photonVelocity3 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, -(Math.PI / 16));
-                    photon = new PhotonMedium(photonX, photonY, photonVelocity.x, photonVelocity.y);
-                    let photon2 = new PhotonMedium(photonX, photonY, photonVelocity2.x, photonVelocity2.y);
-                    let photon3 = new PhotonMedium(photonX, photonY, photonVelocity3.x, photonVelocity3.y);
-                    // FUTURE TODO: investigate why photon 2 falls behind the other photons when shooting sometimes. This appears to also be a problem with the old code.
-                    ObjectManager.addObject(photon2, true);
-                    ObjectManager.addObject(photon3, true);
-                    NewMediaManager.Audio.PhotonSpread.play();
+                // Check to see if ship is allowed to fire based on percentage the guns are operating at. Note that this is inside the frame checking logic since
+                // even you are not allowed to fire a bullet due to inoperable guns it should still reset the numFramesSince count
+                let failedToFireBullet = Math.random() < .9 * (100 - this.playerSystemsManager.gunsCondition.operatingPercentage) / 100;
+                if (!failedToFireBullet) {
+                    let photon;
+                    let photonX = this.x + (-Math.cos(this.angle) * this.collisionRadius);
+                    let photonY = this.y + (-Math.sin(this.angle) * this.collisionRadius);
+                    let photonVelocity = this.getNewProjectileVelocity(this.PROJECTILE_SPEED);
+                    if (this.bulletState == this.BULLETS.SMALL) {
+                        photon = new PhotonSmall(photonX, photonY, photonVelocity.x, photonVelocity.y);
+                        NewMediaManager.Audio.PhotonSmall.play();
+                    } else if (this.bulletState == this.BULLETS.LARGE) {
+                        photon = new PhotonLarge(photonX, photonY, photonVelocity.x, photonVelocity.y);
+                        NewMediaManager.Audio.PhotonBig.play();
+                    } else if (this.bulletState == this.BULLETS.SPREADSHOT) {
+                        let photonVelocity2 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, (Math.PI / 16));
+                        let photonVelocity3 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, -(Math.PI / 16));
+                        photon = new PhotonMedium(photonX, photonY, photonVelocity.x, photonVelocity.y);
+                        let photon2 = new PhotonMedium(photonX, photonY, photonVelocity2.x, photonVelocity2.y);
+                        let photon3 = new PhotonMedium(photonX, photonY, photonVelocity3.x, photonVelocity3.y);
+                        // FUTURE TODO: investigate why photon 2 falls behind the other photons when shooting sometimes. This appears to also be a problem with the old code.
+                        ObjectManager.addObject(photon2, true);
+                        ObjectManager.addObject(photon3, true);
+                        NewMediaManager.Audio.PhotonSpread.play();
+                    }
+                    ObjectManager.addObject(photon, true);
                 }
-                ObjectManager.addObject(photon, true);
+            
                 this.numFramesSince.shooting = 0;
             }
         }
@@ -200,27 +236,27 @@ export class PlayerShip extends InteractableGameObject {
         return this.turboThrustActive;
     }
 
-    updateHealth(healthChange) {
-        if (healthChange < 0) {
-            this.numFramesSince.takenDamage = 0;
-        }
+    updateLives(livesChange) {
+        this.lives += livesChange;
 
-        this.log("ship Health: " + this.health + ", changing by: " + healthChange);
-        this.health += healthChange;
-
-        if (this.health > this.MAXIMUM_HEALTH) {
-            this.health = this.MAXIMUM_HEALTH;
-        } else if (this.health <= 0) {
-            this.health = 0;
-            this.die();
-        }
-
-        this.updateDocumentHealth();
+        this.updateLivesDocument();
     }
 
-    updateDocumentHealth() {
-        // Update the document
-        document.getElementById('health').setAttribute('value', this.health);
+    updateLivesDocument() {
+        DocumentManager.updateLives(this.lives);
+    }
+
+    repairShip(repairAmount) {
+        this.playerSystemsManager.repairSystems(repairAmount);
+    }
+
+    damageShip(damageAmount) {
+        this.numFramesSince.takenDamage = 0;
+        this.playerSystemsManager.damageSystems(damageAmount)
+
+        if (this.playerSystemsManager.isShipDestroyed()) {
+            this.die();
+        }
     }
 
     updateFuel(fuelChange) {
@@ -273,7 +309,7 @@ export class PlayerShip extends InteractableGameObject {
             this.log("Player was hit by projectile: " + otherObject.getClassName());
             this.playCollisionSound(otherObject);
             if (!this.isInvulnerable()) {
-                this.updateHealth(-1*otherObject.damage);
+                this.damageShip(otherObject.damage);
             }
         } else if (otherObject.layer === Layer.ASTEROID || CollisionManager.isEnemyLayer(otherObject.layer)) {
             this.log("Player hit: " + otherObject.getClassName());
@@ -283,7 +319,7 @@ export class PlayerShip extends InteractableGameObject {
             }	
             this.playCollisionSound(otherObject);
             if (!this.isInvulnerable()) {
-                this.updateHealth(-1*otherObject.damageCausedByCollision);
+                this.damageShip(otherObject.damageCausedByCollision);
             }		
         } else if (otherObject.layer === Layer.PLAYER_BASE && !this.isTurboThrusting()) {
             // FUTURE TODO: Revisit ship being pulled into base, possible using gameplay footage to make it more accurate
@@ -298,15 +334,18 @@ export class PlayerShip extends InteractableGameObject {
             if (this.velocityX == 0 && this.velocityY == 0 && Math.abs(baseX - this.x) < threshold && Math.abs(baseY - this.y) < threshold) {
                 //The player ship is stopped at the base
                 
-                if (this.numFramesSince.repair >= 60 && (this.health < this.MAXIMUM_HEALTH || this.fuel < this.MAXIMUM_FUEL)) {
+                if (this.numFramesSince.repair >= 60 && (!this.playerSystemsManager.isShipAtFullOpeartingCapacity() || this.fuel < this.MAXIMUM_FUEL)) {
                     //Repair ship
                     this.numFramesSince.repair = 0;
                     NewMediaManager.Audio.BaseRepair.play();
-                    if (this.health < this.MAXIMUM_HEALTH) {
-                        this.updateHealth(3);
+                    if (!this.playerSystemsManager.isShipAtFullOpeartingCapacity()) {
+                        this.repairShip(12);
                     }
                     if (this.fuel < this.MAXIMUM_FUEL) {
                         this.updateFuel(25);
+                    }
+                    if (this.spareParts < this.MAXIMUM_SPARE_PARTS) {
+                        this.updateSpareParts(1);
                     }
                 }
             } else if (!this.isAccelerating && (Math.abs(baseX - this.x) > threshold || Math.abs(baseY - this.y) > threshold)) {
@@ -368,7 +407,7 @@ export class PlayerShip extends InteractableGameObject {
         this.angle = Math.PI / 2;
         this.spriteXOffset = 0;
 
-        this.lives--;
+        this.updateLives(-1);
 
         if (this.lives <= 0) {
             GameServiceManager.endGame();
@@ -380,9 +419,9 @@ export class PlayerShip extends InteractableGameObject {
             }
             GameServiceManager.movePlayerShipTo(Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT, Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP);
 
-            // reset health and fuel and spare parts to full
-            this.log("Setting ship back to max health/fuel/spare parts");
-            this.updateHealth(this.MAXIMUM_HEALTH);
+            // reset ship systems and fuel and spare parts to full
+            this.log("Setting ship back to max system operating percentages/fuel/spare parts");
+            this.playerSystemsManager.resetSystems();
             this.updateFuel(this.MAXIMUM_FUEL);
             this.updateSpareParts(this.MAXIMUM_SPARE_PARTS);
 
@@ -397,16 +436,14 @@ export class PlayerShip extends InteractableGameObject {
                     this.numFramesSince[i] = 0;
                 }
             }
+
+            // reset system functioning booleans
+            this.enginesFunctioning = true;
+            this.turnJetsFunctioning = true;
         }
     }
 
     updateState() {
-        if (this.atBase) {
-            // remove the at base indicator so that if we have left the base it goes away
-            // Used when determing is the Kill hotkey should work or if the player should be allowed to fire bullets (not allowed when at base)
-            this.atBase = false;
-        }
-
         // FUTURE TODO: When levels are added in it will not be possible to "conquer the fringe", so just leave this here for now and remove it when levels are implemented.
         if (GameServiceManager.enemiesRemaining() === 0) {
             GameServiceManager.displayMessage("You conquered the fringe with a score of " + this.score, 99999999);
@@ -426,13 +463,20 @@ export class PlayerShip extends InteractableGameObject {
             this.isLowFuel = false;
         }
 
-        // Handle healing from spare parts
-        if (this.health < this.MAXIMUM_HEALTH && this.spareParts > 0 && this.numFramesSince.healFromSparePart > 30 && this.numFramesSince.takenDamage > 120) {
+        // Handle healing from spare parts if not at player base
+        if (!this.atBase && !this.playerSystemsManager.isShipAtFullOpeartingCapacity() && this.spareParts > 0 && this.numFramesSince.healFromSparePart > 30 && this.numFramesSince.takenDamage > 120) {
             this.numFramesSince.healFromSparePart = 0;
             this.updateSpareParts(-1);
-            this.updateHealth(1);
+            this.repairShip(2);
 
-            // FUTURE TODO: I don't remember if there was a sound played here. I'll leave it out for now until I know for sure there was one
+            // NOTE: Based on gameplay footage no sound is played when spare parts are used to fix the ship
+        }
+
+        // Do this after the healing from spare parts so that if the player is at home base spare parts are not used
+        if (this.atBase) {
+            // remove the at base indicator so that if we have left the base it goes away
+            // Used when determing is the Kill hotkey should work or if the player should be allowed to fire bullets and use spare parts (not allowed when at base)
+            this.atBase = false;
         }
     }
 }

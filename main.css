@@ -107,7 +107,7 @@ body * {
 }
 
 .green-dot {
-    background: radial-gradient(at 35% 35%, white 0%, green 20%, darkgreen 100%);
+    background: radial-gradient(at 35% 35%, white 0%, lime 20%, darkgreen 100%);
 }
 
 .yellow-dot {

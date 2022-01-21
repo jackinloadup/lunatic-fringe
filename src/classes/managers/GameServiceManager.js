@@ -33,4 +33,8 @@ export class GameServiceManager {
     static advanceOneFrame() {
         this.gameManager.advanceOneFrame();
     }
+
+    static toggleDebugMode() {
+        this.gameManager.toggleDebugMode();
+    }
 }

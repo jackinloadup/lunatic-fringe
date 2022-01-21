@@ -40,10 +40,10 @@
 				<div class="info-panel-line-dots">
 					<span>Condition:</span>
 					<div>
-						<div class="blue-dot"></div>
-						<div class="green-dot"></div>
-						<div class="yellow-dot"></div>
-						<div class="red-dot"></div>
+						<div id="overall-condition-0" class="grey-dot"></div>
+						<div id="overall-condition-1" class="grey-dot"></div>
+						<div id="overall-condition-2" class="grey-dot"></div>
+						<div id="overall-condition-3" class="grey-dot"></div>
 					</div>
 				</div>
 				<div class="info-panel-line-dots">
@@ -54,48 +54,48 @@
 					<span>Damage Control:</span>
 				</div>
 				<div class="info-panel-line-dots">
-					<span>Engines:</span>
+					<span id="engines-condition-label">Engines:</span>
 					<div>
-						<div class="blue-dot"></div>
-						<div class="green-dot"></div>
-						<div class="yellow-dot"></div>
-						<div class="red-dot"></div>
+						<div id="engines-condition-0" class="grey-dot"></div>
+						<div id="engines-condition-1" class="grey-dot"></div>
+						<div id="engines-condition-2" class="grey-dot"></div>
+						<div id="engines-condition-3" class="grey-dot"></div>
 					</div>
 				</div>
 				<div class="info-panel-line-dots">
-					<span>Turn Jets:</span>
+					<span id="turn-jets-condition-label">Turn Jets:</span>
 					<div>
-						<div class="blue-dot"></div>
-						<div class="green-dot"></div>
-						<div class="yellow-dot"></div>
-						<div class="red-dot"></div>
+						<div id="turn-jets-condition-0" class="grey-dot"></div>
+						<div id="turn-jets-condition-1" class="grey-dot"></div>
+						<div id="turn-jets-condition-2" class="grey-dot"></div>
+						<div id="turn-jets-condition-3" class="grey-dot"></div>
 					</div>
 				</div>
 				<div class="info-panel-line-dots">
-					<span>Guns:</span>
+					<span id="guns-condition-label">Guns:</span>
 					<div>
-						<div class="blue-dot"></div>
-						<div class="green-dot"></div>
-						<div class="yellow-dot"></div>
-						<div class="red-dot"></div>
+						<div id="guns-condition-0" class="grey-dot"></div>
+						<div id="guns-condition-1" class="grey-dot"></div>
+						<div id="guns-condition-2" class="grey-dot"></div>
+						<div id="guns-condition-3" class="grey-dot"></div>
 					</div>
 				</div>
 				<div class="info-panel-line-dots">
-					<span>Scanner:</span>
+					<span id="scanner-condition-label">Scanner:</span>
 					<div>
-						<div class="blue-dot"></div>
-						<div class="green-dot"></div>
-						<div class="yellow-dot"></div>
-						<div class="red-dot"></div>
+						<div id="scanner-condition-0" class="grey-dot"></div>
+						<div id="scanner-condition-1" class="grey-dot"></div>
+						<div id="scanner-condition-2" class="grey-dot"></div>
+						<div id="scanner-condition-3" class="grey-dot"></div>
 					</div>
 				</div>
 				<div class="info-panel-line-dots">
-					<span>Radar:</span>
+					<span id="radar-condition-label">Radar:</span>
 					<div>
-						<div class="blue-dot"></div>
-						<div class="green-dot"></div>
-						<div class="yellow-dot"></div>
-						<div class="red-dot"></div>
+						<div id="radar-condition-0" class="grey-dot"></div>
+						<div id="radar-condition-1" class="grey-dot"></div>
+						<div id="radar-condition-2" class="grey-dot"></div>
+						<div id="radar-condition-3" class="grey-dot"></div>
 					</div>
 				</div>
 				<div class="info-panel-line-dots">
@@ -104,27 +104,27 @@
 				</div>
 				<div class="info-panel-line-lives">
 					<div class="lives-image"></div>
-					<div style="vertical-align: middle; display: inline-block;"> = 3</div>
+					<div id="player-lives" style="vertical-align: middle; display: inline-block;"> = 3</div>
 				</div>
 				<div class="info-panel-line">
-					<span class="powerup-image" id="spreadShotActive" style="visibility: visible;">
+					<span class="powerup-image" id="spreadShotActive" style="visibility: hidden;">
 						<img src="images/SpreadShot.png" alt="Spread Shot Active" height="16" width="19">
 					</span>
-					<span class="powerup-image" id="photonLargeActive" style="visibility: visible;">
+					<span class="powerup-image" id="photonLargeActive" style="visibility: hidden;">
 						<img src="images/PhotonLarge.png" alt="Photon Large Active" height="16" width="15">
 					</span>
-					<span class="powerup-image" id="invulnerabilityAvailable" style="visibility: visible;">
+					<span class="powerup-image" id="invulnerabilityAvailable" style="visibility: hidden;">
 						<img src="images/Invulnerability.png" alt="Invulnerability Available" height="19" width="15">
 					</span>
-					<span class="powerup-image" id="turboThrustAvailable" style="visibility: visible;">
+					<span class="powerup-image" id="turboThrustAvailable" style="visibility: hidden;">
 						<img src="images/TurboThrust.png" alt="Turbo Thrust Available" height="16" width="15">
 					</span>
 				</div>
 				<div class="info-panel-line-text">
 					<span>Score:</span>
 					<div class="vertically-aligned">
-						<span id="player-score">3000</span>
-						<span class="double-points-powerup-image" id="doublePointsActive" style="visibility: visible;">
+						<span id="player-score">0</span>
+						<span class="double-points-powerup-image" id="doublePointsActive" style="visibility: hidden;">
 							<img src="images/DoublePoints.png" alt="Double Points Active" height="16" width="15">
 						</span>
 					</div>
@@ -138,9 +138,6 @@
 							<img src="images/DoublePoints.png" height="16" width="15">
 						</span>
 					</div>
-				</div>
-				<div id="healthDiv">
-					Health: <progress id="health" value="100" max="100"></progress>
 				</div>
 			</div>
 		</div>

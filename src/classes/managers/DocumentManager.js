@@ -22,13 +22,27 @@ export class DocumentManager {
         const sparePartsBar = document.getElementById('spare-parts-bar');
         
         const lostPercent = 100 - sparePartsPercentageRemaining;
-
-        console.log('updating spare parts: ', lostPercent)
          
         sparePartsBar.style.background = `linear-gradient(to right, transparent 0% ${lostPercent}%, blue ${lostPercent}%)`;
     }
 
     static updateScore(score) {
-        document.getElementById("player-score").innerHTML = score;
+        this.updateElementText("player-score", score);
+    }
+
+    static updateLives(lives) {
+        this.updateElementText("player-lives", ` = ${lives}`);
+    }
+
+    static addClassToElement(elementName, className) {
+        document.getElementById(elementName).classList.add(className);
+    }
+
+    static removeClassFromElement(elementName, className) {
+        document.getElementById(elementName).classList.remove(className);
+    }
+
+    static updateElementText(elementName, text) {
+        document.getElementById(elementName).innerHTML = text;
     }
 }

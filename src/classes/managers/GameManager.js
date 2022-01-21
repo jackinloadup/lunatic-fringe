@@ -270,20 +270,25 @@ export class GameManager {
         return numEnemies;
     }
 
-    // FUTURE TODO: It appears that this can be used to cause static throughout the image as well as making it darker. In the original game when you started the game it would fade in with a static effect,
-    // so chances are that is what this can be used for in the future. Also could probably be adapted to work for when systems are implemented and the static that can be on screen from it.
-    // Pass in the appropriate context since it could apply to radar and scanner separately
-    static staticEffect(percentWorking) {
-        let pixels = this.scannerContext.getImageData(0, 0, this.scannerContext.canvas.width, this.scannerContext.canvas.height);
+    // FUTURE TODO: When you spawn in, have static effect on screen that fades away
+    // This can be used to cause static throughout an image as well as making it darker.
+    // Pass in the appropriate context since it could apply to radar canvas and scanner canvas separately
+    static areaStaticEffect(context, percentWorking, x, y, width, height) {
+        let pixels = context.getImageData(x, y,  width, height);
         let pixelData = pixels.data;
         for (let i = 0, n = pixelData.length; i < n; i += 4) {
-            //var grayscale = pixelData[i  ] * .3 + pixelData[i+1] * .59 + pixelData[i+2] * .11;
-            //pixelData[i  ] = grayscale;   // red
-            //pixelData[i+1] = grayscale;   // green
-            //pixelData[i+2] = grayscale;   // blue
-            pixelData[i + 3] = Math.random() * (255 * (percentWorking / 100))// alpha
+            let shouldDisplayPixelRandomNumber = Math.random();
+            // pixelData[i + 3] is the alpha component of the pixel
+            // Average number of pixels completely not working: 90% * percentDamaged
+            // Average number of pixels with random brightness: 10% * percentDamaged
+            // So if system is at 50% damage, 45% of pixels should be completely dark and 5% pixels should have random brightness. The remaining 50% of pixels should be functioning as normal.
+            if (shouldDisplayPixelRandomNumber < .9 * (100 - percentWorking) / 100) {
+                pixelData[i + 3] = 0
+            } else if (shouldDisplayPixelRandomNumber < (100 - percentWorking) / 100) {
+                pixelData[i + 3] = Math.random() * 255
+            }
         }
-        this.scannerContext.putImageData(pixels, 0, 0);
+        context.putImageData(pixels, x, y);
     };
 
     static drawObjects(objects, context) {
@@ -319,12 +324,20 @@ export class GameManager {
 
         for (let i = 0; i < objects.length; i++) {
             // Only draw the objects if they are within the viewing window
-            if (objects[i].x + objects[i].width > 0 &&
-                    objects[i].x - objects[i].width < context.canvas.width &&
-                    objects[i].y + objects[i].height > 0 &&
-                    objects[i].y - objects[i].height < context.canvas.height) {
+            let currentObject = objects[i];
+            if (currentObject.x + currentObject.width > 0 &&
+                    currentObject.x - currentObject.width < context.canvas.width &&
+                    currentObject.y + currentObject.height > 0 &&
+                    currentObject.y - currentObject.height < context.canvas.height) {
                 context.save();
+
                 objects[i].draw(context);
+
+                // Draw the static effect over the object caused from a damaged player scanner
+                let xStart = currentObject.x - currentObject.width / 2;
+                let yStart = currentObject.y - currentObject.height / 2;
+                this.areaStaticEffect(context, this.playerShip.playerSystemsManager.scannerCondition.operatingPercentage, xStart, yStart, currentObject.width, currentObject.height);
+
                 context.restore();
             }
         }
@@ -379,6 +392,9 @@ export class GameManager {
                 }
                 context.stroke();
 
+                // Draw static affect on objects caused by damage to radar
+                this.areaStaticEffect(context, this.playerShip.playerSystemsManager.radarCondition.operatingPercentage, radarXLocation - 1, radarYLocation - 1, 3, 3);
+
                 if (currentObjectLayer === Layer.PLAYER) {
                     // Draw the area alignment circles indicating player direction, with increasing darkness
                     let distanceBetweenCircles = 25;
@@ -394,6 +410,9 @@ export class GameManager {
                         context.arc(xLocation, yLocation, .25, 0, 2 * Math.PI);
                         context.lineWidth = 1.5;
                         context.stroke();
+
+                        // Also need static effect from radar damage on the player direction dots
+                        this.areaStaticEffect(context, this.playerShip.playerSystemsManager.radarCondition.operatingPercentage, xLocation - 1, yLocation - 1, 3, 3);
                     }
                 }
                 
@@ -508,5 +527,12 @@ export class GameManager {
             console.log("Advancing the game one frame");
             this.gameLoop(true, true);
         }
+    }
+
+    static toggleDebugMode() {
+        // Toggle debug
+        GameConfig.debug = !GameConfig.debug;
+        // Update the system labels since debug shows more information for those
+        this.playerShip.playerSystemsManager.updateAllLabels();
     }
 }

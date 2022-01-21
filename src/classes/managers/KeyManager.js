@@ -30,7 +30,7 @@ export class KeyStateManager {
         } else if (event.keyCode === this.D && this.keysPressed[event.keyCode] !== true) {
             // If D was pressed (and is not already registered as being down before this), toggle debug in the game config
             // That way it starts whatever way is defined in the config, but can be toggled with a key press.
-            GameConfig.debug = !GameConfig.debug;
+            GameServiceManager.toggleDebugMode();
         }
         
         this.keysPressed[event.keyCode] = true;
