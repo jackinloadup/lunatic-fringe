@@ -89,7 +89,7 @@ export class PlayerSystem extends Logger {
             case 3:
                 return "red-dot";
             default:
-                console.error(`Unexpected player system indicator number: "${indicatorNumber}"`)
+                this.error(`Unexpected player system indicator number: "${indicatorNumber}"`)
         }
     }
 

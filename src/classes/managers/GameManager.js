@@ -378,7 +378,6 @@ export class GameManager {
                 context.save();
 
                 let currentObjectLayer = currentObject.layer;
-                context.strokeStyle = "red";
                 let radarXLocation = ((currentObject.x - this.playerShip.x) / sizeOfEachPixelInWorld) + (contextWidth / 2);
                 let radarYLocation = ((currentObject.y - this.playerShip.y) / sizeOfEachPixelInWorld) + (contextHeight / 2);
                 context.beginPath();
@@ -397,7 +396,9 @@ export class GameManager {
 
                 if (currentObjectLayer === Layer.PLAYER) {
                     // Draw the area alignment circles indicating player direction, with increasing darkness
-                    let distanceBetweenCircles = 25;
+                    // This distance is completely unrelated to the value of sizeOfEachPixelInWorld and is based purely off of the size of the radar canvas element
+                    // contextWidth and contextHeight should be the same, so just use contextWidth for calculation here.
+                    let distanceBetweenCircles = contextWidth / 12;
                     let transparencySteps = "ffddbb9977";
                     for (let multiplier = 0; multiplier < 5; multiplier++) {
                         // Since this is the player location, player is always centered in radar so don't need any other position calculations
@@ -406,6 +407,7 @@ export class GameManager {
                         let yLocation = (contextHeight / 2) + distanceBetweenCircles * Math.sin(this.playerShip.angle + Math.PI) * (multiplier + 1);
                         context.beginPath();
                         // Pull two characters from the transparencySteps variable for the alpha (aka opacity) value of the color
+                        // For strings the slice arguments are starting index (inclusive) and ending index (exclusive)
                         context.strokeStyle = "#c0c0c0" + transparencySteps.slice(multiplier * 2, (multiplier + 1) * 2);
                         context.arc(xLocation, yLocation, .25, 0, 2 * Math.PI);
                         context.lineWidth = 1.5;
@@ -432,7 +434,7 @@ export class GameManager {
             return "deepskyblue";
         } else if (CollisionManager.isPowerupLayer(layer)){
             // NOTE: In the original game is appears that powerups do not show up on the radar at all.
-            // Because I think that is lame, I am going to have it show as yellow, but have an option in the config to disable it if desired
+            // I think it is a little more fun to have them show up on the radar, so I am going to have it show as yellow, but have an option in the config to disable it if desired
             if (GameConfig.showPowerupsOnRadar) {
                 return "yellow";
             } else {

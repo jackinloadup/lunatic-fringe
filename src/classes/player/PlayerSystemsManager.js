@@ -107,7 +107,7 @@ export class PlayerSystemsManager extends Logger {
             }
 
             if (systemsThatCanBeRepaired.length === 0) {
-                // No more damage can be dealt
+                // No more systems can be repaired
                 this.log('All systems are at full operating percentage');
                 allSystemsAtFull = true;
             }

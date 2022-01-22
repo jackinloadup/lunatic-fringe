@@ -107,7 +107,7 @@ export class PlayerShip extends InteractableGameObject {
         this.updateLivesDocument();
     }
 
-    // Need separate function for other objects here since the angles are opposite other things.
+    // Need a function that is separate from other objects since the angles for the player are opposite the angles for everything else
     getNewProjectileVelocity(projectileSpeed, angleOffset = 0) {
         return new Vector(this.velocityX + (-Math.cos(this.angle + angleOffset) * projectileSpeed), this.velocityY + (-Math.sin(this.angle + angleOffset) * projectileSpeed));
     }
@@ -142,10 +142,9 @@ export class PlayerShip extends InteractableGameObject {
         if (this.numFramesSince.turnJetsCheck > this.FRAMES_BETWEEN_TURN_JETS_CHECK) {
             // Perform a turn jets functioning check
             let failedToUseTurnJets = Math.random() < .9 * (100 - this.playerSystemsManager.turnJetsCondition.operatingPercentage) / 100;
-            if (failedToUseTurnJets && Math.random() < .5) {
-                // If turns jets are malfunctioning, 50% chance to randomly select the direction in which they are malfunctioning (could be same direction)
-                // Results in an average of about a 25% chance of flipping direction each time turn jets fail
-                this.turnJetsMalfunctioningDirection = Math.floor(Math.random() * 2);
+            if (failedToUseTurnJets && Math.random() < .25) {
+                // 25% chance to switch turning directions. Just switches between 0 and 1 as those are the only two directions in the enum
+                this.turnJetsMalfunctioningDirection = (this.turnJetsMalfunctioningDirection + 1) % 2;
             }
             this.turnJetsFunctioning = !failedToUseTurnJets;
             this.numFramesSince.turnJetsCheck = 0;
