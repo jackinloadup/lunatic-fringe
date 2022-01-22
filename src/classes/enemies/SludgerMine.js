@@ -4,7 +4,8 @@ import { NewMediaManager } from "../managers/MediaManager.js";
 
 export class SludgerMine extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
-        super(xLocation, yLocation, Layer.SLUDGER_MINE, 24, 21, 0, NewMediaManager.Sprites.SludgerMine, velocityX, velocityY, 11, 4, playerShip, 5, 5, 2);
+        // According to gameplay footage killing a SludgerMine was worth 2 points
+        super(xLocation, yLocation, Layer.SLUDGER_MINE, 24, 21, 0, NewMediaManager.Sprites.SludgerMine, velocityX, velocityY, 11, 4, playerShip, 20, 20, 2);
 
         this.TURN_ABILITY = 0.09;
         this.MAX_SPEED = 4;

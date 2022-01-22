@@ -1,20 +1,145 @@
-html, body {
-    color: White;
-    background-color: Black;
-    margin: 0px;
-    padding: 0px;
+body {
+    margin: 0;
+    padding: 0;
+
+    color: white;
+}
+
+body * {
+    box-sizing: border-box;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: row;
+
+    background-color: black;
+
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+}
+
+#scanner {
+    flex: 1;
 }
 
 #hud {
-    position: absolute;
-    top: 0;
-    right: 0;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
 }
 
-#hud > * {
-    margin: 1em;
+#radar {
+    height: 300px;
+    border: 1px solid white;
 }
 
-progress {
-  background: green;
+#info-panel {
+    flex: 1;
+    border: 1px solid white;
+}
+
+.info-panel-line, .info-panel-line-dots, .info-panel-line-text, .info-panel-line-lives {
+    margin-top: 5px;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.info-panel-line-dots {
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-panel-line-text {
+    display: flex;
+    justify-content: space-between;
+    width: 50%;
+}
+
+.info-panel-line-lives {
+    display: flex;
+    align-items: center;
+}
+
+.info-panel-line-center-text {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.lives-image {
+    width: 42px;
+    height: 37px;
+    background: url(images/PlayerShip.png);
+    display: inline-block;
+}
+
+.powerup-image {
+    margin-left: 5px;
+}
+
+.double-points-powerup-image {
+    display: flex;
+    margin-left: 10px;
+}
+
+.vertically-aligned {
+    display: flex;
+    align-items: center;
+}
+
+.blue-dot, .green-dot, .yellow-dot, .red-dot, .grey-dot {
+    height: 15px;
+    width: 15px;
+    display: inline-block;
+    margin-left: 5px;
+
+    /* This is what makes it a circle */
+    border-radius: 50%;
+}
+
+.blue-dot {
+    background: radial-gradient(at 35% 35%, white 0%, blue 20%, darkblue 100%);
+}
+
+.green-dot {
+    background: radial-gradient(at 35% 35%, white 0%, lime 20%, darkgreen 100%);
+}
+
+.yellow-dot {
+    background: radial-gradient(at 35% 35%, white 0%, yellow 20%, darkorange 100%);
+}
+
+.red-dot {
+    background: radial-gradient(at 35% 35%, white 0%, red 20%, darkred 100%);
+}
+
+.grey-dot {
+    background: radial-gradient(at 35% 35%, white 0%, darkgrey 20%, darkslategrey 100%);
+}
+
+#fuel-bar {
+    height: 10px;
+    width: 85px;
+    box-sizing: border-box;
+    border: 1px solid white;
+    position: relative;
+    display: inline-block;
+
+    background: linear-gradient(to right, lime 50%, yellow 50% 75%, red 75%);
+}
+
+#spare-parts-bar {
+    height: 10px;
+    width: 85px;
+    box-sizing: border-box;
+    border: 1px solid white;
+    position: relative;
+    display: inline-block;
+
+    background: linear-gradient(to right, blue 0% 100%);
 }

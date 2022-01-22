@@ -4,7 +4,7 @@ import { NewMediaManager } from "../managers/MediaManager.js";
 
 export class Slicer extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
-        super(xLocation, yLocation, Layer.SLICER, 50, 50, 0, NewMediaManager.Sprites.Slicer, velocityX, velocityY, 14, 50, playerShip, 25, 100, 100);
+        super(xLocation, yLocation, Layer.SLICER, 50, 50, 0, NewMediaManager.Sprites.Slicer, velocityX, velocityY, 14, 50, playerShip, 100, 400, 100);
 
         this.TURN_ABILITY = 0.3;
         this.MAX_SPEED = 10;

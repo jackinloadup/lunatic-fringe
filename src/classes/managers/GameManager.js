@@ -25,10 +25,12 @@ import { ShipRepairsPowerup } from "../powerups/ShipRepairsPowerup.js";
 import { SparePartsPowerup } from "../powerups/SparePartsPowerup.js";
 import { InvulnerabilityPowerup } from "../powerups/InvulnerabilityPowerup.js";
 import { TurboThrustPowerup } from "../powerups/TurboThrustPowerup.js";
+import { DocumentManager } from "./DocumentManager.js";
 
 export class GameManager {
     // Make some of these have constants naming convention
-    static context;
+    static scannerContext;
+    static radarContext;
     static numMessageTicks;
     static message;
     static playerShip;
@@ -46,8 +48,9 @@ export class GameManager {
     static MAX_FRAME_SKIP = 10
     static nextGameTick //NOTE: Should be set right before game starts so that it is as recent as possible
 
-    static initializeGame(canvasContext) {
-        this.context = canvasContext;
+    static initializeGame(canvasContext, radarCanvasContext) {
+        this.scannerContext = canvasContext;
+        this.radarContext = radarCanvasContext;
         this.isPaused = false;
         this.wasPausedByKey = false;
         this.isRunning = true;
@@ -58,7 +61,7 @@ export class GameManager {
         // Initalize all of the game objects
         // FUTURE TODO: Eventually all of the starting cooridinates won't be random and the object addition to the game will be more structred, once levels are added in (also won't start with powerups in world immediately)
         // Create the player
-        this.playerShip = new PlayerShip(this.context.canvas.width / 2, this.context.canvas.height / 2, 0, 0);
+        this.playerShip = new PlayerShip(this.scannerContext.canvas.width / 2, this.scannerContext.canvas.height / 2, 0, 0);
         // Player starts with turbo thrust and invulnerability powerups
         this.playerShip.powerupStateManager.obtainPowerup(new InvulnerabilityPowerup(0, 0));
         this.playerShip.powerupStateManager.obtainPowerup(new TurboThrustPowerup(0, 0));
@@ -71,7 +74,7 @@ export class GameManager {
         }
 
         // Add the player base. Offset the y location by the constant from the player ship here so that it matches the offset the ship uses when docking at the base. This is so that the ship is correctly centered on the base when the game is started.
-        let playerBaseLocation = new Vector(this.context.canvas.width / 2, this.context.canvas.height / 2 + this.playerShip.BASE_DOCKING_OFFSET);
+        let playerBaseLocation = new Vector(this.scannerContext.canvas.width / 2, this.scannerContext.canvas.height / 2 + this.playerShip.BASE_DOCKING_OFFSET);
         ObjectManager.addObject(new PlayerBase(playerBaseLocation.x, playerBaseLocation.y));
 
         // Add the enemy base
@@ -181,14 +184,15 @@ export class GameManager {
     }
 
     static handleResize() {
-        let oldCenterX = this.context.canvas.width / 2;
-        let oldCenterY = this.context.canvas.height / 2;
+        let oldCenterX = this.scannerContext.canvas.width / 2;
+        let oldCenterY = this.scannerContext.canvas.height / 2;
 
-        this.context.canvas.width = window.innerWidth;
-        this.context.canvas.height = window.innerHeight;
+        let scannerDimensions = DocumentManager.getElementDimensions('scanner');
+        this.scannerContext.canvas.width = scannerDimensions.x;
+        this.scannerContext.canvas.height = scannerDimensions.y;
 
-        let diffX = this.context.canvas.width / 2 - oldCenterX;
-        let diffY = this.context.canvas.height / 2 - oldCenterY;
+        let diffX = this.scannerContext.canvas.width / 2 - oldCenterX;
+        let diffY = this.scannerContext.canvas.height / 2 - oldCenterY;
 
         for (let i = 0; i < ObjectManager.objects.length; i++) {
             ObjectManager.objects[i].x += diffX;
@@ -266,19 +270,25 @@ export class GameManager {
         return numEnemies;
     }
 
-    // FUTURE TODO: It appears that this can be used to cause static throughout the image as well as making it darker. In the original game when you started the game it would fade in with a static effect,
-    // so chances are that is what this can be used for in the future. Also could probably be adapted to work for when systems are implemented and the static that can be on screen from it
-    static staticEffect(percentWorking) {
-        let pixels = this.context.getImageData(0, 0, this.context.canvas.width, this.context.canvas.height);
+    // FUTURE TODO: When you spawn in, have static effect on screen that fades away
+    // This can be used to cause static throughout an image as well as making it darker.
+    // Pass in the appropriate context since it could apply to radar canvas and scanner canvas separately
+    static areaStaticEffect(context, percentWorking, x, y, width, height) {
+        let pixels = context.getImageData(x, y,  width, height);
         let pixelData = pixels.data;
         for (let i = 0, n = pixelData.length; i < n; i += 4) {
-            //var grayscale = pixelData[i  ] * .3 + pixelData[i+1] * .59 + pixelData[i+2] * .11;
-            //pixelData[i  ] = grayscale;   // red
-            //pixelData[i+1] = grayscale;   // green
-            //pixelData[i+2] = grayscale;   // blue
-            pixelData[i + 3] = Math.random() * (255 * (percentWorking / 100))// alpha
+            let shouldDisplayPixelRandomNumber = Math.random();
+            // pixelData[i + 3] is the alpha component of the pixel
+            // Average number of pixels completely not working: 90% * percentDamaged
+            // Average number of pixels with random brightness: 10% * percentDamaged
+            // So if system is at 50% damage, 45% of pixels should be completely dark and 5% pixels should have random brightness. The remaining 50% of pixels should be functioning as normal.
+            if (shouldDisplayPixelRandomNumber < .9 * (100 - percentWorking) / 100) {
+                pixelData[i + 3] = 0
+            } else if (shouldDisplayPixelRandomNumber < (100 - percentWorking) / 100) {
+                pixelData[i + 3] = Math.random() * 255
+            }
         }
-        this.context.putImageData(pixels, 0, 0);
+        context.putImageData(pixels, x, y);
     };
 
     static drawObjects(objects, context) {
@@ -314,12 +324,20 @@ export class GameManager {
 
         for (let i = 0; i < objects.length; i++) {
             // Only draw the objects if they are within the viewing window
-            if (objects[i].x + objects[i].width > 0 &&
-                    objects[i].x - objects[i].width < context.canvas.width &&
-                    objects[i].y + objects[i].height > 0 &&
-                    objects[i].y - objects[i].height < context.canvas.height) {
+            let currentObject = objects[i];
+            if (currentObject.x + currentObject.width > 0 &&
+                    currentObject.x - currentObject.width < context.canvas.width &&
+                    currentObject.y + currentObject.height > 0 &&
+                    currentObject.y - currentObject.height < context.canvas.height) {
                 context.save();
+
                 objects[i].draw(context);
+
+                // Draw the static effect over the object caused from a damaged player scanner
+                let xStart = currentObject.x - currentObject.width / 2;
+                let yStart = currentObject.y - currentObject.height / 2;
+                this.areaStaticEffect(context, this.playerShip.playerSystemsManager.scannerCondition.operatingPercentage, xStart, yStart, currentObject.width, currentObject.height);
+
                 context.restore();
             }
         }
@@ -330,6 +348,102 @@ export class GameManager {
             context.font = 'bold 30px sans-serif';
             context.textBaseline = 'bottom';
             context.fillText(this.message, context.canvas.width / 2 - (((this.message.length / 2) * 30) / 2), context.canvas.height / 2 - 40);
+        }
+    }
+
+    static drawRadar(objects, context) {
+        let contextWidth = context.canvas.width;
+        let contextHeight = context.canvas.height;
+
+        // Clear canvas for drawing a new scene
+        context.clearRect(0, 0, contextWidth, contextHeight);
+
+        // Based on gameplay footage the original radar scale for the game is about 15 pixels to each pixel of radar
+        // However the game is also about 2x more zoomed in than it is in the original game. So we will use half of 15 as the scale
+        // of the radar here.
+        let sizeOfEachPixelInWorld = 7.5;
+        
+        let radarWidthMinimum = this.playerShip.x - ((contextWidth / 2) * sizeOfEachPixelInWorld);
+        let radarWidthMaximum = this.playerShip.x + ((contextWidth / 2) * sizeOfEachPixelInWorld);
+        let radarHeightMinimum = this.playerShip.y - ((contextHeight / 2) * sizeOfEachPixelInWorld);
+        let radarHeightMaximum = this.playerShip.y + ((contextHeight / 2) * sizeOfEachPixelInWorld);
+
+        for (let i = 0; i < objects.length; i++) {
+            let currentObject = objects[i];
+            // Only draw the objects if they are within the viewing window
+            if (currentObject.x + currentObject.width > radarWidthMinimum &&
+                    currentObject.x - currentObject.width < radarWidthMaximum &&
+                    currentObject.y + currentObject.height > radarHeightMinimum &&
+                    currentObject.y - currentObject.height < radarHeightMaximum) {
+                context.save();
+
+                let currentObjectLayer = currentObject.layer;
+                let radarXLocation = ((currentObject.x - this.playerShip.x) / sizeOfEachPixelInWorld) + (contextWidth / 2);
+                let radarYLocation = ((currentObject.y - this.playerShip.y) / sizeOfEachPixelInWorld) + (contextHeight / 2);
+                context.beginPath();
+                context.strokeStyle = this.getRadarColor(currentObjectLayer);
+                context.arc(radarXLocation, radarYLocation, .25, 0, 2 * Math.PI);
+                if (currentObjectLayer === Layer.PLAYER_PROJECTILE || currentObjectLayer === Layer.PUFFER_PROJECTILE || currentObjectLayer === Layer.QUAD_BLASTER_PROJECTILE) {
+                    // Make projectiles slightly smaller
+                    context.lineWidth = 1.2;
+                } else {
+                    context.lineWidth = 1.5;
+                }
+                context.stroke();
+
+                // Draw static affect on objects caused by damage to radar
+                this.areaStaticEffect(context, this.playerShip.playerSystemsManager.radarCondition.operatingPercentage, radarXLocation - 1, radarYLocation - 1, 3, 3);
+
+                if (currentObjectLayer === Layer.PLAYER) {
+                    // Draw the area alignment circles indicating player direction, with increasing darkness
+                    // This distance is completely unrelated to the value of sizeOfEachPixelInWorld and is based purely off of the size of the radar canvas element
+                    // contextWidth and contextHeight should be the same, so just use contextWidth for calculation here.
+                    let distanceBetweenCircles = contextWidth / 12;
+                    let transparencySteps = "ffddbb9977";
+                    for (let multiplier = 0; multiplier < 5; multiplier++) {
+                        // Since this is the player location, player is always centered in radar so don't need any other position calculations
+                        // Since player angle is facing opposite direction as everything else, add Math.PI to angle to flip it around to match player direction
+                        let xLocation = (contextWidth / 2) + distanceBetweenCircles * Math.cos(this.playerShip.angle + Math.PI) * (multiplier + 1);
+                        let yLocation = (contextHeight / 2) + distanceBetweenCircles * Math.sin(this.playerShip.angle + Math.PI) * (multiplier + 1);
+                        context.beginPath();
+                        // Pull two characters from the transparencySteps variable for the alpha (aka opacity) value of the color
+                        // For strings the slice arguments are starting index (inclusive) and ending index (exclusive)
+                        context.strokeStyle = "#c0c0c0" + transparencySteps.slice(multiplier * 2, (multiplier + 1) * 2);
+                        context.arc(xLocation, yLocation, .25, 0, 2 * Math.PI);
+                        context.lineWidth = 1.5;
+                        context.stroke();
+
+                        // Also need static effect from radar damage on the player direction dots
+                        this.areaStaticEffect(context, this.playerShip.playerSystemsManager.radarCondition.operatingPercentage, xLocation - 1, yLocation - 1, 3, 3);
+                    }
+                }
+                
+                context.restore();
+            }
+        }
+    }
+
+    static getRadarColor(layer) {
+        if (layer === Layer.ASTEROID) {
+            return "white";
+        } else if (CollisionManager.isEnemyLayer(layer) || layer === Layer.PUFFER_PROJECTILE || layer === Layer.QUAD_BLASTER_PROJECTILE) {
+            return "red";
+        } else if (layer === Layer.PLAYER) {
+            return "lawngreen";
+        } else if (layer === Layer.PLAYER_BASE || layer === Layer.PLAYER_PROJECTILE) {
+            return "deepskyblue";
+        } else if (CollisionManager.isPowerupLayer(layer)){
+            // NOTE: In the original game is appears that powerups do not show up on the radar at all.
+            // I think it is a little more fun to have them show up on the radar, so I am going to have it show as yellow, but have an option in the config to disable it if desired
+            if (GameConfig.showPowerupsOnRadar) {
+                return "yellow";
+            } else {
+                // transparent color
+                return 'rgba(0,0,0,0)';
+            }
+        } else {
+            // FUTURE TODO: Update logging to have everything use LOGGER, and then make it so certain logging can be turned on and off
+            console.error("Unable to determine color for layer " + Object.keys(Layer).find(key => Layer[key] === layer));
         }
     }
 
@@ -394,7 +508,8 @@ export class GameManager {
 
         // Even if we process 10 frames, we only want to draw once (no point in drawing older frames)
         if (loops) {
-            this.drawObjects(ObjectManager.objects, this.context);
+            this.drawObjects(ObjectManager.objects, this.scannerContext);
+            this.drawRadar(ObjectManager.collidables, this.radarContext);
         }
     }
     
@@ -414,5 +529,12 @@ export class GameManager {
             console.log("Advancing the game one frame");
             this.gameLoop(true, true);
         }
+    }
+
+    static toggleDebugMode() {
+        // Toggle debug
+        GameConfig.debug = !GameConfig.debug;
+        // Update the system labels since debug shows more information for those
+        this.playerShip.playerSystemsManager.updateAllLabels();
     }
 }

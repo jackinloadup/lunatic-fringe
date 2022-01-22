@@ -22,14 +22,18 @@ import { KeyStateManager } from './classes/managers/KeyManager.js';
 /* JSLint validation options */
 /*jslint devel: true, browser: true, maxerr: 50, indent: 4 */
 /*global Audio: false */
-export function LunaticFringe(canvas, hidden, visibilityChange) {
+export function LunaticFringe(scannerCanvas, radarCanvas, hidden, visibilityChange) {
     "use strict";
 
-	let version = "2.0";
+	let version = "3.0";
 	console.log("Game Version: " + version);
 
-    if (typeof canvas !== 'object') {
-        canvas = document.getElementById(canvas);
+    if (typeof scannerCanvas !== 'object') {
+        scannerCanvas = document.getElementById(scannerCanvas);
+    }
+
+    if (typeof radarCanvas !== 'object') {
+        radarCanvas = document.getElementById(radarCanvas);
     }
 
     // Opera sort of blows and doesn't support Object.create at this time
@@ -50,7 +54,7 @@ export function LunaticFringe(canvas, hidden, visibilityChange) {
     NewMediaManager.init();
 
     // Initialize the game
-    GameManager.initializeGame(canvas.getContext("2d"));
+    GameManager.initializeGame(scannerCanvas.getContext("2d"), radarCanvas.getContext("2d"));
 
     // Add listeners
     function handleVisibilityChange() {

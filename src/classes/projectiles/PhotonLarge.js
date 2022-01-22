@@ -5,7 +5,7 @@ import { PlayerProjectile } from "./PlayerProjectile.js";
 
 export class PhotonLarge extends PlayerProjectile {
     constructor(xLocation, yLocation, velocityX, velocityY) {
-        super(xLocation, yLocation, 15, 16, 0, NewMediaManager.Sprites.PhotonLarge, velocityX, velocityY, 8, 0, 50, 30);
+        super(xLocation, yLocation, 15, 16, 0, NewMediaManager.Sprites.PhotonLarge, velocityX, velocityY, 8, 0, 50, 120);
     }
 
     handleCollision(otherObject) {

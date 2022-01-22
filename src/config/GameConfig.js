@@ -1,3 +1,4 @@
 export let GameConfig = {
-    debug: false
+    debug: false,
+    showPowerupsOnRadar: true
 };

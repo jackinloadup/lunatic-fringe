@@ -6,7 +6,7 @@ import { PufferProjectile } from "../projectiles/PufferProjectile.js";
 
 export class Puffer extends KillableAiGameObject {
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
-        super(xLocation, yLocation, Layer.PUFFER, 42, 49, 0, NewMediaManager.Sprites.Puffer, velocityX, velocityY, 14, 10, playerShip, 15, 50, 40);
+        super(xLocation, yLocation, Layer.PUFFER, 42, 49, 0, NewMediaManager.Sprites.Puffer, velocityX, velocityY, 14, 10, playerShip, 60, 200, 40);
 
         this.TURN_ABILITY = 0.015;
         this.MAX_SPEED = 1;
