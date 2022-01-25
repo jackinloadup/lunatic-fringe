@@ -1,3 +1,4 @@
+import { Vector } from "../../utility/Vector.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/MediaManager.js";
@@ -57,16 +58,30 @@ export class SludgerMine extends KillableAiGameObject {
             }
         }
 
-        // Keep angle between -Math.PI and Math.PI
-        if (this.angle > Math.PI) {
+        // Keep angle between 0 and 2 * Math.PI
+        if (this.angle > 2 * Math.PI) {
             this.angle -= 2 * Math.PI;
-        } else if (this.angle < -Math.PI) {
+        } else if (this.angle < 0) {
             this.angle += 2 * Math.PI;
         }
+        if (this.angle > 2 * Math.PI || this.angle < 0) {
+            this.error(`SludgerMine angle ${this.angle} was outside of the expected range`);
+        }
 
-        if (angleDiff <= this.angle + 0.1 || angleDiff > this.angle - 0.1) {
+        // Only accelerate if we close enough to pointing at what we are targeting
+        if (angleDiff > -0.1 && angleDiff < 0.1) {
             this.calculateAcceleration();
         }
+
+        // slow down object in perpendicular direction to help prevent "orbiting"
+        let vectorToPlayer = new Vector(this.playerShipReference.x - this.x, this.playerShipReference.y - this.y);
+        let velocity = new Vector(this.velocityX, this.velocityY);
+        let perpendicularVelocity = velocity.subtract(vectorToPlayer.normalize().scale(velocity.dotProduct(vectorToPlayer.normalize())));
+        // reduce perpendicular speed by 1%
+        let dampeningAmount = perpendicularVelocity.scale(-.01);
+
+        this.velocityX += dampeningAmount.x;
+        this.velocityY += dampeningAmount.y;
 
         this.x += this.velocityX;
         this.y += this.velocityY;

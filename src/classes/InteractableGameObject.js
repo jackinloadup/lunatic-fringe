@@ -123,6 +123,9 @@ export class InteractableGameObject extends GameObject {
         if (newVelocity.magnitude() > currentVelocity.magnitude()) {
             // NOTE: MAX_SPEED is not defined in this class as not every class extended from this calls calculateAcceleration. All classes that use this function should define a MAX_SPEED. This function should probably move into 
             // a subclass of objects that actually use it but for now it will remain here
+            if(!this.MAX_SPEED) {
+                this.error(`Max speed for ${this.getClassName()} was not defined`);
+            }
             let b = 1 - ((currentVelocity.magnitude() * currentVelocity.magnitude()) / (this.MAX_SPEED * this.MAX_SPEED));
 
             // If b is negative then just make it very small to prevent errors in the square root

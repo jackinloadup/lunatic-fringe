@@ -1,3 +1,4 @@
+import { Vector } from "../../utility/Vector.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
 import { NewMediaManager } from "../managers/MediaManager.js";
@@ -52,28 +53,30 @@ export class Puffer extends KillableAiGameObject {
             }
         }
 
-        // Keep angle between -Math.PI and Math.PI
-        if (this.angle > Math.PI) {
+        // Keep angle between 0 and 2 * Math.PI
+        if (this.angle > 2 * Math.PI) {
             this.angle -= 2 * Math.PI;
-        } else if (this.angle < -Math.PI) {
+        } else if (this.angle < 0) {
             this.angle += 2 * Math.PI;
+        }
+        if (this.angle > 2 * Math.PI || this.angle < 0) {
+            this.error(`Puffer angle ${this.angle} was outside of the expected range`);
         }
 
         // Calculate which frame of the sprite. Note the following reasons for each part of the calculation:
         // +(Math.PI / 2): The sprite for the Puffer starts straight up, so an angle offset of Math.PI/2 (a quarter rotation of a circle) is needed for this calculation so that the correct frame is chosen since an angle of 0 is pointing to the right not straight up.
         // +(this.ROTATION_AMOUNT / 2): Adding half of the rotation amount here so that each frame is centered around the angles that it applies to.
         // +this.angle: The angle the ship is currently pointing.
-        // +(2 * Math.PI): The only purpose of this is to make sure the frame angle is positive, without changing the angle for the calculations (since 2 * Math.PI is a full circle rotation). This makes the calculation easier since it means we don't have to deal with negative numbers
         // % (2 * Math.PI): Takes whatever the result of the calculation with the above values is and makes it between 0 (inclusive) and 2 * Math.PI (exclusive).
         // FUTURE TODO: Due to the isometric sprite view there are some instances where the angles don't line up great with the sprite (barely). So in the future might want to look into how to make the angles match up with the sprite a little better.
-        let frameAngle = ((Math.PI / 2) + this.ROTATION_AMOUNT / 2 + this.angle + (2 * Math.PI)) % (2 * Math.PI);
+        let frameAngle = ((Math.PI / 2) + this.ROTATION_AMOUNT / 2 + this.angle) % (2 * Math.PI);
         let frame = Math.floor(frameAngle/this.ROTATION_AMOUNT);
 
         this.spriteXOffset = this.width * frame;
 
-        if (angleDiff <= this.angle + 0.1 || angleDiff > this.angle - 0.1) {
-            this.calculateAcceleration();
-        }
+        // The Puffer moves so slow that it feels better when it is always calculating acceleration, despite direction
+        // This can result in the Puffer obriting the player but since it is so slow it only really happens when the player isn't moving
+        this.calculateAcceleration();
 
         this.x += this.velocityX;
         this.y += this.velocityY;
