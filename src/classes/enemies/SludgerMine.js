@@ -65,7 +65,7 @@ export class SludgerMine extends KillableAiGameObject {
             this.angle += 2 * Math.PI;
         }
         if (this.angle > 2 * Math.PI || this.angle < 0) {
-            this.error(`Slicer angle ${this.angle} was outside of the expected range`);
+            this.error(`SludgerMine angle ${this.angle} was outside of the expected range`);
         }
 
         // Only accelerate if we close enough to pointing at what we are targeting
