@@ -12,7 +12,7 @@ export class AiGameObject extends InteractableGameObject {
     relativePositionTo(object) {
         let x = object.x - this.x;
         let y = object.y - this.y;
-        return new Vector(x,y);
+        return new Vector(x, y);
     }
 
     angleTo(object) {
@@ -30,15 +30,16 @@ export class AiGameObject extends InteractableGameObject {
         // the shift to loop around the circle long ways
         if (Math.abs(angleDiff) > Math.PI) {
             if (angleDiff > 0) {
-                this.angle += (Math.PI*2);
+                angleDiff -= (Math.PI * 2);
             } else {
-                this.angle -= (Math.PI*2);
+                angleDiff += (Math.PI * 2);
             }
-  
-            // recalculate diff now that we have adjusted the angle
-            angleDiff = angleToObject - this.angle;
-          }
-  
-          return angleDiff;
+        }
+
+        if (angleDiff < -Math.PI || angleDiff > Math.PI) {
+            this.error(`AngleDiff was not in expected range for ${this.getClassName()}`);
+        }
+
+        return angleDiff;
     }
 }
