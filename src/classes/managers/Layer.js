@@ -1,0 +1,19 @@
+// Create an "Enum" for the collision layers
+export const Layer = {
+    PLAYER: 0,
+    PLAYER_PROJECTILE: 1,
+    PUFFER_PROJECTILE: 2,
+    QUAD_BLASTER_PROJECTILE: 3,
+    ASTEROID: 4,
+    PUFFER: 5,
+    QUAD_BLASTER: 6,
+    SLICER: 7,
+    SLUDGER: 8,
+    SLUDGER_MINE: 9,
+    INSTANT_POWERUP: 10,
+    DURATION_POWERUP: 11,
+    BULLET_POWERUP: 12,
+    STORED_POWERUP: 13,
+    PLAYER_BASE: 14,
+    ENEMY_BASE: 15
+};
