@@ -1,5 +1,5 @@
 ﻿import { GameConfig } from './config/GameConfig.js';
-import { NewMediaManager } from './classes/managers/MediaManager.js';
+import { MediaManager } from './classes/managers/MediaManager.js';
 import { GameManager } from './classes/managers/GameManager.js';
 import { KeyStateManager } from './classes/managers/KeyManager.js';
 
@@ -51,7 +51,7 @@ export function LunaticFringe(scannerCanvas, radarCanvas, hidden, visibilityChan
     }
 
     // Initialize the media (audio/sprites)
-    NewMediaManager.init();
+    MediaManager.init();
 
     // Initialize the game
     GameManager.initializeGame(scannerCanvas.getContext("2d"), radarCanvas.getContext("2d"));

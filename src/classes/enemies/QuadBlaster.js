@@ -1,14 +1,17 @@
 import { GameConfig } from "../../config/GameConfig.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/MediaManager.js";
+import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
 import { QuasBlasterProjectile } from "../projectiles/QuadBlasterProjectile.js";
 
 export class QuadBlaster extends KillableAiGameObject {
+    static MAX_SPEED = 1;
+
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
         // According to gameplay footage killing a QuadBlaster was worth 50 points
-        super(xLocation, yLocation, Layer.QUAD_BLASTER, 40, 50, 0, NewMediaManager.Sprites.QuadBlaster, velocityX, velocityY, 16, 8, playerShip, 60, 160, 50);
+        // QuadBlaster does not change directions, so starting angle can just be zero since it always starts in the same state
+        super(xLocation, yLocation, Layer.QUAD_BLASTER, 40, 50, 0, MediaManager.Sprites.QuadBlaster, velocityX, velocityY, 16, 8, playerShip, 60, 160, 50);
 
         // For some reason the QuadBlaster sprite has an offset of 10 pixels on the spritesheet, so account for that with a constant here
         this.BASE_SPRITE_X_OFFEST = 10;

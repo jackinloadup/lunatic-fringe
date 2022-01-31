@@ -1,11 +1,11 @@
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/MediaManager.js";
+import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
 import { EnemyProjectile } from "./EnemyProjectile.js";
 
 export class PufferProjectile extends EnemyProjectile {
     constructor(xLocation, yLocation, velocityX, velocityY) {
-        super(xLocation, yLocation, Layer.PUFFER_PROJECTILE, 17, 15, 0, NewMediaManager.Sprites.PufferShot, velocityX, velocityY, 10, 0, 50, 80);
+        super(xLocation, yLocation, Layer.PUFFER_PROJECTILE, 17, 15, 0, MediaManager.Sprites.PufferShot, velocityX, velocityY, 10, 0, 50, 80);
     }
 
     handleCollision(otherObject) {

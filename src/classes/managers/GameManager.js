@@ -1,5 +1,4 @@
 import { GameConfig } from "../../config/GameConfig.js";
-import { QuadBlaster } from "../enemies/QuadBlaster.js";
 import { EnemyBase } from "../EnemyBase.js";
 import { PlayerBase } from "../PlayerBase.js";
 import { PlayerShip } from "../player/PlayerShip.js";
@@ -7,16 +6,13 @@ import { Star } from "../Star.js";
 import { CollisionManager } from "./CollisionManager.js";
 import { GameServiceManager } from "./GameServiceManager.js";
 import { Layer } from "./Layer.js";
-import { NewMediaManager } from "./MediaManager.js";
+import { MediaManager } from "./MediaManager.js";
 import { ObjectManager } from "./ObjectManager.js";
 import { GameBound, GameBoundSize } from "./GameBound.js";
 import { Vector } from "../../utility/Vector.js";
 import { RandomUtil } from "../../utility/RandomUtil.js";
 import { Pebbles } from "../asteroids/Pebbles.js";
 import { Rocko } from "../asteroids/Rocko.js";
-import { Puffer } from "../enemies/Puffer.js";
-import { Sludger } from "../enemies/Sludger.js";
-import { Slicer } from "../enemies/Slicer.js";
 import { PhotonLargePowerup } from "../powerups/PhotonLargePowerup.js";
 import { SpreadShotPowerup } from "../powerups/SpreadShotPowerup.js";
 import { DoublePointsPowerup } from "../powerups/DoublePointsPowerup.js";
@@ -26,8 +22,10 @@ import { SparePartsPowerup } from "../powerups/SparePartsPowerup.js";
 import { InvulnerabilityPowerup } from "../powerups/InvulnerabilityPowerup.js";
 import { TurboThrustPowerup } from "../powerups/TurboThrustPowerup.js";
 import { DocumentManager } from "./DocumentManager.js";
+import { LevelManager } from "./LevelManager.js";
+import { Logger } from "../Logger.js";
 
-export class GameManager {
+export class GameManager extends Logger {
     // Make some of these have constants naming convention
     static scannerContext;
     static radarContext;
@@ -58,6 +56,9 @@ export class GameManager {
         // Initialize the game service manager
         GameServiceManager.initialize(this);
 
+        // Initialize the leve manager
+        LevelManager.initializeGame();
+
         // Initalize all of the game objects
         // FUTURE TODO: Eventually all of the starting cooridinates won't be random and the object addition to the game will be more structred, once levels are added in (also won't start with powerups in world immediately)
         // Create the player
@@ -84,7 +85,7 @@ export class GameManager {
         let enemyBaseLocation = playerBaseLocation.subtract(new Vector(GameBoundSize, GameBoundSize));
         ObjectManager.addObject(new EnemyBase(enemyBaseLocation.x, enemyBaseLocation.y, this.playerShip));
 
-        // Add all enemies
+        // Add asteroids to the game
         for (let i = 0; i < 6; i++) {
             let randomPosition = this.getRandomStartingPosition();
             let randomVelocity = this.getRandomStartingVelocity(2);
@@ -97,55 +98,11 @@ export class GameManager {
             ObjectManager.addObject(new Rocko(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y));
         }
 
-        for (let i = 0; i < 4; i += 1) {
-            let randomPosition = this.getRandomStartingPosition();
-            let randomVelocity = this.getRandomStartingVelocity(3);
-            ObjectManager.addObject(new Sludger(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y, this.playerShip));
-        }
-
-        for (let i = 0; i < 4; i += 1) {
-            let randomPosition = this.getRandomStartingPosition();
-            let randomVelocity = this.getRandomStartingVelocity(1);
-            ObjectManager.addObject(new Puffer(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y, this.playerShip));
-        }
-			
-        for (let i = 0; i < 2; i += 1) {
-            let randomPosition = this.getRandomStartingPosition();
-            let randomVelocity = this.getRandomStartingVelocity(1);
-            ObjectManager.addObject(new Slicer(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y, this.playerShip));
-        }
-
-        for (let i = 0; i < 5; i++) {
-            let randomPosition = this.getRandomStartingPosition();
-            let randomVelocity = this.getRandomStartingVelocity(1);
-            ObjectManager.addObject(new QuadBlaster(randomPosition.x, randomPosition.y, randomVelocity.x, randomVelocity.y, this.playerShip));
-        }
-
-        // Add all powerups
-        // Note that this is temporary since when levels are implemented they powerups will not be spawned in at the start of the game
-        let randomLargePhotonPowerupPosition = this.getRandomStartingPosition();
-        ObjectManager.addObject(new PhotonLargePowerup(randomLargePhotonPowerupPosition.x, randomLargePhotonPowerupPosition.y));
-        let randomSpreadShotPowerupPosition = this.getRandomStartingPosition();
-        ObjectManager.addObject(new SpreadShotPowerup(randomSpreadShotPowerupPosition.x, randomSpreadShotPowerupPosition.y));
-        let randomDoublePointsPowerupPosition = this.getRandomStartingPosition();
-        ObjectManager.addObject(new DoublePointsPowerup(randomDoublePointsPowerupPosition.x, randomDoublePointsPowerupPosition.y));
-        let randomExtraFuelPowerupPosition = this.getRandomStartingPosition();
-        ObjectManager.addObject(new ExtraFuelPowerup(randomExtraFuelPowerupPosition.x, randomExtraFuelPowerupPosition.y));
-        let randomShipRepairsPowerupPosition = this.getRandomStartingPosition();
-        ObjectManager.addObject(new ShipRepairsPowerup(randomShipRepairsPowerupPosition.x, randomShipRepairsPowerupPosition.y));
-        let randomInvulnerabilityPowerupPosition = this.getRandomStartingPosition();
-        ObjectManager.addObject(new InvulnerabilityPowerup(randomInvulnerabilityPowerupPosition.x, randomInvulnerabilityPowerupPosition.y));
-        let randomTurboThrustPowerupPosition = this.getRandomStartingPosition();
-        ObjectManager.addObject(new TurboThrustPowerup(randomTurboThrustPowerupPosition.x, randomTurboThrustPowerupPosition.y));
-        let randomSparePartsPowerupPosition = this.getRandomStartingPosition();
-        ObjectManager.addObject(new SparePartsPowerup(randomSparePartsPowerupPosition.x, randomSparePartsPowerupPosition.y));
-
-
         // Add the player ship to the object array so it draws on top of most objects
         ObjectManager.addObject(this.playerShip);
 
         // Play startup sound
-        NewMediaManager.Audio.StartUp.play();
+        MediaManager.Audio.StartUp.play();
 
         // Set the current time to be the next game tick right before the animation loop starts to make it as recent as possible
         this.nextGameTick = (new Date()).getTime();
@@ -162,18 +119,52 @@ export class GameManager {
         return new Vector(RandomUtil.randomNumber(-maxStartingSpeed, maxStartingSpeed), RandomUtil.randomNumber(-maxStartingSpeed, maxStartingSpeed));
     }
 
+    static spawnRandomPowerup() {
+        let randomPowerupNumber = RandomUtil.randomInteger(0, 8);
+        let randomPosition = this.getRandomStartingPosition();
+
+        switch (randomPowerupNumber) {
+            case 0:
+                ObjectManager.addObject(new PhotonLargePowerup(randomPosition.x, randomPosition.y));
+                break;
+            case 1:
+                ObjectManager.addObject(new SpreadShotPowerup(randomPosition.x, randomPosition.y));
+                break;
+            case 2:
+                ObjectManager.addObject(new DoublePointsPowerup(randomPosition.x, randomPosition.y));
+                break;
+            case 3:
+                ObjectManager.addObject(new ExtraFuelPowerup(randomPosition.x, randomPosition.y));
+                break;
+            case 4:
+                ObjectManager.addObject(new ShipRepairsPowerup(randomPosition.x, randomPosition.y));
+                break;
+            case 5:
+                ObjectManager.addObject(new InvulnerabilityPowerup(randomPosition.x, randomPosition.y));
+                break;
+            case 6:
+                ObjectManager.addObject(new TurboThrustPowerup(randomPosition.x, randomPosition.y));
+                break;
+            case 7:
+                ObjectManager.addObject(new SparePartsPowerup(randomPosition.x, randomPosition.y));
+                break;
+            default:
+                this.error(`random powerup number ${randomPowerupNumber} was unexpected`);
+        }
+    }
+
     static checkBounds(object) {
-        if (object.x > GameBound.RIGHT) { 
-            object.x = GameBound.LEFT + (object.x - GameBound.RIGHT); 
+        if (object.x > GameBound.RIGHT) {
+            object.x = GameBound.LEFT + (object.x - GameBound.RIGHT);
         }
-        else if (object.x < GameBound.LEFT) { 
-            object.x = GameBound.RIGHT - (GameBound.LEFT - object.x); 
+        else if (object.x < GameBound.LEFT) {
+            object.x = GameBound.RIGHT - (GameBound.LEFT - object.x);
         }
-        if (object.y > GameBound.BOTTOM) { 
-            object.y = GameBound.TOP + (object.y - GameBound.BOTTOM); 
+        if (object.y > GameBound.BOTTOM) {
+            object.y = GameBound.TOP + (object.y - GameBound.BOTTOM);
         }
-        else if (object.y < GameBound.TOP) { 
-            object.y = GameBound.BOTTOM - (GameBound.TOP - object.y); 
+        else if (object.y < GameBound.TOP) {
+            object.y = GameBound.BOTTOM - (GameBound.TOP - object.y);
         }
     }
 
@@ -234,8 +225,8 @@ export class GameManager {
             for (let j = i + 1; j < collidablesSnapshot.length; j++) {
                 // first check to see if the layers the objects are on are allowed to collide, if not no point in doing all of the math along with it and calling handle collision on everything
                 if (CollisionManager.doObjectLayersCollide(collidablesSnapshot[i], collidablesSnapshot[j]) && (Math.pow((collidablesSnapshot[j].x - collidablesSnapshot[i].x), 2) + Math.pow((collidablesSnapshot[j].y - collidablesSnapshot[i].y), 2)
-                        <=
-                        Math.pow((collidablesSnapshot[i].collisionRadius + collidablesSnapshot[j].collisionRadius), 2))) {
+                    <=
+                    Math.pow((collidablesSnapshot[i].collisionRadius + collidablesSnapshot[j].collisionRadius), 2))) {
                     // This stores the velocity of the first object before handling the collision of the first object with the second object (which changes the velocity of the first object).
                     // It then stores the new velocity of the first object, sets the first object back to the old velocity and then handles collision of the second object with the first object
                     // (that way the second object reacts based on the first objects original velocity). After that it sets the velocity of the first object back to the new velocity.
@@ -260,8 +251,9 @@ export class GameManager {
         let numEnemies = 0;
 
         let object;
-        for (let i = 0; i < ObjectManager.objects.length; i++) {
-            object = ObjectManager.objects[i]
+        // Only check collidables here since enemies we care about are all collidable. Don't need to be searching through array with all of the stars.
+        for (let i = 0; i < ObjectManager.collidables.length; i++) {
+            object = ObjectManager.collidables[i]
             if (CollisionManager.isEnemyLayer(object.layer) && object.layer !== Layer.ENEMY_BASE) {
                 numEnemies++;
             }
@@ -274,7 +266,7 @@ export class GameManager {
     // This can be used to cause static throughout an image as well as making it darker.
     // Pass in the appropriate context since it could apply to radar canvas and scanner canvas separately
     static areaStaticEffect(context, percentWorking, x, y, width, height) {
-        let pixels = context.getImageData(x, y,  width, height);
+        let pixels = context.getImageData(x, y, width, height);
         let pixelData = pixels.data;
         for (let i = 0, n = pixelData.length; i < n; i += 4) {
             let shouldDisplayPixelRandomNumber = Math.random();
@@ -295,30 +287,30 @@ export class GameManager {
         // Clear canvas for drawing a new scene
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
-        if(GameConfig.debug) {
+        if (GameConfig.debug) {
             context.save();
             let x = context.canvas.width - 100;
             let y = context.canvas.height - 100;
-            
+
             // 0,90, and 180 degrees for frame of reference for drawing (in the order RGB)
             context.beginPath();
             context.strokeStyle = "red";
             context.moveTo(x, y);
             context.lineTo(x + 80 * Math.cos(0), y + 80 * Math.sin(0));
             context.stroke();
-            
+
             context.beginPath();
             context.strokeStyle = "green";
             context.moveTo(x, y);
-            context.lineTo(x + 80 * Math.cos(Math.PI/2), y + 80 * Math.sin(Math.PI/2));
+            context.lineTo(x + 80 * Math.cos(Math.PI / 2), y + 80 * Math.sin(Math.PI / 2));
             context.stroke();
-            
+
             context.beginPath();
             context.strokeStyle = "blue";
             context.moveTo(x, y);
             context.lineTo(x + 80 * Math.cos(Math.PI), y + 80 * Math.sin(Math.PI));
             context.stroke();
-            
+
             context.restore();
         }
 
@@ -326,9 +318,9 @@ export class GameManager {
             // Only draw the objects if they are within the viewing window
             let currentObject = objects[i];
             if (currentObject.x + currentObject.width > 0 &&
-                    currentObject.x - currentObject.width < context.canvas.width &&
-                    currentObject.y + currentObject.height > 0 &&
-                    currentObject.y - currentObject.height < context.canvas.height) {
+                currentObject.x - currentObject.width < context.canvas.width &&
+                currentObject.y + currentObject.height > 0 &&
+                currentObject.y - currentObject.height < context.canvas.height) {
                 context.save();
 
                 objects[i].draw(context);
@@ -362,7 +354,7 @@ export class GameManager {
         // However the game is also about 2x more zoomed in than it is in the original game. So we will use half of 15 as the scale
         // of the radar here.
         let sizeOfEachPixelInWorld = 7.5;
-        
+
         let radarWidthMinimum = this.playerShip.x - ((contextWidth / 2) * sizeOfEachPixelInWorld);
         let radarWidthMaximum = this.playerShip.x + ((contextWidth / 2) * sizeOfEachPixelInWorld);
         let radarHeightMinimum = this.playerShip.y - ((contextHeight / 2) * sizeOfEachPixelInWorld);
@@ -372,9 +364,9 @@ export class GameManager {
             let currentObject = objects[i];
             // Only draw the objects if they are within the viewing window
             if (currentObject.x + currentObject.width > radarWidthMinimum &&
-                    currentObject.x - currentObject.width < radarWidthMaximum &&
-                    currentObject.y + currentObject.height > radarHeightMinimum &&
-                    currentObject.y - currentObject.height < radarHeightMaximum) {
+                currentObject.x - currentObject.width < radarWidthMaximum &&
+                currentObject.y + currentObject.height > radarHeightMinimum &&
+                currentObject.y - currentObject.height < radarHeightMaximum) {
                 context.save();
 
                 let currentObjectLayer = currentObject.layer;
@@ -417,7 +409,7 @@ export class GameManager {
                         this.areaStaticEffect(context, this.playerShip.playerSystemsManager.radarCondition.operatingPercentage, xLocation - 1, yLocation - 1, 3, 3);
                     }
                 }
-                
+
                 context.restore();
             }
         }
@@ -432,7 +424,7 @@ export class GameManager {
             return "lawngreen";
         } else if (layer === Layer.PLAYER_BASE || layer === Layer.PLAYER_PROJECTILE) {
             return "deepskyblue";
-        } else if (CollisionManager.isPowerupLayer(layer)){
+        } else if (CollisionManager.isPowerupLayer(layer)) {
             // NOTE: In the original game is appears that powerups do not show up on the radar at all.
             // I think it is a little more fun to have them show up on the radar, so I am going to have it show as yellow, but have an option in the config to disable it if desired
             if (GameConfig.showPowerupsOnRadar) {
@@ -472,7 +464,7 @@ export class GameManager {
     }
 
     static pauseGame(activatedByKey = false) {
-        if(activatedByKey) {
+        if (activatedByKey) {
             this.wasPausedByKey = true;
         }
         this.isPaused = true;
@@ -511,8 +503,11 @@ export class GameManager {
             this.drawObjects(ObjectManager.objects, this.scannerContext);
             this.drawRadar(ObjectManager.collidables, this.radarContext);
         }
+
+        // Update the Level manager to see if we have can advance to the next level
+        LevelManager.update(loops);
     }
-    
+
     static animationLoop() {
         // stop loop if paused
         if (this.isPaused) return;
@@ -524,7 +519,7 @@ export class GameManager {
     }
 
     static advanceOneFrame() {
-        // One want to advance one frame if the game is paused, or else it doesn't really make any sense to advance one frame
+        // Only want to advance one frame if the game is paused, or else it doesn't really make any sense to advance one frame
         if (GameConfig.debug && this.isPaused) {
             console.log("Advancing the game one frame");
             this.gameLoop(true, true);
@@ -534,7 +529,7 @@ export class GameManager {
     static toggleDebugMode() {
         // Toggle debug
         GameConfig.debug = !GameConfig.debug;
-        // Update the system labels since debug shows more information for those
+        // Update the system labels since they show more/less info depending on if debug mode is on
         this.playerShip.playerSystemsManager.updateAllLabels();
     }
 }

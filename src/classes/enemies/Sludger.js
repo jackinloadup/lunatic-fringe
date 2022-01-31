@@ -1,13 +1,16 @@
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/MediaManager.js";
+import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
 import { SludgerMine } from "./SludgerMine.js";
 
 export class Sludger extends KillableAiGameObject {
+    static MAX_SPEED = 3;
+
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
         // According to gameplay footage killing a Sludger was worth 50 points
-        super(xLocation, yLocation, Layer.SLUDGER, 34, 31, 0, NewMediaManager.Sprites.Sludger, velocityX, velocityY, 16, 8, playerShip, 40, 40, 50);
+        // Sludger does not change directions, so starting angle can just be zero since it always starts in the same state
+        super(xLocation, yLocation, Layer.SLUDGER, 34, 31, 0, MediaManager.Sprites.Sludger, velocityX, velocityY, 16, 8, playerShip, 40, 40, 50);
 
         this.currentTicksInAnimationFrame = 0;
         this.NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES = 7;

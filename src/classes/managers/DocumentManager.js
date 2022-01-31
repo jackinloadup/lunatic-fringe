@@ -34,6 +34,10 @@ export class DocumentManager {
         this.updateElementText("player-lives", ` = ${lives}`);
     }
 
+    static updateLevel(level) {
+        this.updateElementText("level-number", level)
+    }
+
     static addClassToElement(elementName, className) {
         document.getElementById(elementName).classList.add(className);
     }

@@ -18,8 +18,8 @@ export class GameServiceManager {
         return this.gameManager.enemiesRemaining();
     }
 
-    static displayMessage(text, ticksToShow) {
-        this.gameManager.displayMessage(text, ticksToShow);
+    static displayMessage(text, numberOfFramesDuration) {
+        this.gameManager.displayMessage(text, numberOfFramesDuration);
     }
 
     static movePlayerShipTo(x, y) {

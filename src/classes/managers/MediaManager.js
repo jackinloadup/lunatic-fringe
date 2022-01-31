@@ -1,4 +1,4 @@
-export class NewMediaManager {
+export class MediaManager {
     static Sprites = {};
     static Audio = {};
 
