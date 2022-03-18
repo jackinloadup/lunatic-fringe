@@ -5,6 +5,9 @@ Lunatic Fringe is at risk of being lost to time. The original After Dark module 
 
 This project is an attempt to recreate Lunatic Fringe using web technologies. When finished, the game will be able to be enjoyed by anyone with a modern web browser on any platform and OS of their choosing. 
 
+## Try it out!
+[Lunatic Fringe](https://jackinloadup.github.io/lunatic-fringe/)
+
 ## Game history
 Light reading can be found on Wikipedia's [After Dark](https://en.wikipedia.org/wiki/After_Dark_%28software%29#After_Dark_Games_and_onward) page. More information will be filled out as we care more.
 
@@ -38,5 +41,5 @@ NOTE: With the refactor that separated out the code into multiple files, it is n
 ## Hey the origial game had X!
 This is a work in progress. You are welcome to submit issues. Please search before creating a new one. For the more technically inclined fork and submit pull requests.
 
-## Try it out!
-[Lunatic Fringe](https://jackinloadup.github.io/lunatic-fringe/)
+## We welcome contributions
+Please note that issues and PR's may sit for a while before they get a proper response. We appreciate your patience.
