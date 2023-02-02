@@ -12,6 +12,8 @@ body * {
 #game-container {
     display: flex;
     flex-direction: row;
+    /* TODO: This never used to be necessary, why is it now? */
+    overflow: hidden;
 
     background-color: black;
 
