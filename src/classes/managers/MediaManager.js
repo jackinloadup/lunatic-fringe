@@ -32,6 +32,7 @@ export class MediaManager {
     static init() {
         this.LoadSprite("Base", "images/Base.png");
         this.LoadSprite("EnemyBase", "images/EnemyBase.png");
+        this.LoadSprite("EnemyBasePhoton", "images/EnemyBasePhoton.png");
         this.LoadSprite("Pebbles", "images/Pebbles.png");
         this.LoadSprite("PhotonQuad", "images/PhotonQuad.png");
         this.LoadSprite("PhotonSmall", "images/PhotonSmall.png");
@@ -55,7 +56,9 @@ export class MediaManager {
         this.LoadSprite("TurboThrust", "images/TurboThrust.png");
 
         this.LoadAudio("CollisionGeneral", "audio/collision_general");
+        // TODO: This is not used...?
         this.LoadAudio("CollisionSpreadshot", "audio/collision_spreadshot");
+        // TODO: This is not used...?
         this.LoadAudio("CollisionQuad", "audio/collision_quad");
         this.LoadAudio("CollisionDefaultWeapon", "audio/collision_defaultweapon");
         this.LoadAudio("PhotonSmall", "audio/PhotonSmall");
@@ -71,7 +74,9 @@ export class MediaManager {
         this.LoadAudio("InvincibleCollision", "audio/invincible_collision");
         this.LoadAudio("InvincibleOrBoost", "audio/invincible_boost");
         this.LoadAudio("NewLevel", "audio/newlevel");
+        // TODO: This is not used...?
         this.LoadAudio("RepairOrFuelPowerup", "audio/repair_fuel");
+        // TODO: This is not used...?
         this.LoadAudio("SlicerAttack", "audio/Slicer_attack");
     }
 

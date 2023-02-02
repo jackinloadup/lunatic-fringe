@@ -15,5 +15,6 @@ export const Layer = {
     BULLET_POWERUP: 12,
     STORED_POWERUP: 13,
     PLAYER_BASE: 14,
-    ENEMY_BASE: 15
+    ENEMY_BASE: 15,
+    ENEMY_BASE_PHOTON: 16
 };

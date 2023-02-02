@@ -305,8 +305,9 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     handleCollision(otherObject) {
-        if (otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE) {
+        if (otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE || otherObject.layer === Layer.ENEMY_BASE_PHOTON) {
             this.log("Player was hit by projectile: " + otherObject.getClassName());
+            super.handleCollision(otherObject);
             this.playCollisionSound(otherObject);
             if (!this.isInvulnerable()) {
                 this.damageShip(otherObject.damage);

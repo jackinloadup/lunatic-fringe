@@ -418,7 +418,7 @@ export class GameManager extends Logger {
     static getRadarColor(layer) {
         if (layer === Layer.ASTEROID) {
             return "white";
-        } else if (CollisionManager.isEnemyLayer(layer) || layer === Layer.PUFFER_PROJECTILE || layer === Layer.QUAD_BLASTER_PROJECTILE) {
+        } else if (CollisionManager.isEnemyLayer(layer) || layer === Layer.PUFFER_PROJECTILE || layer === Layer.QUAD_BLASTER_PROJECTILE || layer === Layer.ENEMY_BASE_PHOTON) {
             return "red";
         } else if (layer === Layer.PLAYER) {
             return "lawngreen";
