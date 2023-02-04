@@ -10,6 +10,14 @@ export class LevelManager {
     static delayFrameCount = 0;
     static inNextLevelDelay = false;
     static DELAY_UNTIL_NEXT_LEVEL = 1 * 60;
+    /* To keep the game from getting too easy/boring at the end of each level there should be a minimum number of enemies present in the world
+        that the level manager keep uses to determine when to start a next level. 
+        To start, during level 1 add this many extra enemies to the game. Then, when determing when the next level should occur the spawn stack
+        should be empty and there should be either this many enemies or less still alive. In this way, the next level can start and new enemies
+        can start spawning before all of the enemies have been destroyed from the world, making it so it is not too easy for the player at the
+        end of a level.
+    */
+    static MINIMUM_ENEMIES_IN_WORLD = 3;
     
     static initializeGame() {
         this.setLevel(1);
@@ -29,6 +37,9 @@ export class LevelManager {
     // FUTURE TODO: When Hammerhead is added into the game that will need to be added here too
     static addEnemiesToSpawnQueueForCurrentLevel() {
         let numberOfEnemiesToSpawn = this.level + 4;
+        if (this.level === 1) {
+            numberOfEnemiesToSpawn += this.MINIMUM_ENEMIES_IN_WORLD;
+        }
 
         for (let i = 0; i < numberOfEnemiesToSpawn; i++) {
             let random = Math.random();
@@ -74,7 +85,7 @@ export class LevelManager {
     }
 
     static shouldActivateNextLevel() {
-        return this.spawnStack.length === 0 && GameManager.enemiesRemaining() === 0;
+        return this.spawnStack.length === 0 && GameManager.enemiesRemaining() <= this.MINIMUM_ENEMIES_IN_WORLD;
     }
 
     static activateNextLevel() {
