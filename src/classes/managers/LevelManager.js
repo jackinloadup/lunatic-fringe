@@ -11,7 +11,7 @@ export class LevelManager {
     static inNextLevelDelay = false;
     static DELAY_UNTIL_NEXT_LEVEL = 1 * 60;
     /* To keep the game from getting too easy/boring at the end of each level there should be a minimum number of enemies present in the world
-        that the level manager keep uses to determine when to start a next level. 
+        that the level manager keeps track of and uses to determine when to start a next level. 
         To start, during level 1 add this many extra enemies to the game. Then, when determing when the next level should occur the spawn stack
         should be empty and there should be either this many enemies or less still alive. In this way, the next level can start and new enemies
         can start spawning before all of the enemies have been destroyed from the world, making it so it is not too easy for the player at the
@@ -28,10 +28,6 @@ export class LevelManager {
 
         DocumentManager.updateLevel(this.level);
         this.addEnemiesToSpawnQueueForCurrentLevel();
-    }
-
-    incrementLevel() {
-        this.setLevel(this.level + 1);
     }
 
     // FUTURE TODO: When Hammerhead is added into the game that will need to be added here too
@@ -80,10 +76,6 @@ export class LevelManager {
         }
     }
 
-    static getCurrentLevelCompletionScoreBonus() {
-        return this.level * this.levelCompletionScoreBonus;
-    }
-
     static shouldActivateNextLevel() {
         return this.spawnStack.length === 0 && GameManager.enemiesRemaining() <= this.MINIMUM_ENEMIES_IN_WORLD;
     }
@@ -102,13 +94,15 @@ export class LevelManager {
         MediaManager.Audio.NewLevel.play();
 
         // 20% chance to spawn a new powerup
-        if (Math.random() < .2) {
+        if (Math.random() < .75) {
             GameManager.spawnRandomPowerup();
         }
     }
 
     static update(frameCount) {
         if (this.shouldActivateNextLevel()) {
+            // Next level delay is used to create a slight delay between an enemy being killed and starting the next level
+            // This also helps prevent the enemy death sound and next level sound from overlapping
             if (this.inNextLevelDelay) {
                 this.delayFrameCount += frameCount;
                 if (this.delayFrameCount >= this.DELAY_UNTIL_NEXT_LEVEL) {

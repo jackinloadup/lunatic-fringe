@@ -32,7 +32,7 @@ export class EnemyBase extends AiGameObject {
         super.draw(context);
 
         if (GameConfig.debug) {
-            // Draw collision circle
+            // Draw circle where enemy base will fire at the player
             context.beginPath();
             context.strokeStyle = "red";
             context.arc(this.x, this.y, this.DISTANCE_WILL_FIRE_AT_PLAYER_SHIP, 0, Math.PI * 2);
@@ -62,6 +62,7 @@ export class EnemyBase extends AiGameObject {
             let startingPosition = new Vector(randomLocationRadius * Math.cos(randomAngle) + this.x, randomLocationRadius * Math.sin(randomAngle) + this.y);
 
             // starting velocity is in the same direction as starting position, so use the same angle
+            // TODO: Increase starting health of enemy as level number gets higher?
             if (enemyToSpawn === Layer.QUAD_BLASTER) {
                 this.log('spawning QuadBlaster');
                 let randomSpeed = RandomUtil.randomNumber(QuadBlaster.MAX_SPEED/2, QuadBlaster.MAX_SPEED);
@@ -86,8 +87,6 @@ export class EnemyBase extends AiGameObject {
 
             this.ticksUntilNextEnemySpawn = RandomUtil.randomNumber(this.MIN_SPAWN_RATE, this.MAX_SPAWN_RATE);
         }
-
-        // FUTURE TODO: Fire bullets towards player if player is nearby, also handle spawning more enemies
 
         if (this.numberOfTicksUntilCanShootAgain < 0 && this.relativePositionTo(this.playerShipReference).magnitude() <= this.DISTANCE_WILL_FIRE_AT_PLAYER_SHIP) {
             let angleToPlayer = this.angleTo(this.playerShipReference);

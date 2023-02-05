@@ -25,7 +25,7 @@ import { DocumentManager } from "./DocumentManager.js";
 import { LevelManager } from "./LevelManager.js";
 import { Logger } from "../Logger.js";
 
-export class GameManager extends Logger {
+export class GameManager {
     // Make some of these have constants naming convention
     static scannerContext;
     static radarContext;

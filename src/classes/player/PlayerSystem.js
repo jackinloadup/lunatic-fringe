@@ -10,7 +10,9 @@ export class PlayerSystem extends Logger {
         // Every system starts at the blue condition (indicator 0)
         this.currentActiveIndicator = 0;
         // Determines at what values the blue, green, yellow, and red lights should be shown
-        this.operatingPercentageThresholds = [85, 50, 20];
+        // After thinking about it, blue should only show at 100%, that way it is obvious to a 
+        // player when a system is at full capacity and when it is not
+        this.operatingPercentageThresholds = [99, 67, 33];
         this.resetSystem();
     }
 
