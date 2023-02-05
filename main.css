@@ -12,6 +12,10 @@ body * {
 #game-container {
     display: flex;
     flex-direction: row;
+    /* TODO: This never used to be necessary, but now without this scrollbars
+       are appearing on the side and bottom of the window, so something must be
+       hanging off of the page by a pixel or two. Look into this further. */
+    overflow: hidden;
 
     background-color: black;
 

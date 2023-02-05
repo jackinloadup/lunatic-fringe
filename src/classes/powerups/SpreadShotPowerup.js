@@ -1,10 +1,10 @@
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/MediaManager.js";
+import { MediaManager } from "../managers/MediaManager.js";
 import { PlayerProjectilePowerup } from "./PlayerProjectilePowerup.js";
 
 export class SpreadShotPowerup extends PlayerProjectilePowerup {
     constructor(xLocation, yLocation) {
-        super(xLocation, yLocation, Layer.BULLET_POWERUP, 19, 16, NewMediaManager.Sprites.SpreadShot, 9, 60 * 60, 'spreadShotActive', 39);
+        super(xLocation, yLocation, Layer.BULLET_POWERUP, 19, 16, MediaManager.Sprites.SpreadShot, 9, 60 * 60, 'spreadShotActive', 39);
     }
 
     activate(playerShip) {

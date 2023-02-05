@@ -1,13 +1,13 @@
 import { InteractableGameObject } from "./InteractableGameObject.js";
 import { Layer } from "./managers/Layer.js";
-import { NewMediaManager } from "./managers/MediaManager.js";
+import { MediaManager } from "./managers/MediaManager.js";
 
 export class PlayerBase extends InteractableGameObject {
     constructor(xLocation, yLocation) {
         /**
          * The width, height, angle (which doesn't really apply), sprite, velocityX, velocityY, collisionRadius, and mass are always the same for a PlayerBase.
          */
-        super(xLocation, yLocation, Layer.PLAYER_BASE, 42, 32, 0, NewMediaManager.Sprites.Base, 0, 0, 30, 0);
+        super(xLocation, yLocation, Layer.PLAYER_BASE, 42, 32, 0, MediaManager.Sprites.Base, 0, 0, 30, 0);
 
         this.currentTicksInAnimationFrame = 0;
         this.NUMBER_OF_TICKS_BETWEEN_ANIMATION_FRAMES = 6;

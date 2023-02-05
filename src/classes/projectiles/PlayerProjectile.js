@@ -1,5 +1,5 @@
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/MediaManager.js";
+import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
 import { Projectile } from "./Projectile.js";
 
@@ -13,7 +13,7 @@ export class PlayerProjectile extends Projectile {
 
         if (otherObject.layer !== Layer.PUFFER_PROJECTILE && otherObject.layer !== Layer.QUAD_BLASTER_PROJECTILE) {
             // Only play the weapon collision sound if not hitting an enemy projectile
-            NewMediaManager.Audio.CollisionDefaultWeapon.play();
+            MediaManager.Audio.CollisionDefaultWeapon.play();
         }
         ObjectManager.removeObject(this);
     }

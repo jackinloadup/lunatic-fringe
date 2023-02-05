@@ -1,10 +1,10 @@
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/MediaManager.js";
+import { MediaManager } from "../managers/MediaManager.js";
 import { InstantPowerup } from "./InstantPowerup.js";
 
 export class ExtraFuelPowerup extends InstantPowerup {
     constructor(xLocation, yLocation) {
-        super(xLocation, yLocation, Layer.INSTANT_POWERUP, 13, 13, NewMediaManager.Sprites.ExtraFuel, 7);
+        super(xLocation, yLocation, Layer.INSTANT_POWERUP, 13, 13, MediaManager.Sprites.ExtraFuel, 7);
     }
 
     activate(playerShip) {

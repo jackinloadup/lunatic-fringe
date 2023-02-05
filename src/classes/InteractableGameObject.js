@@ -121,12 +121,11 @@ export class InteractableGameObject extends GameObject {
 
         // Only apply Lorentz factor if acceleration increases speed
         if (newVelocity.magnitude() > currentVelocity.magnitude()) {
-            // NOTE: MAX_SPEED is not defined in this class as not every class extended from this calls calculateAcceleration. All classes that use this function should define a MAX_SPEED. This function should probably move into 
-            // a subclass of objects that actually use it but for now it will remain here
-            if(!this.MAX_SPEED) {
+            let maxSpeed = this.getStaticValue('MAX_SPEED');
+            if(!maxSpeed) {
                 this.error(`Max speed for ${this.getClassName()} was not defined`);
             }
-            let b = 1 - ((currentVelocity.magnitude() * currentVelocity.magnitude()) / (this.MAX_SPEED * this.MAX_SPEED));
+            let b = 1 - ((currentVelocity.magnitude() * currentVelocity.magnitude()) / (maxSpeed * maxSpeed));
 
             // If b is negative then just make it very small to prevent errors in the square root
             if (b <= 0) { b = 0.0000000001; }
@@ -148,5 +147,14 @@ export class InteractableGameObject extends GameObject {
 
         this.velocityX = currentVelocity.x;
         this.velocityY = currentVelocity.y;
+    }
+
+    /**
+     * Used to get a static value off of a `this` instance when not in the class defition
+     * @param {string} staticVariableName 
+     * @returns The value of the static variable with the given name, or undefined if it doesn't exist
+     */
+    getStaticValue(staticVariableName) {
+        return this.constructor[staticVariableName];
     }
 }

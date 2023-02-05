@@ -1,15 +1,16 @@
 import { Vector } from "../../utility/Vector.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/MediaManager.js";
+import { MediaManager } from "../managers/MediaManager.js";
 
 export class SludgerMine extends KillableAiGameObject {
+    static MAX_SPEED = 4;
+
     constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
         // According to gameplay footage killing a SludgerMine was worth 2 points
-        super(xLocation, yLocation, Layer.SLUDGER_MINE, 24, 21, 0, NewMediaManager.Sprites.SludgerMine, velocityX, velocityY, 11, 4, playerShip, 20, 20, 2);
+        super(xLocation, yLocation, Layer.SLUDGER_MINE, 24, 21, 0, MediaManager.Sprites.SludgerMine, velocityX, velocityY, 11, 4, playerShip, 20, 20, 2);
 
         this.TURN_ABILITY = 0.09;
-        this.MAX_SPEED = 4;
         this.ACCELERATION = 0.1;
         
 
@@ -22,7 +23,7 @@ export class SludgerMine extends KillableAiGameObject {
 
     playDeathSound() {
         // Override method to play the sludger mine specific death sound
-        NewMediaManager.Audio.SludgerMinePop.play();
+        MediaManager.Audio.SludgerMinePop.play();
     }
 
     updateState() {
