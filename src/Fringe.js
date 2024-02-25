@@ -22,7 +22,7 @@ import { KeyStateManager } from './classes/managers/KeyManager.js';
 /* JSLint validation options */
 /*jslint devel: true, browser: true, maxerr: 50, indent: 4 */
 /*global Audio: false */
-export function LunaticFringe(scannerCanvas, radarCanvas, hidden, visibilityChange) {
+export function LunaticFringe(scannerCanvas, scannerProjectileCanvas, radarCanvas, hidden, visibilityChange) {
     "use strict";
 
 	let version = "3.0";
@@ -30,6 +30,10 @@ export function LunaticFringe(scannerCanvas, radarCanvas, hidden, visibilityChan
 
     if (typeof scannerCanvas !== 'object') {
         scannerCanvas = document.getElementById(scannerCanvas);
+    }
+
+    if (typeof scannerProjectileCanvas !== 'object') {
+        scannerProjectileCanvas = document.getElementById(scannerProjectileCanvas);
     }
 
     if (typeof radarCanvas !== 'object') {
@@ -54,7 +58,7 @@ export function LunaticFringe(scannerCanvas, radarCanvas, hidden, visibilityChan
     MediaManager.init();
 
     // Initialize the game
-    GameManager.initializeGame(scannerCanvas.getContext("2d"), radarCanvas.getContext("2d"));
+    GameManager.initializeGame(scannerCanvas.getContext("2d", {willReadFrequently: true}), scannerProjectileCanvas.getContext("2d", {willReadFrequently: true}), radarCanvas.getContext("2d"), {willReadFrequently: true});
 
     // Add listeners
     function handleVisibilityChange() {

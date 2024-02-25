@@ -305,7 +305,7 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     handleCollision(otherObject) {
-        if (otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE || otherObject.layer === Layer.ENEMY_BASE_PHOTON) {
+        if (otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE || otherObject.layer === Layer.HAMMERHEAD_WEAPON || otherObject.layer === Layer.ENEMY_BASE_PHOTON) {
             this.log("Player was hit by projectile: " + otherObject.getClassName());
             super.handleCollision(otherObject);
             this.playCollisionSound(otherObject);
@@ -335,7 +335,7 @@ export class PlayerShip extends InteractableGameObject {
             if (this.velocityX == 0 && this.velocityY == 0 && Math.abs(baseX - this.x) < threshold && Math.abs(baseY - this.y) < threshold) {
                 //The player ship is stopped at the base
                 
-                if (this.numFramesSince.repair >= 60 && (!this.playerSystemsManager.isShipAtFullOpeartingCapacity() || this.fuel < this.MAXIMUM_FUEL)) {
+                if (this.numFramesSince.repair >= 60 && (!this.playerSystemsManager.isShipAtFullOpeartingCapacity() || this.fuel < this.MAXIMUM_FUEL || this.spareParts < this.MAXIMUM_SPARE_PARTS)) {
                     //Repair ship
                     this.numFramesSince.repair = 0;
                     MediaManager.Audio.BaseRepair.play();
