@@ -538,4 +538,13 @@ export class GameManager {
         // Update the system labels since they show more/less info depending on if debug mode is on
         this.playerShip.playerSystemsManager.updateAllLabels();
     }
+
+    static stopPlayerMovement() {
+        // Only allow stopping of player movement if debug mode is enabled
+        if (GameConfig.debug) {
+            console.log("Stopping player movement");
+            this.playerShip.velocityX = 0;
+            this.playerShip.velocityY = 0;
+        }
+    }
 }

@@ -14,6 +14,7 @@ export class KeyStateManager {
 	static V = 86;
 	static B = 66;
 	static K = 75;
+    static S = 83;
 
     static isDown(keyCode) {
         return this.keysPressed[keyCode];
@@ -31,6 +32,10 @@ export class KeyStateManager {
             // If D was pressed (and is not already registered as being down before this), toggle debug in the game config
             // That way it starts whatever way is defined in the config, but can be toggled with a key press.
             GameServiceManager.toggleDebugMode();
+        } else if (event.keyCode === this.S && this.keysPressed[event.keyCode] !== true) {
+            // If S was pressed (and is not already registered as being down before this), call game manager to
+            // set the player velocity to 0 to stop the player in place (useful for debugging)
+            GameServiceManager.stopPlayerMovement();
         }
         
         this.keysPressed[event.keyCode] = true;

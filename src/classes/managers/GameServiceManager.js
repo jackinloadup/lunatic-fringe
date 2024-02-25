@@ -37,4 +37,8 @@ export class GameServiceManager {
     static toggleDebugMode() {
         this.gameManager.toggleDebugMode();
     }
+
+    static stopPlayerMovement() {
+        this.gameManager.stopPlayerMovement();
+    }
 }
