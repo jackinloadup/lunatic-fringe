@@ -29,7 +29,10 @@
 <body>
 	<div id="game-container">
 		<div id="scanner">
-			<canvas id="scannerCanvas"></canvas>
+			<div id="scannerLayers">
+				<canvas class="baseScanner" id="scannerCanvas"></canvas>
+				<canvas class="projectileScanner" id="scannerCanvasProjectiles"></canvas>
+			</div>
 		</div>
 		<div id="hud">
 			<div id="radar">

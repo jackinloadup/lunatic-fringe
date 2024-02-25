@@ -31,13 +31,15 @@ export class CollisionManager {
         // SLICER: 7,
         // SLUDGER: 8,
         // SLUDGER_MINE: 9,
-        // INSTANT_POWERUP: 10,
-        // DURATION_POWERUP: 11,
-        // BULLET_POWERUP: 12,
-        // STORED_POWERUP: 13,
-        // PLAYER_BASE: 14,
-        // ENEMY_BASE: 15,
-        // ENEMY_BASE_PHOTON: 16
+        // HAMMERHEAD: 10,
+        // HAMMERHEAD_WEAPON: 11,
+        // INSTANT_POWERUP: 12,
+        // DURATION_POWERUP: 13,
+        // BULLET_POWERUP: 14,
+        // STORED_POWERUP: 15,
+        // PLAYER_BASE: 16,
+        // ENEMY_BASE: 17,
+        // ENEMY_BASE_PHOTON: 18
 
         // The player should not collide with itself or its own projectiles
         this.collisionMatrix[Layer.PLAYER][Layer.PLAYER] = false;
@@ -123,7 +125,7 @@ export class CollisionManager {
         this.collisionMatrix[Layer.ENEMY_BASE][Layer.SLUDGER] = false;
         this.collisionMatrix[Layer.ENEMY_BASE_PHOTON][Layer.SLUDGER] = false;
 
-        // Sludger mines should not collide with other sludger mines, powerups, the player base, or the enemy base
+        // Sludger mines should not collide with other sludger mines, powerups, the player base, or the enemy base (specifically ARE destroyed from the enemy base photon)
         this.collisionMatrix[Layer.SLUDGER_MINE][Layer.SLUDGER_MINE] = false;
         this.collisionMatrix[Layer.INSTANT_POWERUP][Layer.SLUDGER_MINE] = false;
         this.collisionMatrix[Layer.DURATION_POWERUP][Layer.SLUDGER_MINE] = false;
@@ -131,6 +133,27 @@ export class CollisionManager {
         this.collisionMatrix[Layer.STORED_POWERUP][Layer.SLUDGER_MINE] = false;
         this.collisionMatrix[Layer.PLAYER_BASE][Layer.SLUDGER_MINE] = false;
         this.collisionMatrix[Layer.ENEMY_BASE][Layer.SLUDGER_MINE] = false;
+
+        // Hammerhead should not collide with other hammerheads, other hammerhead weapons, powerups, the player base, the enemy base, or the enemy base photon
+        this.collisionMatrix[Layer.HAMMERHEAD][Layer.HAMMERHEAD] = false;
+        this.collisionMatrix[Layer.HAMMERHEAD_WEAPON][Layer.HAMMERHEAD] = false;
+        this.collisionMatrix[Layer.INSTANT_POWERUP][Layer.HAMMERHEAD] = false;
+        this.collisionMatrix[Layer.DURATION_POWERUP][Layer.HAMMERHEAD] = false;
+        this.collisionMatrix[Layer.BULLET_POWERUP][Layer.HAMMERHEAD] = false;
+        this.collisionMatrix[Layer.STORED_POWERUP][Layer.HAMMERHEAD] = false;
+        this.collisionMatrix[Layer.PLAYER_BASE][Layer.HAMMERHEAD] = false;
+        this.collisionMatrix[Layer.ENEMY_BASE][Layer.HAMMERHEAD] = false;
+        this.collisionMatrix[Layer.ENEMY_BASE_PHOTON][Layer.HAMMERHEAD] = false;
+
+        //Hammerhead weapon should not collide with other hammerhead weapons, powerups, the player base, the enemy base, or the enemy base photon
+        this.collisionMatrix[Layer.HAMMERHEAD_WEAPON][Layer.HAMMERHEAD_WEAPON] = false;
+        this.collisionMatrix[Layer.INSTANT_POWERUP][Layer.HAMMERHEAD_WEAPON] = false;
+        this.collisionMatrix[Layer.DURATION_POWERUP][Layer.HAMMERHEAD_WEAPON] = false;
+        this.collisionMatrix[Layer.BULLET_POWERUP][Layer.HAMMERHEAD_WEAPON] = false;
+        this.collisionMatrix[Layer.STORED_POWERUP][Layer.HAMMERHEAD_WEAPON] = false;
+        this.collisionMatrix[Layer.PLAYER_BASE][Layer.HAMMERHEAD_WEAPON] = false;
+        this.collisionMatrix[Layer.ENEMY_BASE][Layer.HAMMERHEAD_WEAPON] = false;
+        this.collisionMatrix[Layer.ENEMY_BASE_PHOTON][Layer.HAMMERHEAD_WEAPON] = false;
 
         // Instant powerup should not collide with anything except the player (all other false values are set above)
         this.collisionMatrix[Layer.INSTANT_POWERUP][Layer.INSTANT_POWERUP] = false;
@@ -185,11 +208,15 @@ export class CollisionManager {
         }
     }
 
+    static isProjectileLayer(layer) {
+        return layer === Layer.PLAYER_PROJECTILE || layer === Layer.PUFFER_PROJECTILE || layer === Layer.QUAD_BLASTER_PROJECTILE || layer === Layer.HAMMERHEAD_WEAPON || layer === Layer.ENEMY_BASE_PHOTON;
+    }
+
     static isPowerupLayer(layer) {
         return layer === Layer.INSTANT_POWERUP || layer === Layer.DURATION_POWERUP || layer === Layer.BULLET_POWERUP || layer === Layer.STORED_POWERUP;
     }
 
     static isEnemyLayer(layer) {
-        return layer === Layer.PUFFER || layer === Layer.QUAD_BLASTER || layer === Layer.SLICER  || layer === Layer.SLUDGER || layer === Layer.SLUDGER_MINE || layer === Layer.ENEMY_BASE;
+        return layer === Layer.HAMMERHEAD || layer === Layer.PUFFER || layer === Layer.QUAD_BLASTER || layer === Layer.SLICER  || layer === Layer.SLUDGER || layer === Layer.SLUDGER_MINE || layer === Layer.ENEMY_BASE;
     }
 }

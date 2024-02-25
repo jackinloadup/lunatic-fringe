@@ -42,33 +42,39 @@ export class LevelManager {
             if (this.level < 4) {
                 /*
                     Odds of spawning:
-                    QuadBlaster: 40%
-                    Sludger: 30%
-                    Puffer: 30%
+                    QuadBlaster: 30%
+                    Sludger: 25%
+                    Puffer: 20%
+                    Hammerhead: 25%
                 */
-               if (random < .4) {
+               if (random < .3) {
                     this.spawnStack.push(Layer.QUAD_BLASTER);
-               } else if (random < .7) {
+               } else if (random < .55) {
                     this.spawnStack.push(Layer.SLUDGER);
-               } else {
+               } else if (random < .75) {
                    this.spawnStack.push(Layer.PUFFER);
+               } else {
+                    this.spawnStack.push(Layer.HAMMERHEAD);
                }
             } else {
                 /*
                     Once level is 4 or higher, add chance of slicer spawning in
 
                     Odds of spawning:
-                    QuadBlaster: 35%
-                    Sludger: 30%
-                    Puffer: 30%
-                    Slicer: 5%
+                    QuadBlaster: 29%
+                    Sludger: 24%
+                    Puffer: 19%
+                    Hammerhead: 24%
+                    Slicer: 4%
                 */
-                if (random < .35) {
+                if (random < .29) {
                     this.spawnStack.push(Layer.QUAD_BLASTER);
-                } else if (random < .65) {
+                } else if (random < .53) {
                     this.spawnStack.push(Layer.SLUDGER);
-                } else if (random < .95) {
+                } else if (random < .72) {
                     this.spawnStack.push(Layer.PUFFER);
+                } else if (random < .96) {
+                    this.spawnStack.push(Layer.HAMMERHEAD);
                 } else {
                     this.spawnStack.push(Layer.SLICER);
                 }

@@ -23,11 +23,11 @@ import { InvulnerabilityPowerup } from "../powerups/InvulnerabilityPowerup.js";
 import { TurboThrustPowerup } from "../powerups/TurboThrustPowerup.js";
 import { DocumentManager } from "./DocumentManager.js";
 import { LevelManager } from "./LevelManager.js";
-import { Logger } from "../Logger.js";
 
 export class GameManager {
     // Make some of these have constants naming convention
     static scannerContext;
+    static scannerProjectileContext;
     static radarContext;
     static numMessageTicks;
     static message;
@@ -46,8 +46,9 @@ export class GameManager {
     static MAX_FRAME_SKIP = 10
     static nextGameTick //NOTE: Should be set right before game starts so that it is as recent as possible
 
-    static initializeGame(canvasContext, radarCanvasContext) {
+    static initializeGame(canvasContext, canvasProjectilesContext, radarCanvasContext) {
         this.scannerContext = canvasContext;
+        this.scannerProjectileContext = canvasProjectilesContext;
         this.radarContext = radarCanvasContext;
         this.isPaused = false;
         this.wasPausedByKey = false;
@@ -182,6 +183,9 @@ export class GameManager {
         this.scannerContext.canvas.width = scannerDimensions.x;
         this.scannerContext.canvas.height = scannerDimensions.y;
 
+        this.scannerProjectileContext.canvas.width = scannerDimensions.x;
+        this.scannerProjectileContext.canvas.height = scannerDimensions.y;
+
         let diffX = this.scannerContext.canvas.width / 2 - oldCenterX;
         let diffY = this.scannerContext.canvas.height / 2 - oldCenterY;
 
@@ -224,7 +228,7 @@ export class GameManager {
         for (let i = 0; i < collidablesSnapshot.length; i++) {
             for (let j = i + 1; j < collidablesSnapshot.length; j++) {
                 // first check to see if the layers the objects are on are allowed to collide, if not no point in doing all of the math along with it and calling handle collision on everything
-                if (CollisionManager.doObjectLayersCollide(collidablesSnapshot[i], collidablesSnapshot[j]) && (Math.pow((collidablesSnapshot[j].x - collidablesSnapshot[i].x), 2) + Math.pow((collidablesSnapshot[j].y - collidablesSnapshot[i].y), 2)
+                if (CollisionManager.doObjectLayersCollide(collidablesSnapshot[i], collidablesSnapshot[j]) && (Math.pow((collidablesSnapshot[j].getCollisionCenterX() - collidablesSnapshot[i].getCollisionCenterX()), 2) + Math.pow((collidablesSnapshot[j].getCollisionCenterY() - collidablesSnapshot[i].getCollisionCenterY()), 2)
                     <=
                     Math.pow((collidablesSnapshot[i].collisionRadius + collidablesSnapshot[j].collisionRadius), 2))) {
                     // This stores the velocity of the first object before handling the collision of the first object with the second object (which changes the velocity of the first object).
@@ -284,9 +288,6 @@ export class GameManager {
     };
 
     static drawObjects(objects, context) {
-        // Clear canvas for drawing a new scene
-        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-
         if (GameConfig.debug) {
             context.save();
             let x = context.canvas.width - 100;
@@ -323,7 +324,7 @@ export class GameManager {
                 currentObject.y - currentObject.height < context.canvas.height) {
                 context.save();
 
-                objects[i].draw(context);
+                currentObject.draw(context);
 
                 // Draw the static effect over the object caused from a damaged player scanner
                 let xStart = currentObject.x - currentObject.width / 2;
@@ -418,7 +419,7 @@ export class GameManager {
     static getRadarColor(layer) {
         if (layer === Layer.ASTEROID) {
             return "white";
-        } else if (CollisionManager.isEnemyLayer(layer) || layer === Layer.PUFFER_PROJECTILE || layer === Layer.QUAD_BLASTER_PROJECTILE || layer === Layer.ENEMY_BASE_PHOTON) {
+        } else if (CollisionManager.isEnemyLayer(layer) || layer === Layer.PUFFER_PROJECTILE || layer === Layer.QUAD_BLASTER_PROJECTILE || layer === Layer.ENEMY_BASE_PHOTON || layer === Layer.HAMMERHEAD_WEAPON) {
             return "red";
         } else if (layer === Layer.PLAYER) {
             return "lawngreen";
@@ -500,7 +501,12 @@ export class GameManager {
 
         // Even if we process 10 frames, we only want to draw once (no point in drawing older frames)
         if (loops) {
-            this.drawObjects(ObjectManager.objects, this.scannerContext);
+            // Clear canvases for drawing a new scene
+            this.scannerContext.clearRect(0, 0, this.scannerContext.canvas.width, this.scannerContext.canvas.height);
+            this.scannerProjectileContext.clearRect(0, 0, this.scannerProjectileContext.canvas.width, this.scannerProjectileContext.canvas.height);
+
+            this.drawObjects(Object.values(ObjectManager.nonProjectileObjects), this.scannerContext);
+            this.drawObjects(Object.values(ObjectManager.projectileObjects), this.scannerProjectileContext);
             this.drawRadar(ObjectManager.collidables, this.radarContext);
         }
 

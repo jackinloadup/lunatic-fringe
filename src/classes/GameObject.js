@@ -8,6 +8,8 @@ export class GameObject extends Logger {
         // Width and height as also needed for any game object
         this.width = width;
         this.height = height;
+        // Object id to be set by the ObjectManager
+        this.objectId = undefined;
     }
 
     updateState() {

@@ -11,6 +11,7 @@ import { Puffer } from "./enemies/Puffer.js";
 import { Slicer } from "./enemies/Slicer.js";
 import { EnemyBasePhoton } from "./projectiles/EnemyBasePhoton.js";
 import { GameConfig } from "../config/GameConfig.js";
+import { Hammerhead } from "./enemies/HammerHead.js";
 
 export class EnemyBase extends AiGameObject {
     constructor(xLocation, yLocation, playerShip) {
@@ -83,6 +84,11 @@ export class EnemyBase extends AiGameObject {
                 let randomSpeed = RandomUtil.randomNumber(Slicer.MAX_SPEED/2, Slicer.MAX_SPEED);
                 let startingVelocity = new Vector(randomSpeed * Math.cos(randomAngle), randomSpeed * Math.sin(randomAngle));
                 ObjectManager.addObject(new Slicer(startingPosition.x, startingPosition.y, startingVelocity.x, startingVelocity.y, randomAngle, this.playerShipReference));
+            } else if (enemyToSpawn === Layer.HAMMERHEAD) {
+                this.log('spawning Hammerhead');
+                let randomSpeed = RandomUtil.randomNumber(Hammerhead.MAX_SPEED/2, Hammerhead.MAX_SPEED);
+                let startingVelocity = new Vector(randomSpeed * Math.cos(randomAngle), randomSpeed * Math.sin(randomAngle));
+                ObjectManager.addObject(new Hammerhead(startingPosition.x, startingPosition.y, startingVelocity.x, startingVelocity.y, randomAngle, this.playerShipReference));
             }
 
             this.ticksUntilNextEnemySpawn = RandomUtil.randomNumber(this.MIN_SPAWN_RATE, this.MAX_SPAWN_RATE);

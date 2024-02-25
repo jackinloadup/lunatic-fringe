@@ -29,6 +29,18 @@ body * {
     flex: 1;
 }
 
+#scannerCanvas {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+#scannerCanvasProjectiles {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
 #hud {
     width: 300px;
     display: flex;

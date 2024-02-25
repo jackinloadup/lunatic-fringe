@@ -40,6 +40,8 @@ export class MediaManager {
         this.LoadSprite("PhotonLarge", "images/PhotonLarge.png");
         this.LoadSprite("PlayerShip", "images/PlayerShip.png");
         this.LoadSprite("PlayerShipInvulnerable", "images/PlayerShipInvulnerable.png");
+        this.LoadSprite("Hammerhead", "images/HammerheadShip.png");
+        this.LoadSprite("HammerheadWeapon", "images/HammerheadWeapon.png");
         this.LoadSprite("Puffer", "images/Puffer.png");
         this.LoadSprite("QuadBlaster", "images/Quadblaster.png");
         this.LoadSprite("Rocko", "images/Rocko.png");

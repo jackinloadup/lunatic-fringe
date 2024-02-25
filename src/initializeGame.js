@@ -8,6 +8,9 @@ window.onload = function Initialize() {
     let scannerDimensions = DocumentManager.getElementDimensions('scanner');
     DocumentManager.setElementDimensions('scannerCanvas', scannerDimensions);
 
+    // Another canvas for another layer of the scanner drawing area
+    DocumentManager.setElementDimensions('scannerCanvasProjectiles', scannerDimensions);
+
     let radarDimensions = DocumentManager.getElementDimensions('radar');
     DocumentManager.setElementDimensions('radarCanvas', radarDimensions);
 
@@ -26,5 +29,5 @@ window.onload = function Initialize() {
       visibilityChange = "webkitvisibilitychange";
     }
 
-    new LunaticFringe('scannerCanvas', 'radarCanvas', hidden, visibilityChange);
+    new LunaticFringe('scannerCanvas', 'scannerCanvasProjectiles', 'radarCanvas', hidden, visibilityChange);
 }
