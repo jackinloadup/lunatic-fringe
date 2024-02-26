@@ -11,7 +11,7 @@ import { Puffer } from "./enemies/Puffer.js";
 import { Slicer } from "./enemies/Slicer.js";
 import { EnemyBasePhoton } from "./projectiles/EnemyBasePhoton.js";
 import { GameConfig } from "../config/GameConfig.js";
-import { Hammerhead } from "./enemies/HammerHead.js";
+import { Hammerhead } from "./enemies/Hammerhead.js";
 
 export class EnemyBase extends AiGameObject {
     constructor(xLocation, yLocation, playerShip) {

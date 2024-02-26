@@ -30,7 +30,6 @@ export class LevelManager {
         this.addEnemiesToSpawnQueueForCurrentLevel();
     }
 
-    // FUTURE TODO: When Hammerhead is added into the game that will need to be added here too
     static addEnemiesToSpawnQueueForCurrentLevel() {
         let numberOfEnemiesToSpawn = this.level + 4;
         if (this.level === 1) {
