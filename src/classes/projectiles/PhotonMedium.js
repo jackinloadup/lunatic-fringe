@@ -5,4 +5,8 @@ export class PhotonMedium extends PlayerProjectile {
     constructor(xLocation, yLocation, velocityX, velocityY) {
         super(xLocation, yLocation, 10, 10, 0, MediaManager.Sprites.PhotonMedium, velocityX, velocityY, 5, 0, 50, 60);
     }
+
+    playCollisionSound() {
+        MediaManager.Audio.CollisionSpreadshot.play();
+    }
 }

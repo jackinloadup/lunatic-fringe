@@ -15,6 +15,7 @@ export class TurboThrustPowerup extends StoredDurationPowerup {
     }
 
     deactivate(playerShip) {
+        MediaManager.Audio.SpawnAndUpgradeExpired.play();
         document.getElementById(this.documentElementId).style.visibility = "hidden";
         playerShip.velocityX = playerShip.velocityX * playerShip.SPEED_AFTER_TURBO_THRUST / playerShip.SPEED_OF_TURBO_THRUST;
         playerShip.velocityY = playerShip.velocityY * playerShip.SPEED_AFTER_TURBO_THRUST / playerShip.SPEED_OF_TURBO_THRUST;

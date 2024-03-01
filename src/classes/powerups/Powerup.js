@@ -13,9 +13,13 @@ export class Powerup extends InteractableGameObject {
         this.log(this.getClassName() + " created at: (" + this.x + "," + this.y + ")");
     }
 
+    playPowerupGainedSound() {
+        MediaManager.Audio.PowerupWow.play();
+    }
+
     handleCollision(otherObject) {
         this.log(this.getClassName() + " obtained by " + otherObject.getClassName());
-        MediaManager.Audio.PowerupWow.play();
+        this.playPowerupGainedSound();
         ObjectManager.removeObject(this);
     }
 

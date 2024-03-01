@@ -299,6 +299,12 @@ export class PlayerShip extends InteractableGameObject {
             return;
         } else if (this.isInvulnerable()) {
             MediaManager.Audio.InvincibleCollision.play();
+        } else if (otherObject.layer === Layer.HAMMERHEAD_WEAPON) {
+            MediaManager.Audio.HammerheadAttack.play();
+        } else if (otherObject.layer === Layer.SLICER) {
+            MediaManager.Audio.SlicerAttack.play();
+        } else if (otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE) {
+            MediaManager.Audio.CollisionQuad.play();
         } else {
             MediaManager.Audio.CollisionGeneral.play();
         }
