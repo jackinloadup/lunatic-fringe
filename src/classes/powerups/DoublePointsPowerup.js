@@ -13,6 +13,7 @@ export class DoublePointsPowerup extends DurationPowerup {
     }
 
     deactivate(playerShip) {
+        MediaManager.Audio.SpawnAndUpgradeExpired.play();
         playerShip.scoreMultiplier = 1;
         document.getElementById(this.documentElementId).style.visibility = "hidden";
     }

@@ -103,7 +103,7 @@ export class GameManager {
         ObjectManager.addObject(this.playerShip);
 
         // Play startup sound
-        MediaManager.Audio.StartUp.play();
+        MediaManager.Audio.SpawnAndUpgradeExpired.play();
 
         // Set the current time to be the next game tick right before the animation loop starts to make it as recent as possible
         this.nextGameTick = (new Date()).getTime();
