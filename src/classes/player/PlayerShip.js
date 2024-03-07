@@ -16,7 +16,7 @@ import { PowerupStateManager } from "./PowerupStateManager.js";
 
 export class PlayerShip extends InteractableGameObject {
     // Use static values here since the 'this' context is not the Player Ship object in the low fuel event listener, so just pull the values off of the player ship class statically.
-    static LOW_FUEL_SOUND_PLAY_COUNT_MAX = 3;
+    static LOW_FUEL_SOUND_PLAY_COUNT_MAX = 1;
     static lowFuelSoundPlayCount = 1;
     
     static MAX_SPEED = 12;
@@ -34,7 +34,8 @@ export class PlayerShip extends InteractableGameObject {
 
         this.MAXIMUM_FUEL = 1500;
         this.fuel = this.MAXIMUM_FUEL;
-        this.FEUL_SOUND_THRESHOLD = this.MAXIMUM_FUEL / 5;
+        this.HALF_FUEL_REMAINING = this.MAXIMUM_FUEL / 2;
+        this.QUARTER_FUEL_REMAINING = this.MAXIMUM_FUEL / 4;
         this.updateDocumentFuel();
         this.MAXIMUM_SPARE_PARTS = 100;
         this.spareParts = this.MAXIMUM_SPARE_PARTS
@@ -49,7 +50,8 @@ export class PlayerShip extends InteractableGameObject {
         this.isAccelerating = false;
         this.BASE_DOCKING_OFFSET = 3; // The value offset to use so that the player ship is more centered with the base when docked.
         this.atBase = false;
-        this.isLowFuel = false;
+        this.isLowFuelHalfLeft = false;
+        this.isLowFuelQuarterLeft = false;
         // Setup the repeating of the low fuel sound
         MediaManager.Audio.LowFuel.addEventListener('ended', function() {
             if (PlayerShip.lowFuelSoundPlayCount < PlayerShip.LOW_FUEL_SOUND_PLAY_COUNT_MAX) {
@@ -420,9 +422,9 @@ export class PlayerShip extends InteractableGameObject {
             GameServiceManager.endGame();
         } else {
             if (this.lives === 1) {
-                GameServiceManager.displayMessage("1 life left", 60 * 5)
+                GameServiceManager.displayMessage("1 LIFE LEFT", 60 * 5)
             } else {
-                GameServiceManager.displayMessage(this.lives + " lives left", 60 * 5)
+                GameServiceManager.displayMessage(this.lives + " LIVES LEFT", 60 * 5)
             }
             GameServiceManager.movePlayerShipTo(Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT, Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP);
 
@@ -454,12 +456,22 @@ export class PlayerShip extends InteractableGameObject {
         // update the power up state
         this.powerupStateManager.updatePowerupState();
 
-        // Handle playing the initial low fuel sound
-        if (this.fuel < this.FEUL_SOUND_THRESHOLD && !this.isLowFuel) {
+        // Handle fuel sounds
+        if (this.fuel <= this.HALF_FUEL_REMAINING && !this.isLowFuelHalfLeft) {
+            GameServiceManager.displayMessage("LOW FUEL", 60 * 4.5)
             MediaManager.Audio.LowFuel.play();
-            this.isLowFuel = true;
-        } else if (this.fuel > this.FEUL_SOUND_THRESHOLD && this.isLowFuel) {
-            this.isLowFuel = false;
+            this.isLowFuelHalfLeft = true;
+        } else if (this.fuel > this.HALF_FUEL_REMAINING && this.isLowFuelHalfLeft) {
+            this.isLowFuelHalfLeft = false;
+        }
+        
+        
+        if (this.fuel < this.QUARTER_FUEL_REMAINING && !this.isLowFuelQuarterLeft) {
+            GameServiceManager.displayMessage("LOW FUEL", 60 * 4.5)
+            MediaManager.Audio.LowFuel.play();
+            this.isLowFuelQuarterLeft = true;
+        } else if (this.fuel > this.QUARTER_FUEL_REMAINING && this.isLowFuelQuarterLeft) {
+            this.isLowFuelQuarterLeft = false;
         }
 
         // Handle healing from spare parts if not at player base

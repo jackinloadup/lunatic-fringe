@@ -61,7 +61,6 @@ export class GameManager {
         LevelManager.initializeGame();
 
         // Initalize all of the game objects
-        // FUTURE TODO: Eventually all of the starting cooridinates won't be random and the object addition to the game will be more structred, once levels are added in (also won't start with powerups in world immediately)
         // Create the player
         this.playerShip = new PlayerShip(this.scannerContext.canvas.width / 2, this.scannerContext.canvas.height / 2, 0, 0);
         // Player starts with turbo thrust and invulnerability powerups
@@ -338,9 +337,9 @@ export class GameManager {
         this.numMessageTicks--;
         if (this.numMessageTicks > 0) {
             context.fillStyle = '#808080';
-            context.font = 'bold 30px sans-serif';
+            context.font = 'bold 30px monospace';
             context.textBaseline = 'bottom';
-            context.fillText(this.message, context.canvas.width / 2 - (((this.message.length / 2) * 30) / 2), context.canvas.height / 2 - 40);
+            context.fillText(this.message, context.canvas.width / 2 - ((this.message.length / 2) * 16.5), context.canvas.height / 2 + 60);
         }
     }
 
