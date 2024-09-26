@@ -162,8 +162,8 @@ body * {
 
 body {
     font-family: 'EspySansRevivedNineBold', sans-serif;
-    font-size: 10px
-    color: grey
+    font-size: 10px;
+    color: grey;
   }
 
   @font-face {
