@@ -25,7 +25,7 @@ NOTE: With the refactor that separated out the code into multiple files, it is n
 #### Python Server (https://developer.mozilla.org/en-US/docs/Learn/Common_questions/set_up_a_local_testing_server):
 1. Download Python 3 (it's free) https://www.python.org/downloads/
 2. Open a terminal/cmd window in the folder containing the code on your local machine
-3. Run the command `python3 -m http.server1`
+3. Run the command `python -m http.server 8000`
 4. Go to `http://localhost:8000` in the browser
 5. Play
 
