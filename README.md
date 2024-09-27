@@ -38,7 +38,7 @@ NOTE: With the refactor that separated out the code into multiple files, it is n
 * V: Use invulnerability powerup (if available)
 * B: Use turbo boost powerup (if available)
 
-## Hey the origial game had X!
+## Hey the original game had X!
 This is a work in progress. You are welcome to submit issues. Please search before creating a new one. For the more technically inclined fork and submit pull requests.
 
 ## We welcome contributions
