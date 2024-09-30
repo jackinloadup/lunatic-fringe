@@ -170,3 +170,8 @@ body {
     font-family: 'EspySansRevivedNineBold';
     src: url('fonts/EspySansRevivedNine-Bold.ttf') format('truetype');
   }
+
+  @font-face {
+    font-family: 'digital-dream';
+    src: url('fonts/digital-dream.regular.ttf') format('truetype');
+  }

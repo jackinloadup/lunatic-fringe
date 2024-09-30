@@ -34,7 +34,7 @@ export class PlayerShip extends InteractableGameObject {
 
         this.MAXIMUM_FUEL = 1500;
         this.fuel = this.MAXIMUM_FUEL;
-        this.FEUL_SOUND_THRESHOLD = this.MAXIMUM_FUEL / 5;
+        this.FUEL_SOUND_THRESHOLD = this.MAXIMUM_FUEL / 5;
         this.updateDocumentFuel();
         this.MAXIMUM_SPARE_PARTS = 100;
         this.spareParts = this.MAXIMUM_SPARE_PARTS
@@ -455,10 +455,11 @@ export class PlayerShip extends InteractableGameObject {
         this.powerupStateManager.updatePowerupState();
 
         // Handle playing the initial low fuel sound
-        if (this.fuel < this.FEUL_SOUND_THRESHOLD && !this.isLowFuel) {
+        if (this.fuel < this.FUEL_SOUND_THRESHOLD && !this.isLowFuel) {
+            GameServiceManager.displayMessage("LOW FUEL", 60 * 5)
             MediaManager.Audio.LowFuel.play();
             this.isLowFuel = true;
-        } else if (this.fuel > this.FEUL_SOUND_THRESHOLD && this.isLowFuel) {
+        } else if (this.fuel > this.FUEL_SOUND_THRESHOLD && this.isLowFuel) {
             this.isLowFuel = false;
         }
 
