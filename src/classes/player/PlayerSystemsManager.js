@@ -124,6 +124,17 @@ export class PlayerSystemsManager extends Logger {
         this.updateOverallCondition();
     }
 
+    saveSystemsOperatingLevels() {
+        this.affectableSystems.forEach(system => system.saveOperatingPercentage());
+    }
+
+    restoreSystemsOperatingLevels() {
+        this.affectableSystems.forEach(system => system.restoreOperatingPercentage());
+
+        // Update overall condition
+        this.updateOverallCondition();
+    }
+
     updateAllLabels() {
         this.affectableSystems.forEach(system => {
             system.updateLabel();

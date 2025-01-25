@@ -14,6 +14,8 @@ export class PlayerSystem extends Logger {
         // player when a system is at full capacity and when it is not
         this.operatingPercentageThresholds = [99, 67, 33];
         this.resetSystem();
+
+        this.savedOperatingPercentage = this.operatingPercentage;
     }
 
     resetSystem() {
@@ -37,6 +39,23 @@ export class PlayerSystem extends Logger {
         if (this.operatingPercentage > 100) {
             this.operatingPercentage = 100;
         }
+
+        this.updateActiveIndicator();
+    }
+
+    /**
+     * Save the current operating percentage of the system
+     */
+    saveOperatingPercentage() {
+        this.savedOperatingPercentage = this.operatingPercentage;
+    }
+
+    /**
+     * Restore the operating percentage of the system to the previous saved value.
+     * Update the active indicator after the operating percentage has been changed.
+     */
+    restoreOperatingPercentage() {
+        this.operatingPercentage = this.savedOperatingPercentage;
 
         this.updateActiveIndicator();
     }

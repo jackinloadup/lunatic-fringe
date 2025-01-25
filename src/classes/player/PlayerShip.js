@@ -42,6 +42,9 @@ export class PlayerShip extends InteractableGameObject {
         this.updateDocumentSpareParts();
 
         this.playerSystemsManager = new PlayerSystemsManager();
+        // Used to save and restore fuel and spare parts during and after invulnerability powerup usage
+        this.savedFuel = 0;
+        this.savedSpareParts = 0;
 
         this.NUMBER_OF_ANIMATION_FRAMES = 32;
         this.ROTATION_AMOUNT = (2 * Math.PI) / this.NUMBER_OF_ANIMATION_FRAMES;
@@ -135,7 +138,9 @@ export class PlayerShip extends InteractableGameObject {
         }
         if (KeyStateManager.isDown(KeyStateManager.UP) && this.fuel > 0 && !this.isTurboThrusting() && this.enginesFunctioning) {
             this.isAccelerating = true;
-            this.updateFuel(-1);
+            if (!this.isInvulnerable()) {
+                this.updateFuel(-1);
+            }
             this.calculateAcceleration();
             this.spriteYOffset = this.height;
         } else {
@@ -261,16 +266,38 @@ export class PlayerShip extends InteractableGameObject {
         }
     }
 
-    updateFuel(fuelChange) {
-        this.fuel += fuelChange;
+    saveFuelSparePartAndSystemsState() {
+        this.savedFuel = this.fuel;
+        this.savedSpareParts = this.spareParts;
+        this.playerSystemsManager.saveSystemsOperatingLevels();
+    }
 
-        if (this.fuel > this.MAXIMUM_FUEL) {
+    restoreFuelSparePartAndSystemsState() {
+        this.setFuel(this.savedFuel);
+        this.setSpareParts(this.savedSpareParts);
+        this.playerSystemsManager.restoreSystemsOperatingLevels();
+    }
+
+    resetFuelSparePartAndSystemsState() {
+        this.setFuel(this.MAXIMUM_FUEL);
+        this.setSpareParts(this.MAXIMUM_SPARE_PARTS);
+        this.playerSystemsManager.resetSystems();
+    }
+
+    setFuel(newFuelValue) {
+        if (newFuelValue > this.MAXIMUM_FUEL) {
             this.fuel = this.MAXIMUM_FUEL;
-        } else if (this.fuel <= 0) {
+        } else if (newFuelValue <= 0) {
             this.fuel = 0;
+        } else {
+            this.fuel = newFuelValue;
         }
 
         this.updateDocumentFuel();
+    }
+
+    updateFuel(fuelChange) {
+        this.setFuel(this.fuel + fuelChange);
     }
 
     updateDocumentFuel() {
@@ -278,16 +305,20 @@ export class PlayerShip extends InteractableGameObject {
         DocumentManager.updateFuelBar(this.fuel / this.MAXIMUM_FUEL * 100);
     }
 
-    updateSpareParts(sparePartsChange) {
-        this.spareParts += sparePartsChange;
-
-        if (this.spareParts > this.MAXIMUM_SPARE_PARTS) {
+    setSpareParts(newSparePartsValue) {
+        if (this.newSparePartsValue > this.MAXIMUM_SPARE_PARTS) {
             this.spareParts = this.MAXIMUM_SPARE_PARTS;
-        } else if (this.spareParts < 0) {
+        } else if (this.newSparePartsValue < 0) {
             this.spareParts = 0;
+        } else {
+            this.spareParts = newSparePartsValue;
         }
 
         this.updateDocumentSpareParts();
+    }
+
+    updateSpareParts(sparePartsChange) {
+        this.setSpareParts(this.spareParts + sparePartsChange);
     }
 
     updateDocumentSpareParts() {
@@ -430,9 +461,7 @@ export class PlayerShip extends InteractableGameObject {
 
             // reset ship systems and fuel and spare parts to full
             this.log("Setting ship back to max system operating percentages/fuel/spare parts");
-            this.playerSystemsManager.resetSystems();
-            this.updateFuel(this.MAXIMUM_FUEL);
-            this.updateSpareParts(this.MAXIMUM_SPARE_PARTS);
+            this.resetFuelSparePartAndSystemsState();
 
             // deactivate all active powerups
             this.powerupStateManager.deactivateAllActivePowerups();
