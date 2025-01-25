@@ -25,7 +25,7 @@ import { KeyStateManager } from './classes/managers/KeyManager.js';
 export function LunaticFringe(scannerCanvas, scannerProjectileCanvas, radarCanvas, hidden, visibilityChange) {
     "use strict";
 
-	let version = "3.0";
+	let version = "4.1";
 	console.log("Game Version: " + version);
 
     if (typeof scannerCanvas !== 'object') {
