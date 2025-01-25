@@ -16,7 +16,7 @@ import { PowerupStateManager } from "./PowerupStateManager.js";
 
 export class PlayerShip extends InteractableGameObject {
     // Use static values here since the 'this' context is not the Player Ship object in the low fuel event listener, so just pull the values off of the player ship class statically.
-    static LOW_FUEL_SOUND_PLAY_COUNT_MAX = 3;
+    static LOW_FUEL_SOUND_PLAY_COUNT_MAX = 1;
     static lowFuelSoundPlayCount = 1;
     
     static MAX_SPEED = 12;
@@ -34,13 +34,17 @@ export class PlayerShip extends InteractableGameObject {
 
         this.MAXIMUM_FUEL = 1500;
         this.fuel = this.MAXIMUM_FUEL;
-        this.FUEL_SOUND_THRESHOLD = this.MAXIMUM_FUEL / 5;
+        this.HALF_FUEL_REMAINING = this.MAXIMUM_FUEL / 2;
+        this.QUARTER_FUEL_REMAINING = this.MAXIMUM_FUEL / 4;
         this.updateDocumentFuel();
         this.MAXIMUM_SPARE_PARTS = 100;
         this.spareParts = this.MAXIMUM_SPARE_PARTS
         this.updateDocumentSpareParts();
 
         this.playerSystemsManager = new PlayerSystemsManager();
+        // Used to save and restore fuel and spare parts during and after invulnerability powerup usage
+        this.savedFuel = 0;
+        this.savedSpareParts = 0;
 
         this.NUMBER_OF_ANIMATION_FRAMES = 32;
         this.ROTATION_AMOUNT = (2 * Math.PI) / this.NUMBER_OF_ANIMATION_FRAMES;
@@ -49,7 +53,8 @@ export class PlayerShip extends InteractableGameObject {
         this.isAccelerating = false;
         this.BASE_DOCKING_OFFSET = 3; // The value offset to use so that the player ship is more centered with the base when docked.
         this.atBase = false;
-        this.isLowFuel = false;
+        this.isLowFuelHalfLeft = false;
+        this.isLowFuelQuarterLeft = false;
         // Setup the repeating of the low fuel sound
         MediaManager.Audio.LowFuel.addEventListener('ended', function() {
             if (PlayerShip.lowFuelSoundPlayCount < PlayerShip.LOW_FUEL_SOUND_PLAY_COUNT_MAX) {
@@ -133,7 +138,9 @@ export class PlayerShip extends InteractableGameObject {
         }
         if (KeyStateManager.isDown(KeyStateManager.UP) && this.fuel > 0 && !this.isTurboThrusting() && this.enginesFunctioning) {
             this.isAccelerating = true;
-            this.updateFuel(-1);
+            if (!this.isInvulnerable()) {
+                this.updateFuel(-1);
+            }
             this.calculateAcceleration();
             this.spriteYOffset = this.height;
         } else {
@@ -259,16 +266,44 @@ export class PlayerShip extends InteractableGameObject {
         }
     }
 
-    updateFuel(fuelChange) {
-        this.fuel += fuelChange;
+    saveFuelSparePartAndSystemsState() {
+        this.savedFuel = this.fuel;
+        this.savedSpareParts = this.spareParts;
+        this.playerSystemsManager.saveSystemsOperatingLevels();
+    }
 
-        if (this.fuel > this.MAXIMUM_FUEL) {
+    restoreFuelSparePartAndSystemsState() {
+        this.setFuel(this.savedFuel);
+        this.setSpareParts(this.savedSpareParts);
+        this.playerSystemsManager.restoreSystemsOperatingLevels();
+
+        // The original game has it so that if you are below half fuel and you come out of invulnerability
+        // the low fuel message is shown and the sound is played. 
+        if (this.fuel <= this.HALF_FUEL_REMAINING) {
+            this.displayLowFuelMessageAndPlaySound();
+        }
+    }
+
+    resetFuelSparePartAndSystemsState() {
+        this.setFuel(this.MAXIMUM_FUEL);
+        this.setSpareParts(this.MAXIMUM_SPARE_PARTS);
+        this.playerSystemsManager.resetSystems();
+    }
+
+    setFuel(newFuelValue) {
+        if (newFuelValue > this.MAXIMUM_FUEL) {
             this.fuel = this.MAXIMUM_FUEL;
-        } else if (this.fuel <= 0) {
+        } else if (newFuelValue <= 0) {
             this.fuel = 0;
+        } else {
+            this.fuel = newFuelValue;
         }
 
         this.updateDocumentFuel();
+    }
+
+    updateFuel(fuelChange) {
+        this.setFuel(this.fuel + fuelChange);
     }
 
     updateDocumentFuel() {
@@ -276,16 +311,25 @@ export class PlayerShip extends InteractableGameObject {
         DocumentManager.updateFuelBar(this.fuel / this.MAXIMUM_FUEL * 100);
     }
 
-    updateSpareParts(sparePartsChange) {
-        this.spareParts += sparePartsChange;
+    displayLowFuelMessageAndPlaySound() {
+        GameServiceManager.displayMessage("LOW FUEL", 60 * 4.5);
+        MediaManager.Audio.LowFuel.play();
+    }
 
-        if (this.spareParts > this.MAXIMUM_SPARE_PARTS) {
+    setSpareParts(newSparePartsValue) {
+        if (this.newSparePartsValue > this.MAXIMUM_SPARE_PARTS) {
             this.spareParts = this.MAXIMUM_SPARE_PARTS;
-        } else if (this.spareParts < 0) {
+        } else if (this.newSparePartsValue < 0) {
             this.spareParts = 0;
+        } else {
+            this.spareParts = newSparePartsValue;
         }
 
         this.updateDocumentSpareParts();
+    }
+
+    updateSpareParts(sparePartsChange) {
+        this.setSpareParts(this.spareParts + sparePartsChange);
     }
 
     updateDocumentSpareParts() {
@@ -420,17 +464,15 @@ export class PlayerShip extends InteractableGameObject {
             GameServiceManager.endGame();
         } else {
             if (this.lives === 1) {
-                GameServiceManager.displayMessage("1 life left", 60 * 5)
+                GameServiceManager.displayMessage("1 LIFE LEFT", 60 * 5)
             } else {
-                GameServiceManager.displayMessage(this.lives + " lives left", 60 * 5)
+                GameServiceManager.displayMessage(this.lives + " LIVES LEFT", 60 * 5)
             }
             GameServiceManager.movePlayerShipTo(Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT, Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP);
 
             // reset ship systems and fuel and spare parts to full
             this.log("Setting ship back to max system operating percentages/fuel/spare parts");
-            this.playerSystemsManager.resetSystems();
-            this.updateFuel(this.MAXIMUM_FUEL);
-            this.updateSpareParts(this.MAXIMUM_SPARE_PARTS);
+            this.resetFuelSparePartAndSystemsState();
 
             // deactivate all active powerups
             this.powerupStateManager.deactivateAllActivePowerups();
@@ -454,13 +496,20 @@ export class PlayerShip extends InteractableGameObject {
         // update the power up state
         this.powerupStateManager.updatePowerupState();
 
-        // Handle playing the initial low fuel sound
-        if (this.fuel < this.FUEL_SOUND_THRESHOLD && !this.isLowFuel) {
-            GameServiceManager.displayMessage("LOW FUEL", 60 * 5)
-            MediaManager.Audio.LowFuel.play();
-            this.isLowFuel = true;
-        } else if (this.fuel > this.FUEL_SOUND_THRESHOLD && this.isLowFuel) {
-            this.isLowFuel = false;
+        // Handle fuel sounds
+        if (this.fuel <= this.HALF_FUEL_REMAINING && !this.isLowFuelHalfLeft) {
+            this.displayLowFuelMessageAndPlaySound();
+            this.isLowFuelHalfLeft = true;
+        } else if (this.fuel > this.HALF_FUEL_REMAINING && this.isLowFuelHalfLeft) {
+            this.isLowFuelHalfLeft = false;
+        }
+        
+        
+        if (this.fuel < this.QUARTER_FUEL_REMAINING && !this.isLowFuelQuarterLeft) {
+            this.displayLowFuelMessageAndPlaySound();
+            this.isLowFuelQuarterLeft = true;
+        } else if (this.fuel > this.QUARTER_FUEL_REMAINING && this.isLowFuelQuarterLeft) {
+            this.isLowFuelQuarterLeft = false;
         }
 
         // Handle healing from spare parts if not at player base
