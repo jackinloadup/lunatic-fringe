@@ -336,8 +336,8 @@ export class GameManager {
 
         this.numMessageTicks--;
         if (this.numMessageTicks > 0) {
-            context.fillStyle = '#808080';
-            context.font = 'bold 30px monospace';
+            context.fillStyle = '#af2bd6';
+            context.font = '24px digital-dream';
             context.textBaseline = 'bottom';
             context.fillText(this.message, context.canvas.width / 2 - ((this.message.length / 2) * 16.5), context.canvas.height / 2 + 60);
         }
