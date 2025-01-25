@@ -276,6 +276,12 @@ export class PlayerShip extends InteractableGameObject {
         this.setFuel(this.savedFuel);
         this.setSpareParts(this.savedSpareParts);
         this.playerSystemsManager.restoreSystemsOperatingLevels();
+
+        // The original game has it so that if you are below half fuel and you come out of invulnerability
+        // the low fuel message is shown and the sound is played. 
+        if (this.fuel <= this.HALF_FUEL_REMAINING) {
+            this.displayLowFuelMessageAndPlaySound();
+        }
     }
 
     resetFuelSparePartAndSystemsState() {
@@ -303,6 +309,11 @@ export class PlayerShip extends InteractableGameObject {
     updateDocumentFuel() {
         // Update the document, sending percentage of fuel remaining
         DocumentManager.updateFuelBar(this.fuel / this.MAXIMUM_FUEL * 100);
+    }
+
+    displayLowFuelMessageAndPlaySound() {
+        GameServiceManager.displayMessage("LOW FUEL", 60 * 4.5);
+        MediaManager.Audio.LowFuel.play();
     }
 
     setSpareParts(newSparePartsValue) {
@@ -487,8 +498,7 @@ export class PlayerShip extends InteractableGameObject {
 
         // Handle fuel sounds
         if (this.fuel <= this.HALF_FUEL_REMAINING && !this.isLowFuelHalfLeft) {
-            GameServiceManager.displayMessage("LOW FUEL", 60 * 4.5)
-            MediaManager.Audio.LowFuel.play();
+            this.displayLowFuelMessageAndPlaySound();
             this.isLowFuelHalfLeft = true;
         } else if (this.fuel > this.HALF_FUEL_REMAINING && this.isLowFuelHalfLeft) {
             this.isLowFuelHalfLeft = false;
@@ -496,8 +506,7 @@ export class PlayerShip extends InteractableGameObject {
         
         
         if (this.fuel < this.QUARTER_FUEL_REMAINING && !this.isLowFuelQuarterLeft) {
-            GameServiceManager.displayMessage("LOW FUEL", 60 * 4.5)
-            MediaManager.Audio.LowFuel.play();
+            this.displayLowFuelMessageAndPlaySound();
             this.isLowFuelQuarterLeft = true;
         } else if (this.fuel > this.QUARTER_FUEL_REMAINING && this.isLowFuelQuarterLeft) {
             this.isLowFuelQuarterLeft = false;
