@@ -69,25 +69,25 @@ export class QuadBlaster extends KillableAiGameObject {
         return closest;
     }
 
-    draw(context) {
-        super.draw(context);
+    draw(canvasContext, effectCanvasContext, percentageVisible) {
+        super.draw(canvasContext, effectCanvasContext, percentageVisible);
         // Drawing means we are in the scene
         this.inScene = true;
 
         // Draw additional debug arc for which barrel is closest to the player
         if (GameConfig.debug) {
             let barrelAngle = this.getAngleOfBarrelTowardPlayer();
-            context.beginPath();
-            context.strokeStyle = "green";
-            context.moveTo(this.x, this.y);
-            context.lineTo(this.x + Math.cos(barrelAngle) * this.collisionRadius * 2, this.y + Math.sin(barrelAngle) * this.collisionRadius * 2);
-            context.stroke();
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = "green";
+            canvasContext.moveTo(this.x, this.y);
+            canvasContext.lineTo(this.x + Math.cos(barrelAngle) * this.collisionRadius * 2, this.y + Math.sin(barrelAngle) * this.collisionRadius * 2);
+            canvasContext.stroke();
 
-            context.beginPath();
-            context.strokeStyle = "red";
-            context.arc(this.x, this.y, this.collisionRadius + 2, barrelAngle-0.775, barrelAngle+0.775);
-            context.lineWidth = 2;
-            context.stroke();
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = "red";
+            canvasContext.arc(this.x, this.y, this.collisionRadius + 2, barrelAngle-0.775, barrelAngle+0.775);
+            canvasContext.lineWidth = 2;
+            canvasContext.stroke();
         }
     }
 

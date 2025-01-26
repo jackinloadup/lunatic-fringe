@@ -16,9 +16,9 @@ export class Star extends GameObject {
         return (Math.random() * this.TWINKLE_MAX) + this.TWINKLE_MIN;
     }
 
-    draw(context) {
-        context.fillStyle = this.currentColor;
-        context.fillRect(this.x, this.y, 1, 1);
+    draw(canvasContext, effectCanvasContext, percentageVisible) {
+        canvasContext.fillStyle = this.currentColor;
+        canvasContext.fillRect(this.x, this.y, 1, 1);
     }
 
     updateState() {

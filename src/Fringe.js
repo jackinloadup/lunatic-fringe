@@ -22,14 +22,18 @@ import { KeyStateManager } from './classes/managers/KeyManager.js';
 /* JSLint validation options */
 /*jslint devel: true, browser: true, maxerr: 50, indent: 4 */
 /*global Audio: false */
-export function LunaticFringe(scannerCanvas, scannerProjectileCanvas, radarCanvas, hidden, visibilityChange) {
+export function LunaticFringe(scannerCanvas, scannerProjectileCanvas, effectScannerCanvas, radarCanvas, hidden, visibilityChange) {
     "use strict";
 
-	let version = "4.1";
-	console.log("Game Version: " + version);
+    let version = "4.1";
+    console.log("Game Version: " + version);
 
     if (typeof scannerCanvas !== 'object') {
         scannerCanvas = document.getElementById(scannerCanvas);
+    }
+
+    if (typeof effectScannerCanvas !== 'object') {
+        effectScannerCanvas = document.getElementById(effectScannerCanvas);
     }
 
     if (typeof scannerProjectileCanvas !== 'object') {
@@ -58,23 +62,23 @@ export function LunaticFringe(scannerCanvas, scannerProjectileCanvas, radarCanva
     MediaManager.init();
 
     // Initialize the game
-    GameManager.initializeGame(scannerCanvas.getContext("2d", {willReadFrequently: true}), scannerProjectileCanvas.getContext("2d", {willReadFrequently: true}), radarCanvas.getContext("2d"), {willReadFrequently: true});
+    GameManager.initializeGame(scannerCanvas.getContext("2d", { willReadFrequently: true }), scannerProjectileCanvas.getContext("2d", { willReadFrequently: true }), effectScannerCanvas.getContext("2d", { willReadFrequently: true }), radarCanvas.getContext("2d", { willReadFrequently: true }));
 
     // Add listeners
     function handleVisibilityChange() {
         console.log('visibility change!', document[hidden])
         if (document[hidden]) {
-			// Only pause the game if the game is not already paused
-			if(!GameManager.isPaused) {
-				GameManager.pauseGame();
-			}
+            // Only pause the game if the game is not already paused
+            if (!GameManager.isPaused) {
+                GameManager.pauseGame();
+            }
         } else {
-			// Only resume the game if the game is currently paused and was not paused by a key press.
+            // Only resume the game if the game is currently paused and was not paused by a key press.
             // Do this so that if the player pauses with a key press and then leaves the browser window 
             // the game won't unpause until they explicitly do that key press again.
-			if(GameManager.isPaused && !GameManager.wasPausedByKey) {
-				GameManager.resumeGame();
-			}
+            if (GameManager.isPaused && !GameManager.wasPausedByKey) {
+                GameManager.resumeGame();
+            }
         }
     }
 

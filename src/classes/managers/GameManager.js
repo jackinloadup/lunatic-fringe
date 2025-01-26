@@ -25,10 +25,12 @@ import { DocumentManager } from "./DocumentManager.js";
 import { LevelManager } from "./LevelManager.js";
 
 export class GameManager {
-    // Make some of these have constants naming convention
     static scannerContext;
     static scannerProjectileContext;
+    static scannerEffectContext;
+
     static radarContext;
+
     static numMessageTicks;
     static message;
     static playerShip;
@@ -46,10 +48,13 @@ export class GameManager {
     static MAX_FRAME_SKIP = 10
     static nextGameTick //NOTE: Should be set right before game starts so that it is as recent as possible
 
-    static initializeGame(canvasContext, canvasProjectilesContext, radarCanvasContext) {
-        this.scannerContext = canvasContext;
-        this.scannerProjectileContext = canvasProjectilesContext;
+    static initializeGame(scannerCanvasContext, scannerCanvasProjectilesContext, scannerCanvasEffectContext, radarCanvasContext) {
+        this.scannerContext = scannerCanvasContext;
+        this.scannerProjectileContext = scannerCanvasProjectilesContext;
+        this.scannerEffectContext = scannerCanvasEffectContext;
+
         this.radarContext = radarCanvasContext;
+
         this.isPaused = false;
         this.wasPausedByKey = false;
         this.isRunning = true;
@@ -265,13 +270,33 @@ export class GameManager {
         return numEnemies;
     }
 
-    // FUTURE TODO: When you spawn in, have static effect on screen that fades away
-    // This can be used to cause static throughout an image as well as making it darker.
-    // Pass in the appropriate context since it could apply to radar canvas and scanner canvas separately
-    static areaStaticEffect(context, percentWorking, x, y, width, height) {
+    // FUTURE TODO: When you spawn in, have static effect on screen that fades away. Should be able to do this with the new object property "percentageVisible", see hammer head projectile for an example
+    /**
+     * Applies a "static-y" effect to a section of a canvas by changing the alpha component of a certain number of pixels in the area
+     * based on the passed in percentage.
+     * 
+     * @param {*} context The canvas context to apply the effect to
+     * @param {*} percentWorking number 0 to 100, used to determine how many of the pixels in the area should have the effect applied, on average
+     * @param {*} x The leftmost x value of the section to apply the effect to
+     * @param {*} y The topmost y value of the section to apply the effect to
+     * @param {*} width The width of the section to apply the effect to 
+     * @param {*} height The height of the section to apply the effect to
+     */
+    static applyStaticEffectToCanvas(context, percentWorking, x, y, width, height) {
+        const floorX = Math.floor(x);
+        const floorY = Math.floor(y);
+        // Note: Since pixels do not use float values, getImageData appears to floor the x and y numbers before getting the image data from the canvas
         let pixels = context.getImageData(x, y, width, height);
         let pixelData = pixels.data;
         for (let i = 0, n = pixelData.length; i < n; i += 4) {
+            const canvasXCoordinate = floorX + ((i / 4) % width);
+            const canvasYCoorednate = floorY + Math.floor((i / 4) / width); // Y offset is still based on width, not height!
+
+            // If the pixel is off of the canvas we do not need to bother with drawing the effect
+            if (canvasXCoordinate < 0 || canvasXCoordinate >= context.canvas.width || canvasYCoorednate < 0 || canvasYCoorednate >= context.canvas.height) {
+                continue;
+            }
+
             let shouldDisplayPixelRandomNumber = Math.random();
             // pixelData[i + 3] is the alpha component of the pixel
             // Average number of pixels completely not working: 90% * percentDamaged
@@ -283,6 +308,7 @@ export class GameManager {
                 pixelData[i + 3] = Math.random() * 255
             }
         }
+
         context.putImageData(pixels, x, y);
     };
 
@@ -323,12 +349,7 @@ export class GameManager {
                 currentObject.y - currentObject.height < context.canvas.height) {
                 context.save();
 
-                currentObject.draw(context);
-
-                // Draw the static effect over the object caused from a damaged player scanner
-                let xStart = currentObject.x - currentObject.width / 2;
-                let yStart = currentObject.y - currentObject.height / 2;
-                this.areaStaticEffect(context, this.playerShip.playerSystemsManager.scannerCondition.operatingPercentage, xStart, yStart, currentObject.width, currentObject.height);
+                currentObject.draw(context, this.scannerEffectContext, this.playerShip.playerSystemsManager.scannerCondition.operatingPercentage);
 
                 context.restore();
             }
@@ -384,7 +405,9 @@ export class GameManager {
                 context.stroke();
 
                 // Draw static affect on objects caused by damage to radar
-                this.areaStaticEffect(context, this.playerShip.playerSystemsManager.radarCondition.operatingPercentage, radarXLocation - 1, radarYLocation - 1, 3, 3);
+                if (this.playerShip.playerSystemsManager.radarCondition.operatingPercentage < 100) {
+                    this.applyStaticEffectToCanvas(context, this.playerShip.playerSystemsManager.radarCondition.operatingPercentage, radarXLocation - 1, radarYLocation - 1, 3, 3, `radar-${currentObject.constructor.name}`);
+                }
 
                 if (currentObjectLayer === Layer.PLAYER) {
                     // Draw the area alignment circles indicating player direction, with increasing darkness
@@ -406,7 +429,9 @@ export class GameManager {
                         context.stroke();
 
                         // Also need static effect from radar damage on the player direction dots
-                        this.areaStaticEffect(context, this.playerShip.playerSystemsManager.radarCondition.operatingPercentage, xLocation - 1, yLocation - 1, 3, 3);
+                        if (this.playerShip.playerSystemsManager.radarCondition.operatingPercentage < 100) {
+                            this.applyStaticEffectToCanvas(context, this.playerShip.playerSystemsManager.radarCondition.operatingPercentage, xLocation - 1, yLocation - 1, 3, 3, `radar-direction-dot`);
+                        }
                     }
                 }
 

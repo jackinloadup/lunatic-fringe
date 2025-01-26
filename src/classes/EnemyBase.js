@@ -29,15 +29,15 @@ export class EnemyBase extends AiGameObject {
         this.FIRE_RATE = 3 * 60;
     }
 
-    draw(context) {
-        super.draw(context);
+    draw(canvasContext, effectCanvasContext, percentageVisible) {
+        super.draw(canvasContext, effectCanvasContext, percentageVisible);
 
         if (GameConfig.debug) {
             // Draw circle where enemy base will fire at the player
-            context.beginPath();
-            context.strokeStyle = "red";
-            context.arc(this.x, this.y, this.DISTANCE_WILL_FIRE_AT_PLAYER_SHIP, 0, Math.PI * 2);
-            context.stroke();
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = "red";
+            canvasContext.arc(this.x, this.y, this.DISTANCE_WILL_FIRE_AT_PLAYER_SHIP, 0, Math.PI * 2);
+            canvasContext.stroke();
         }
     }
 
