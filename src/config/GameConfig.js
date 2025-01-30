@@ -1,6 +1,6 @@
 export let GameConfig = {
     debug: false,
-    showPowerupsOnRadar: true
+    showPowerupsOnRadar: true,
 
     /*
     As I review gameplay footage and find offical values for parts of the games
