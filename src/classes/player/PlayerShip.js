@@ -45,7 +45,7 @@ export class PlayerShip extends InteractableGameObject {
         this.updateDocumentSpareParts();
 
         this.playerSystemsManager = new PlayerSystemsManager();
-        // Used to save and restore fuel and spare parts during and after invulnerability powerup usage
+        // Used to save and restore fuel and spare parts during and after power shield powerup usage
         this.savedFuel = 0;
         this.savedSpareParts = 0;
 
@@ -108,7 +108,7 @@ export class PlayerShip extends InteractableGameObject {
 		this.SPEED_AFTER_TURBO_THRUST = 1;
 
         this.turboThrustActive = false;
-        this.invulnerabilityActive = false;
+        this.powerShieldActive = false;
 
         // Player starts with 3 lives
         this.lives = 3;
@@ -249,7 +249,7 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     isInvulnerable() {
-        return this.invulnerabilityActive;
+        return this.powerShieldActive;
     }
 
     isTurboThrusting() {
@@ -290,7 +290,7 @@ export class PlayerShip extends InteractableGameObject {
         this.setSpareParts(this.savedSpareParts);
         this.playerSystemsManager.restoreSystemsOperatingLevels();
 
-        // The original game has it so that if you are below half fuel and you come out of invulnerability
+        // The original game has it so that if you are below half fuel and you come out of power shield
         // the low fuel message is shown and the sound is played. 
         if (this.fuel <= this.HALF_FUEL_REMAINING) {
             this.displayLowFuelMessageAndPlaySound();

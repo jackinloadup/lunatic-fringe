@@ -54,7 +54,7 @@ export class MediaManager {
         this.LoadSprite("ExtraFuel", "images/ExtraFuel.png");
         this.LoadSprite("SpareParts", "images/SpareParts.png");
         this.LoadSprite("ShipRepairs", "images/RepairShip.png");
-        this.LoadSprite("Invulnerability", "images/Invulnerability.png");
+        this.LoadSprite("PowerShield", "images/PowerShield.png");
         this.LoadSprite("TurboThrust", "images/TurboThrust.png");
 
         this.LoadAudio("CollisionGeneral", "audio/collision_general");

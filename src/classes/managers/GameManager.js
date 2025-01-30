@@ -19,7 +19,7 @@ import { DoublePointsPowerup } from "../powerups/DoublePointsPowerup.js";
 import { ExtraFuelPowerup } from "../powerups/ExtraFuelPowerup.js";
 import { ShipRepairsPowerup } from "../powerups/ShipRepairsPowerup.js";
 import { SparePartsPowerup } from "../powerups/SparePartsPowerup.js";
-import { InvulnerabilityPowerup } from "../powerups/InvulnerabilityPowerup.js";
+import { PowerShieldPowerup } from "../powerups/PowerShieldPowerup.js";
 import { TurboThrustPowerup } from "../powerups/TurboThrustPowerup.js";
 import { DocumentManager } from "./DocumentManager.js";
 import { LevelManager } from "./LevelManager.js";
@@ -68,8 +68,8 @@ export class GameManager {
         // Initalize all of the game objects
         // Create the player
         this.playerShip = new PlayerShip(this.scannerContext.canvas.width / 2, this.scannerContext.canvas.height / 2, 0, 0);
-        // Player starts with turbo thrust and invulnerability powerups
-        this.playerShip.powerupStateManager.obtainPowerup(new InvulnerabilityPowerup(0, 0));
+        // Player starts with turbo thrust and power shield powerups
+        this.playerShip.powerupStateManager.obtainPowerup(new PowerShieldPowerup(0, 0));
         this.playerShip.powerupStateManager.obtainPowerup(new TurboThrustPowerup(0, 0));
 
         // Add the background stars
@@ -145,7 +145,7 @@ export class GameManager {
                 ObjectManager.addObject(new ShipRepairsPowerup(randomPosition.x, randomPosition.y));
                 break;
             case 5:
-                ObjectManager.addObject(new InvulnerabilityPowerup(randomPosition.x, randomPosition.y));
+                ObjectManager.addObject(new PowerShieldPowerup(randomPosition.x, randomPosition.y));
                 break;
             case 6:
                 ObjectManager.addObject(new TurboThrustPowerup(randomPosition.x, randomPosition.y));

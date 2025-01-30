@@ -35,7 +35,7 @@ NOTE: With the refactor that separated out the code into multiple files, it is n
 * Right Arrow key: Turn right
 * Spacebar: Shoot
 * CapsLock: Pause/Unpause
-* V: Use invulnerability powerup (if available)
+* V: Use power shield powerup (if available)
 * B: Use turbo boost powerup (if available)
 
 ## Hey the original game had X!
