@@ -1,6 +1,9 @@
 import { GameConfig } from "../config/GameConfig.js";
 
 export class Logger {
+    static getClassName() {
+        return this.name;
+    }
     getClassName() {
         return this.constructor.name;
     }

@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { Vector } from "../../utility/Vector.js";
 import { InteractableGameObject } from "../InteractableGameObject.js";
 import { CollisionManager } from "../managers/CollisionManager.js";
@@ -8,6 +9,8 @@ import { KeyStateManager } from "../managers/KeyManager.js";
 import { Layer } from "../managers/Layer.js";
 import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
+import { PhotonLargePowerup } from "../powerups/PhotonLargePowerup.js";
+import { SpreadShotPowerup } from "../powerups/SpreadShotPowerup.js";
 import { PhotonLarge } from "../projectiles/PhotonLarge.js";
 import { PhotonMedium } from "../projectiles/PhotonMedium.js";
 import { PhotonSmall } from "../projectiles/PhotonSmall.js";
@@ -96,8 +99,7 @@ export class PlayerShip extends InteractableGameObject {
 			LARGE: 3
 		};
         this.bulletState = this.BULLETS.SMALL;
-		this.DEFAULT_SHOOTING_SPEED = 13; // Shooting speed without powerups and with normal bullets
-		this.bulletShootingSpeed = this.DEFAULT_SHOOTING_SPEED;
+		this.bulletShootingSpeed = GameConfig.DEFAULT_SHOOTING_SPEED;
         this.PROJECTILE_SPEED = 10;
 		this.scoreMultiplier = 1;
 		// The speed you got at when using the turbo thrust powerup
@@ -178,7 +180,7 @@ export class PlayerShip extends InteractableGameObject {
         }
 
         if (KeyStateManager.isDown(KeyStateManager.SPACE) && !this.atBase && !this.isTurboThrusting()) {
-            if (this.numFramesSince.shooting >= this.bulletShootingSpeed) { // 13 matches up best with the original game's rate of fire at 60fps
+            if (this.numFramesSince.shooting >= this.bulletShootingSpeed) { 
                 // Check to see if ship is allowed to fire based on percentage the guns are operating at. Note that this is inside the frame checking logic since
                 // even you are not allowed to fire a bullet due to inoperable guns it should still reset the numFramesSince count
                 let failedToFireBullet = Math.random() < .9 * (100 - this.playerSystemsManager.gunsCondition.operatingPercentage) / 100;
@@ -187,24 +189,35 @@ export class PlayerShip extends InteractableGameObject {
                     let photonX = this.x + (-Math.cos(this.angle) * this.collisionRadius);
                     let photonY = this.y + (-Math.sin(this.angle) * this.collisionRadius);
                     let photonVelocity = this.getNewProjectileVelocity(this.PROJECTILE_SPEED);
-                    if (this.bulletState == this.BULLETS.SMALL) {
-                        photon = new PhotonSmall(photonX, photonY, photonVelocity.x, photonVelocity.y);
-                        MediaManager.Audio.PhotonSmall.play();
-                    } else if (this.bulletState == this.BULLETS.LARGE) {
+                    const largePhotonPowerupConstructorName = PhotonLargePowerup.getClassName();
+                    const spreadShotPowerupConstructorName = SpreadShotPowerup.getClassName()
+
+                    // Determine the main photon to be fired
+                    if (this.powerupStateManager.isBulletPowerupActive(largePhotonPowerupConstructorName)) {
                         photon = new PhotonLarge(photonX, photonY, photonVelocity.x, photonVelocity.y);
                         MediaManager.Audio.PhotonBig.play();
-                    } else if (this.bulletState == this.BULLETS.SPREADSHOT) {
-                        let photonVelocity2 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, (Math.PI / 16));
-                        let photonVelocity3 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, -(Math.PI / 16));
+                        this.powerupStateManager.bulletPowerupShotUsed(largePhotonPowerupConstructorName);
+                    } else if (this.powerupStateManager.isBulletPowerupActive(spreadShotPowerupConstructorName)) {
                         photon = new PhotonMedium(photonX, photonY, photonVelocity.x, photonVelocity.y);
-                        let photon2 = new PhotonMedium(photonX, photonY, photonVelocity2.x, photonVelocity2.y);
-                        let photon3 = new PhotonMedium(photonX, photonY, photonVelocity3.x, photonVelocity3.y);
-                        // FUTURE TODO: investigate why photon 2 falls behind the other photons when shooting sometimes. This appears to also be a problem with the old code.
-                        ObjectManager.addObject(photon2, true);
-                        ObjectManager.addObject(photon3, true);
                         MediaManager.Audio.PhotonSpread.play();
+                        // Spreadshot use handled in if statement further down since both large and spreadshot powerups can be active at the same time
+                    } else {
+                        photon = new PhotonSmall(photonX, photonY, photonVelocity.x, photonVelocity.y);
+                        MediaManager.Audio.PhotonSmall.play();
                     }
                     ObjectManager.addObject(photon, true);
+
+                    // If spread shot is active, add the two extra spread shot bullets even if large photon powerup is active
+                    if (this.powerupStateManager.isBulletPowerupActive(spreadShotPowerupConstructorName)) {
+                        let photonVelocity2 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, (Math.PI / 16));
+                        let photonVelocity3 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, -(Math.PI / 16));
+                        // FUTURE TODO: investigate why photon 2 falls behind the other photons when shooting sometimes. This appears to also be a problem with the old code. Note: This is an old todo, maybe this no longer happens?
+                        let photon2 = new PhotonMedium(photonX, photonY, photonVelocity2.x, photonVelocity2.y);
+                        let photon3 = new PhotonMedium(photonX, photonY, photonVelocity3.x, photonVelocity3.y);
+                        ObjectManager.addObject(photon2, true);
+                        ObjectManager.addObject(photon3, true);
+                        this.powerupStateManager.bulletPowerupShotUsed(spreadShotPowerupConstructorName);
+                    }
                 }
             
                 this.numFramesSince.shooting = 0;
