@@ -483,12 +483,12 @@ export class PlayerShip extends InteractableGameObject {
             }
             GameServiceManager.movePlayerShipTo(Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT, Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP);
 
+            // deactivate all active powerups
+            this.powerupStateManager.deactivateAndRemoveAllPowerups();
+
             // reset ship systems and fuel and spare parts to full
             this.log("Setting ship back to max system operating percentages/fuel/spare parts");
             this.resetFuelSparePartAndSystemsState();
-
-            // deactivate all active powerups
-            this.powerupStateManager.deactivateAllActivePowerups();
 
             // NOTE: You do not gain any stored powerups when you die (nor do you lose the ones you had)
 

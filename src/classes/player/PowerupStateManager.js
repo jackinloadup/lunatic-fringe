@@ -40,7 +40,7 @@ export class PowerupStateManager {
         }
     }
 
-    deactivateAllActivePowerups() {
+    deactivateAndRemoveAllPowerups() {
         for (let i in this.activeDurationPowerups) {
             if (this.activeDurationPowerups.hasOwnProperty(i)) {
                 this.activeDurationPowerups[i].powerup.deactivate(this.player);
@@ -54,6 +54,15 @@ export class PowerupStateManager {
                 this.activeBulletPowerups[i].powerup.deactivate(this.player);
                 // The powerup is no longer active, remove it from the active powerups
                 delete this.activeBulletPowerups[i];
+            }
+        }
+
+        // Based on gameplay footage you lose any stored powerups you had when you die, see https://www.youtube.com/watch?v=zZglGbYGRtI at 0:14 and 34:22
+        for (let i in this.storedPowerups) {
+            if (this.storedPowerups.hasOwnProperty(i)) {
+                this.storedPowerups[i].deactivate(this.player);
+                // The powerup is no longer active, remove it from the active powerups
+                delete this.storedPowerups[i];
             }
         }
     }
