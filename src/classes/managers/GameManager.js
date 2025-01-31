@@ -270,7 +270,6 @@ export class GameManager {
         return numEnemies;
     }
 
-    // FUTURE TODO: When you spawn in, have static effect on screen that fades away. Should be able to do this with the new object property "percentageVisible", see hammer head projectile for an example
     /**
      * Applies a "static-y" effect to a section of a canvas by changing the alpha component of a certain number of pixels in the area
      * based on the passed in percentage.
@@ -285,7 +284,7 @@ export class GameManager {
     static applyStaticEffectToCanvas(context, percentWorking, x, y, width, height) {
         const floorX = Math.floor(x);
         const floorY = Math.floor(y);
-        // Note: Since pixels do not use float values, getImageData appears to floor the x and y numbers before getting the image data from the canvas
+        // Note: Since pixels do not use float values, getImageData appears to floor the x and y numbers before getting the image data from the canvas which is why we do so above
         let pixels = context.getImageData(x, y, width, height);
         let pixelData = pixels.data;
         for (let i = 0, n = pixelData.length; i < n; i += 4) {

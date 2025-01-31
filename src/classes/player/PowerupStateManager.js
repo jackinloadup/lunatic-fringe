@@ -52,7 +52,7 @@ export class PowerupStateManager {
         for (let i in this.activeBulletPowerups) {
             if (this.activeBulletPowerups.hasOwnProperty(i)) {
                 this.activeBulletPowerups[i].powerup.deactivate(this.player);
-                // The powerup is no longer active, remove it from the active powerups
+                // The powerup is no longer active, remove it from the active bullet powerups
                 delete this.activeBulletPowerups[i];
             }
         }
@@ -61,7 +61,7 @@ export class PowerupStateManager {
         for (let i in this.storedPowerups) {
             if (this.storedPowerups.hasOwnProperty(i)) {
                 this.storedPowerups[i].deactivate(this.player);
-                // The powerup is no longer active, remove it from the active powerups
+                // The powerup is no longer active, remove it from the stored powerups
                 delete this.storedPowerups[i];
             }
         }

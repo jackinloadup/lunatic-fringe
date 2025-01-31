@@ -55,7 +55,7 @@ export class InteractableGameObject extends GameObject {
     draw(canvasContext, effectCanvasContext, percentageVisible) {
         // handle the drawing that is common between all objects
 
-        // Two percentage visible attributes, to get total percentage visible multiple the two values. Ex. 90% x 90% should give a final percentage visible of 81%.
+        // There are two percentage visible attributes, to get total percentage visible multiple the two values. Ex. 90% x 90% should give a final percentage visible of 81%.
         // percentageVisible: percentage visible based on how damaged the system is (scanner or radar)
         // this.percentVisible: Used to apply percent visible effect to specific objects. For example, fading in the hammerhead hammer as it starts to respawn
         const totalPercentageVisible = percentageVisible * this.percentVisible / 100;

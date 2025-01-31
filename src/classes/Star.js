@@ -17,10 +17,10 @@ export class Star extends GameObject {
     }
 
     draw(canvasContext, effectCanvasContext, percentageVisible) {
-        if (percentageVisible !== 100) {
+        if (percentageVisible < 100) {
             let shouldDisplayStar = Math.random();
 
-            // Random change to not display start, based on percentage that should be visible
+            // Random chance to not display star, based on percentage that should be visible
             if (shouldDisplayStar * 100 < percentageVisible) {
                 canvasContext.fillStyle = this.currentColor;
                 canvasContext.fillRect(this.x, this.y, 1, 1);
