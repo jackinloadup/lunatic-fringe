@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { Layer } from "../managers/Layer.js";
 
 export class PowerupStateManager {
@@ -5,7 +6,7 @@ export class PowerupStateManager {
         this.player = player;
         this.storedPowerups = {};
         this.activeDurationPowerups = {};
-        this.bulletPowerup = null;
+        this.activeBulletPowerups = {};
     }
 
     obtainPowerup(powerup) {
@@ -15,13 +16,11 @@ export class PowerupStateManager {
             powerup.activate(this.player);
             this.activeDurationPowerups[powerup.getClassName()] = {"powerup": powerup, "duration": powerup.duration};
         } else if (powerup.layer === Layer.BULLET_POWERUP) {
-            // If other bullet powerups are active, deactivate them first.
-            if (this.bulletPowerup) {
-                this.bulletPowerup.powerup.deactivate(this.player);
-                this.bulletPowerup = null;
-            }
             powerup.activate(this.player);
-            this.bulletPowerup = {"powerup": powerup, "duration": powerup.duration};
+            this.activeBulletPowerups[powerup.getClassName()] = {"powerup": powerup, "numberOfShots": powerup.numberOfShots, "shootingSpeed": powerup.shootingSpeed}
+
+            // Set the new player speed to be the maximum (slowest) of all of the powerups shooting speeds
+            this.player.bulletShootingSpeed = Math.max(...Object.values(this.activeBulletPowerups).map((powerupInformation) => powerupInformation.shootingSpeed));
         } else if (powerup.layer === Layer.STORED_POWERUP) {
             if (!this.storedPowerups[powerup.activationKey] && !this.activeDurationPowerups[powerup.getClassName()]) {
                 // If this powerup is not already stored or is not currently active, add it to the stored powerups list
@@ -33,19 +32,15 @@ export class PowerupStateManager {
     }
 
     activateStoredPowerup(key) {
-        for (const [entryKey, entryValue] of Object.entries(this.storedPowerups)) {
-            if (key === entryKey) {
-                // activate the stored powerup
-                let powerup = entryValue;
-                powerup.activate(this.player);
-                this.activeDurationPowerups[powerup.getClassName()] = {"powerup": powerup, "duration": powerup.duration};
-                // Delete the powerup so it is no longer "stored"
-                delete this.storedPowerups[entryKey];
-            }
+        const matchingStoredPowerup = this.storedPowerups[key];
+        if (matchingStoredPowerup) {
+            matchingStoredPowerup.activate(this.player);
+            this.activeDurationPowerups[matchingStoredPowerup.getClassName()] = {"powerup": matchingStoredPowerup, "duration": matchingStoredPowerup.duration};
+            delete this.storedPowerups[key];
         }
     }
 
-    deactivateAllActivePowerups() {
+    deactivateAndRemoveAllPowerups() {
         for (let i in this.activeDurationPowerups) {
             if (this.activeDurationPowerups.hasOwnProperty(i)) {
                 this.activeDurationPowerups[i].powerup.deactivate(this.player);
@@ -54,10 +49,21 @@ export class PowerupStateManager {
             }
         }
 
-        if (this.bulletPowerup) {
-            // Dectivate the bullet powerup if one is currently active
-            this.bulletPowerup.powerup.deactivate(this.player);
-            delete this.bulletPowerup;
+        for (let i in this.activeBulletPowerups) {
+            if (this.activeBulletPowerups.hasOwnProperty(i)) {
+                this.activeBulletPowerups[i].powerup.deactivate(this.player);
+                // The powerup is no longer active, remove it from the active bullet powerups
+                delete this.activeBulletPowerups[i];
+            }
+        }
+
+        // Based on gameplay footage you lose any stored powerups you had when you die, see https://www.youtube.com/watch?v=zZglGbYGRtI at 0:14 and 34:22
+        for (let i in this.storedPowerups) {
+            if (this.storedPowerups.hasOwnProperty(i)) {
+                this.storedPowerups[i].deactivate(this.player);
+                // The powerup is no longer active, remove it from the stored powerups
+                delete this.storedPowerups[i];
+            }
         }
     }
 
@@ -66,10 +72,6 @@ export class PowerupStateManager {
             if (this.activeDurationPowerups.hasOwnProperty(i) && this.activeDurationPowerups[i].duration > 0) {
                 this.activeDurationPowerups[i].duration -= 1;
             }
-        }
-
-        if (this.bulletPowerup && this.bulletPowerup.duration > 0) {
-            this.bulletPowerup.duration -= 1;
         }
     }
 
@@ -81,11 +83,23 @@ export class PowerupStateManager {
                 delete this.activeDurationPowerups[i];
             }
         }
+    }
 
-        if (this.bulletPowerup && this.bulletPowerup.duration === 0) {
-            this.bulletPowerup.powerup.deactivate(this.player);
-            // The powerup is no longer active, remove the stored object
-            delete this.bulletPowerup;
+    isBulletPowerupActive(bulletPowerupClassName) {
+        return this.activeBulletPowerups[bulletPowerupClassName]?.numberOfShots > 0;
+    }
+
+    bulletPowerupShotUsed(bulletPowerupClassName) {
+        this.activeBulletPowerups[bulletPowerupClassName].numberOfShots--;
+        if (this.activeBulletPowerups[bulletPowerupClassName].numberOfShots <= 0) {
+            this.activeBulletPowerups[bulletPowerupClassName].powerup.deactivate();
+            delete this.activeBulletPowerups[bulletPowerupClassName];
+
+            if (Object.values(this.activeBulletPowerups).length !== 0) {
+                this.player.bulletShootingSpeed = Math.max(...Object.values(this.activeBulletPowerups).map((powerupInformation) => powerupInformation.shootingSpeed));
+            } else {
+                this.player.bulletShootingSpeed = GameConfig.DEFAULT_SHOOTING_SPEED;
+            }
         }
     }
 }

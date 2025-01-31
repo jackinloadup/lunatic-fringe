@@ -9,7 +9,10 @@ window.onload = function Initialize() {
     DocumentManager.setElementDimensions('scannerCanvas', scannerDimensions);
 
     // Another canvas for another layer of the scanner drawing area
-    DocumentManager.setElementDimensions('scannerCanvasProjectiles', scannerDimensions);
+    DocumentManager.setElementDimensions('projectilesScannerCanvas', scannerDimensions);
+    
+    // Add hidden canvas for drawing effects on sprites before drawing on the actual scanner canvas
+    DocumentManager.setElementDimensions('effectScannerCanvas', scannerDimensions);
 
     let radarDimensions = DocumentManager.getElementDimensions('radar');
     DocumentManager.setElementDimensions('radarCanvas', radarDimensions);
@@ -29,5 +32,5 @@ window.onload = function Initialize() {
       visibilityChange = "webkitvisibilitychange";
     }
 
-    new LunaticFringe('scannerCanvas', 'scannerCanvasProjectiles', 'radarCanvas', hidden, visibilityChange);
+    new LunaticFringe('scannerCanvas', 'projectilesScannerCanvas', 'effectScannerCanvas', 'radarCanvas', hidden, visibilityChange);
 }

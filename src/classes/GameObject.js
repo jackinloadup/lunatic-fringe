@@ -16,7 +16,7 @@ export class GameObject extends Logger {
         this.error("GameObject updateState function should be overwritten by concrete subclasses!");
     }
 
-    draw(context) {
+    draw(canvasContext, effectCanvasContext, percentageVisible) {
         this.error("GameObject draw function should be overwritten by concrete subclasses!");
     };
 }

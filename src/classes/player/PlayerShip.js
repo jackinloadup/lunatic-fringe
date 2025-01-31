@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig.js";
 import { Vector } from "../../utility/Vector.js";
 import { InteractableGameObject } from "../InteractableGameObject.js";
 import { CollisionManager } from "../managers/CollisionManager.js";
@@ -8,6 +9,8 @@ import { KeyStateManager } from "../managers/KeyManager.js";
 import { Layer } from "../managers/Layer.js";
 import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
+import { PhotonLargePowerup } from "../powerups/PhotonLargePowerup.js";
+import { SpreadShotPowerup } from "../powerups/SpreadShotPowerup.js";
 import { PhotonLarge } from "../projectiles/PhotonLarge.js";
 import { PhotonMedium } from "../projectiles/PhotonMedium.js";
 import { PhotonSmall } from "../projectiles/PhotonSmall.js";
@@ -42,7 +45,7 @@ export class PlayerShip extends InteractableGameObject {
         this.updateDocumentSpareParts();
 
         this.playerSystemsManager = new PlayerSystemsManager();
-        // Used to save and restore fuel and spare parts during and after invulnerability powerup usage
+        // Used to save and restore fuel and spare parts during and after power shield powerup usage
         this.savedFuel = 0;
         this.savedSpareParts = 0;
 
@@ -96,8 +99,7 @@ export class PlayerShip extends InteractableGameObject {
 			LARGE: 3
 		};
         this.bulletState = this.BULLETS.SMALL;
-		this.DEFAULT_SHOOTING_SPEED = 13; // Shooting speed without powerups and with normal bullets
-		this.bulletShootingSpeed = this.DEFAULT_SHOOTING_SPEED;
+		this.bulletShootingSpeed = GameConfig.DEFAULT_SHOOTING_SPEED;
         this.PROJECTILE_SPEED = 10;
 		this.scoreMultiplier = 1;
 		// The speed you got at when using the turbo thrust powerup
@@ -106,11 +108,14 @@ export class PlayerShip extends InteractableGameObject {
 		this.SPEED_AFTER_TURBO_THRUST = 1;
 
         this.turboThrustActive = false;
-        this.invulnerabilityActive = false;
+        this.powerShieldActive = false;
 
         // Player starts with 3 lives
         this.lives = 3;
         this.updateLivesDocument();
+
+        // Used for fading in only the ship when respawning after death. This is separate from the effect caused by a damage scanner.
+        this.percentVisible = 0;
     }
 
     // Need a function that is separate from other objects since the angles for the player are opposite the angles for everything else
@@ -138,7 +143,7 @@ export class PlayerShip extends InteractableGameObject {
         }
         if (KeyStateManager.isDown(KeyStateManager.UP) && this.fuel > 0 && !this.isTurboThrusting() && this.enginesFunctioning) {
             this.isAccelerating = true;
-            if (!this.isInvulnerable()) {
+            if (!this.powerShieldActive) {
                 this.updateFuel(-1);
             }
             this.calculateAcceleration();
@@ -178,7 +183,7 @@ export class PlayerShip extends InteractableGameObject {
         }
 
         if (KeyStateManager.isDown(KeyStateManager.SPACE) && !this.atBase && !this.isTurboThrusting()) {
-            if (this.numFramesSince.shooting >= this.bulletShootingSpeed) { // 13 matches up best with the original game's rate of fire at 60fps
+            if (this.numFramesSince.shooting >= this.bulletShootingSpeed) { 
                 // Check to see if ship is allowed to fire based on percentage the guns are operating at. Note that this is inside the frame checking logic since
                 // even you are not allowed to fire a bullet due to inoperable guns it should still reset the numFramesSince count
                 let failedToFireBullet = Math.random() < .9 * (100 - this.playerSystemsManager.gunsCondition.operatingPercentage) / 100;
@@ -187,24 +192,35 @@ export class PlayerShip extends InteractableGameObject {
                     let photonX = this.x + (-Math.cos(this.angle) * this.collisionRadius);
                     let photonY = this.y + (-Math.sin(this.angle) * this.collisionRadius);
                     let photonVelocity = this.getNewProjectileVelocity(this.PROJECTILE_SPEED);
-                    if (this.bulletState == this.BULLETS.SMALL) {
-                        photon = new PhotonSmall(photonX, photonY, photonVelocity.x, photonVelocity.y);
-                        MediaManager.Audio.PhotonSmall.play();
-                    } else if (this.bulletState == this.BULLETS.LARGE) {
+                    const largePhotonPowerupConstructorName = PhotonLargePowerup.getClassName();
+                    const spreadShotPowerupConstructorName = SpreadShotPowerup.getClassName()
+
+                    // Determine the main photon to be fired
+                    if (this.powerupStateManager.isBulletPowerupActive(largePhotonPowerupConstructorName)) {
                         photon = new PhotonLarge(photonX, photonY, photonVelocity.x, photonVelocity.y);
                         MediaManager.Audio.PhotonBig.play();
-                    } else if (this.bulletState == this.BULLETS.SPREADSHOT) {
-                        let photonVelocity2 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, (Math.PI / 16));
-                        let photonVelocity3 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, -(Math.PI / 16));
+                        this.powerupStateManager.bulletPowerupShotUsed(largePhotonPowerupConstructorName);
+                    } else if (this.powerupStateManager.isBulletPowerupActive(spreadShotPowerupConstructorName)) {
                         photon = new PhotonMedium(photonX, photonY, photonVelocity.x, photonVelocity.y);
-                        let photon2 = new PhotonMedium(photonX, photonY, photonVelocity2.x, photonVelocity2.y);
-                        let photon3 = new PhotonMedium(photonX, photonY, photonVelocity3.x, photonVelocity3.y);
-                        // FUTURE TODO: investigate why photon 2 falls behind the other photons when shooting sometimes. This appears to also be a problem with the old code.
-                        ObjectManager.addObject(photon2, true);
-                        ObjectManager.addObject(photon3, true);
                         MediaManager.Audio.PhotonSpread.play();
+                        // Spreadshot use handled in if statement further down since both large and spreadshot powerups can be active at the same time
+                    } else {
+                        photon = new PhotonSmall(photonX, photonY, photonVelocity.x, photonVelocity.y);
+                        MediaManager.Audio.PhotonSmall.play();
                     }
                     ObjectManager.addObject(photon, true);
+
+                    // If spread shot is active, add the two extra spread shot bullets even if large photon powerup is active
+                    if (this.powerupStateManager.isBulletPowerupActive(spreadShotPowerupConstructorName)) {
+                        let photonVelocity2 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, (Math.PI / 16));
+                        let photonVelocity3 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, -(Math.PI / 16));
+                        // FUTURE TODO: investigate why photon 2 falls behind the other photons when shooting sometimes. This appears to also be a problem with the old code. Note: This is an old todo, maybe this no longer happens?
+                        let photon2 = new PhotonMedium(photonX, photonY, photonVelocity2.x, photonVelocity2.y);
+                        let photon3 = new PhotonMedium(photonX, photonY, photonVelocity3.x, photonVelocity3.y);
+                        ObjectManager.addObject(photon2, true);
+                        ObjectManager.addObject(photon3, true);
+                        this.powerupStateManager.bulletPowerupShotUsed(spreadShotPowerupConstructorName);
+                    }
                 }
             
                 this.numFramesSince.shooting = 0;
@@ -236,7 +252,8 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     isInvulnerable() {
-        return this.invulnerabilityActive;
+        // Player is invulnerable after spawning in the first time or respawning after death
+        return this.powerShieldActive || this.numFramesSince.death < GameConfig.LENGTH_OF_INVULNERABILITY_AFTER_SPAWN_IN_SECONDS * 60;
     }
 
     isTurboThrusting() {
@@ -277,10 +294,13 @@ export class PlayerShip extends InteractableGameObject {
         this.setSpareParts(this.savedSpareParts);
         this.playerSystemsManager.restoreSystemsOperatingLevels();
 
-        // The original game has it so that if you are below half fuel and you come out of invulnerability
-        // the low fuel message is shown and the sound is played. 
+        // The original game has it so that if you are below half fuel and you come out of power shield
+        // the low fuel message is shown and the sound is played. If you have more than half fuel, instead
+        // a message is displayed telling you that you are vulnerable.
         if (this.fuel <= this.HALF_FUEL_REMAINING) {
             this.displayLowFuelMessageAndPlaySound();
+        } else {
+            GameServiceManager.displayMessage("VULNERABLE", 60 * 4.5);
         }
     }
 
@@ -470,14 +490,12 @@ export class PlayerShip extends InteractableGameObject {
             }
             GameServiceManager.movePlayerShipTo(Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT, Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP);
 
+            // deactivate all active powerups
+            this.powerupStateManager.deactivateAndRemoveAllPowerups();
+
             // reset ship systems and fuel and spare parts to full
             this.log("Setting ship back to max system operating percentages/fuel/spare parts");
             this.resetFuelSparePartAndSystemsState();
-
-            // deactivate all active powerups
-            this.powerupStateManager.deactivateAllActivePowerups();
-
-            // NOTE: You do not gain any stored powerups when you die (nor do you lose the ones you had)
 
             // reset all number of frames values
             for (let i in this.numFramesSince) {
@@ -489,10 +507,22 @@ export class PlayerShip extends InteractableGameObject {
             // reset system functioning booleans
             this.enginesFunctioning = true;
             this.turnJetsFunctioning = true;
+
+            // Set ship back to 0 percent visible for fading in on new respawn
+            this.percentVisible = 0;
         }
     }
 
     updateState() {
+        if (this.percentVisible < 100) {
+            const newPercentageVisible = this.numFramesSince.death / (60 * GameConfig.LENGTH_OF_FADE_IN_AFTER_SPAWN_IN_SECONDS) * 100;
+            if (newPercentageVisible > 100) {
+                this.percentVisible = 100;
+            } else {
+                this.percentVisible = newPercentageVisible;
+            }
+        }
+        
         // update the power up state
         this.powerupStateManager.updatePowerupState();
 
