@@ -291,9 +291,12 @@ export class PlayerShip extends InteractableGameObject {
         this.playerSystemsManager.restoreSystemsOperatingLevels();
 
         // The original game has it so that if you are below half fuel and you come out of power shield
-        // the low fuel message is shown and the sound is played. 
+        // the low fuel message is shown and the sound is played. If you have more than half fuel, instead
+        // a message is displayed tell you that you are vulnerable.
         if (this.fuel <= this.HALF_FUEL_REMAINING) {
             this.displayLowFuelMessageAndPlaySound();
+        } else {
+            GameServiceManager.displayMessage("VULNERABLE", 60 * 4.5);
         }
     }
 
