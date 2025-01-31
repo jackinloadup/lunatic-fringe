@@ -20,5 +20,13 @@ export let GameConfig = {
    LARGE_PHOTON_NUMBER_OF_SHOTS: 10,
 
    // Number of shots the Spreadshot power up lasts
-   SPREAD_SHOT_NUMBER_OF_SHOTS: 30
+   SPREAD_SHOT_NUMBER_OF_SHOTS: 30,
+
+   // Number of seconds the player is invulnerable after spawning in or respawning after death. Ideally this should be the
+   // same length as LENGTH_OF_FADE_IN_AFTER_SPAWN_IN_SECONDS to prevent confusion.
+   LENGTH_OF_INVULNERABILITY_AFTER_SPAWN_IN_SECONDS: 4,
+
+   // How long it takes the player to fade in after spawning/respawning. Ideally this should be the same length as 
+   // LENGTH_OF_INVULNERABILITY_AFTER_SPAWN_IN_SECONDS to prevent confusion.
+   LENGTH_OF_FADE_IN_AFTER_SPAWN_IN_SECONDS: 4
 };

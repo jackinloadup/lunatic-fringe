@@ -113,6 +113,9 @@ export class PlayerShip extends InteractableGameObject {
         // Player starts with 3 lives
         this.lives = 3;
         this.updateLivesDocument();
+
+        // Used for fading in only the ship when respawning after death. This is separate from the effect caused by a damage scanner.
+        this.percentVisible = 0;
     }
 
     // Need a function that is separate from other objects since the angles for the player are opposite the angles for everything else
@@ -140,7 +143,7 @@ export class PlayerShip extends InteractableGameObject {
         }
         if (KeyStateManager.isDown(KeyStateManager.UP) && this.fuel > 0 && !this.isTurboThrusting() && this.enginesFunctioning) {
             this.isAccelerating = true;
-            if (!this.isInvulnerable()) {
+            if (!this.powerShieldActive) {
                 this.updateFuel(-1);
             }
             this.calculateAcceleration();
@@ -249,7 +252,8 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     isInvulnerable() {
-        return this.powerShieldActive;
+        // Player is invulnerable after spawning in the first time or respawning after death
+        return this.powerShieldActive || this.numFramesSince.death < GameConfig.LENGTH_OF_INVULNERABILITY_AFTER_SPAWN_IN_SECONDS * 60;
     }
 
     isTurboThrusting() {
@@ -493,8 +497,6 @@ export class PlayerShip extends InteractableGameObject {
             this.log("Setting ship back to max system operating percentages/fuel/spare parts");
             this.resetFuelSparePartAndSystemsState();
 
-            // NOTE: You do not gain any stored powerups when you die (nor do you lose the ones you had)
-
             // reset all number of frames values
             for (let i in this.numFramesSince) {
                 if (this.numFramesSince.hasOwnProperty(i)) {
@@ -505,10 +507,22 @@ export class PlayerShip extends InteractableGameObject {
             // reset system functioning booleans
             this.enginesFunctioning = true;
             this.turnJetsFunctioning = true;
+
+            // Set ship back to 0 percent visible for fading in on new respawn
+            this.percentVisible = 0;
         }
     }
 
     updateState() {
+        if (this.percentVisible < 100) {
+            const newPercentageVisible = this.numFramesSince.death / (60 * GameConfig.LENGTH_OF_FADE_IN_AFTER_SPAWN_IN_SECONDS) * 100;
+            if (newPercentageVisible > 100) {
+                this.percentVisible = 100;
+            } else {
+                this.percentVisible = newPercentageVisible;
+            }
+        }
+        
         // update the power up state
         this.powerupStateManager.updatePowerupState();
 
