@@ -289,10 +289,10 @@ export class GameManager {
         let pixelData = pixels.data;
         for (let i = 0, n = pixelData.length; i < n; i += 4) {
             const canvasXCoordinate = floorX + ((i / 4) % width);
-            const canvasYCoorednate = floorY + Math.floor((i / 4) / width); // Y offset is still based on width, not height!
+            const canvasYCoordinate = floorY + Math.floor((i / 4) / width); // Y offset is still based on width, not height!
 
             // If the pixel is off of the canvas we do not need to bother with drawing the effect
-            if (canvasXCoordinate < 0 || canvasXCoordinate >= context.canvas.width || canvasYCoorednate < 0 || canvasYCoorednate >= context.canvas.height) {
+            if (canvasXCoordinate < 0 || canvasXCoordinate >= context.canvas.width || canvasYCoordinate < 0 || canvasYCoordinate >= context.canvas.height) {
                 continue;
             }
 
