@@ -1,7 +1,7 @@
 import { Vector } from "../utility/Vector.js";
 import { AiGameObject } from "./AiGameObject.js";
 import { Layer } from "./managers/Layer.js";
-import { NewMediaManager } from "./managers/MediaManager.js";
+import { MediaManager } from "./managers/MediaManager.js";
 import { ObjectManager } from "./managers/ObjectManager.js";
 
 export class KillableAiGameObject extends AiGameObject {
@@ -14,7 +14,7 @@ export class KillableAiGameObject extends AiGameObject {
 
     playDeathSound() {
         // Sludger death sound is used for all enemy deaths except the sludger mine
-        NewMediaManager.Audio.SludgerDeath.play();
+        MediaManager.Audio.SludgerDeath.play();
     }
 
     die() {

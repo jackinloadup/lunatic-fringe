@@ -6,7 +6,7 @@ import { GameBound } from "../managers/GameBound.js";
 import { GameServiceManager } from "../managers/GameServiceManager.js";
 import { KeyStateManager } from "../managers/KeyManager.js";
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/MediaManager.js";
+import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
 import { PhotonLarge } from "../projectiles/PhotonLarge.js";
 import { PhotonMedium } from "../projectiles/PhotonMedium.js";
@@ -16,30 +16,35 @@ import { PowerupStateManager } from "./PowerupStateManager.js";
 
 export class PlayerShip extends InteractableGameObject {
     // Use static values here since the 'this' context is not the Player Ship object in the low fuel event listener, so just pull the values off of the player ship class statically.
-    static LOW_FUEL_SOUND_PLAY_COUNT_MAX = 3;
+    static LOW_FUEL_SOUND_PLAY_COUNT_MAX = 1;
     static lowFuelSoundPlayCount = 1;
+    
+    static MAX_SPEED = 12;
 
     constructor(xLocation, yLocation, velocityX, velocityY) {
         // Collision radius of 12 is a good balance between wings sticking out and body taking up the whole circle
         // Start at angle of Math.PI / 2 so angle matches sprite. Normally since the canvas is y flipped from a normal graph you would want
         //      -Math.PI / 2 to be pointing straight up, but the ships forces are opposites all other objects
-        super(xLocation, yLocation, Layer.PLAYER, 42, 37, Math.PI / 2, NewMediaManager.Sprites.PlayerShip, velocityX, velocityY, 12, 10);
+        super(xLocation, yLocation, Layer.PLAYER, 42, 37, Math.PI / 2, MediaManager.Sprites.PlayerShip, velocityX, velocityY, 12, 10);
         // Offset the drawing of the sprite by 2 pixels in the y direction so it fits in the collision circle better
         this.imageYOffset = 2;
 
-        this.MAX_SPEED = 12;
         this.ACCELERATION = 0.1;
         this.damageCausedByCollision = 40;
 
         this.MAXIMUM_FUEL = 1500;
         this.fuel = this.MAXIMUM_FUEL;
-        this.FEUL_SOUND_THRESHOLD = this.MAXIMUM_FUEL / 5;
+        this.HALF_FUEL_REMAINING = this.MAXIMUM_FUEL / 2;
+        this.QUARTER_FUEL_REMAINING = this.MAXIMUM_FUEL / 4;
         this.updateDocumentFuel();
         this.MAXIMUM_SPARE_PARTS = 100;
         this.spareParts = this.MAXIMUM_SPARE_PARTS
         this.updateDocumentSpareParts();
 
         this.playerSystemsManager = new PlayerSystemsManager();
+        // Used to save and restore fuel and spare parts during and after invulnerability powerup usage
+        this.savedFuel = 0;
+        this.savedSpareParts = 0;
 
         this.NUMBER_OF_ANIMATION_FRAMES = 32;
         this.ROTATION_AMOUNT = (2 * Math.PI) / this.NUMBER_OF_ANIMATION_FRAMES;
@@ -48,11 +53,12 @@ export class PlayerShip extends InteractableGameObject {
         this.isAccelerating = false;
         this.BASE_DOCKING_OFFSET = 3; // The value offset to use so that the player ship is more centered with the base when docked.
         this.atBase = false;
-        this.isLowFuel = false;
+        this.isLowFuelHalfLeft = false;
+        this.isLowFuelQuarterLeft = false;
         // Setup the repeating of the low fuel sound
-        NewMediaManager.Audio.LowFuel.addEventListener('ended', function() {
+        MediaManager.Audio.LowFuel.addEventListener('ended', function() {
             if (PlayerShip.lowFuelSoundPlayCount < PlayerShip.LOW_FUEL_SOUND_PLAY_COUNT_MAX) {
-                NewMediaManager.Audio.LowFuel.play();
+                MediaManager.Audio.LowFuel.play();
                 PlayerShip.lowFuelSoundPlayCount++;
             } else {
                 PlayerShip.lowFuelSoundPlayCount = 1;
@@ -95,7 +101,7 @@ export class PlayerShip extends InteractableGameObject {
         this.PROJECTILE_SPEED = 10;
 		this.scoreMultiplier = 1;
 		// The speed you got at when using the turbo thrust powerup
-		this.SPEED_OF_TURBO_THRUST = 2 * this.MAX_SPEED;
+		this.SPEED_OF_TURBO_THRUST = 2 * PlayerShip.MAX_SPEED;
 		// What to set the speed of the ship to after turbo thrusting so you get a little "drifting" after the boost
 		this.SPEED_AFTER_TURBO_THRUST = 1;
 
@@ -132,7 +138,9 @@ export class PlayerShip extends InteractableGameObject {
         }
         if (KeyStateManager.isDown(KeyStateManager.UP) && this.fuel > 0 && !this.isTurboThrusting() && this.enginesFunctioning) {
             this.isAccelerating = true;
-            this.updateFuel(-1);
+            if (!this.isInvulnerable()) {
+                this.updateFuel(-1);
+            }
             this.calculateAcceleration();
             this.spriteYOffset = this.height;
         } else {
@@ -181,10 +189,10 @@ export class PlayerShip extends InteractableGameObject {
                     let photonVelocity = this.getNewProjectileVelocity(this.PROJECTILE_SPEED);
                     if (this.bulletState == this.BULLETS.SMALL) {
                         photon = new PhotonSmall(photonX, photonY, photonVelocity.x, photonVelocity.y);
-                        NewMediaManager.Audio.PhotonSmall.play();
+                        MediaManager.Audio.PhotonSmall.play();
                     } else if (this.bulletState == this.BULLETS.LARGE) {
                         photon = new PhotonLarge(photonX, photonY, photonVelocity.x, photonVelocity.y);
-                        NewMediaManager.Audio.PhotonBig.play();
+                        MediaManager.Audio.PhotonBig.play();
                     } else if (this.bulletState == this.BULLETS.SPREADSHOT) {
                         let photonVelocity2 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, (Math.PI / 16));
                         let photonVelocity3 = this.getNewProjectileVelocity(this.PROJECTILE_SPEED, -(Math.PI / 16));
@@ -194,7 +202,7 @@ export class PlayerShip extends InteractableGameObject {
                         // FUTURE TODO: investigate why photon 2 falls behind the other photons when shooting sometimes. This appears to also be a problem with the old code.
                         ObjectManager.addObject(photon2, true);
                         ObjectManager.addObject(photon3, true);
-                        NewMediaManager.Audio.PhotonSpread.play();
+                        MediaManager.Audio.PhotonSpread.play();
                     }
                     ObjectManager.addObject(photon, true);
                 }
@@ -258,16 +266,44 @@ export class PlayerShip extends InteractableGameObject {
         }
     }
 
-    updateFuel(fuelChange) {
-        this.fuel += fuelChange;
+    saveFuelSparePartAndSystemsState() {
+        this.savedFuel = this.fuel;
+        this.savedSpareParts = this.spareParts;
+        this.playerSystemsManager.saveSystemsOperatingLevels();
+    }
 
-        if (this.fuel > this.MAXIMUM_FUEL) {
+    restoreFuelSparePartAndSystemsState() {
+        this.setFuel(this.savedFuel);
+        this.setSpareParts(this.savedSpareParts);
+        this.playerSystemsManager.restoreSystemsOperatingLevels();
+
+        // The original game has it so that if you are below half fuel and you come out of invulnerability
+        // the low fuel message is shown and the sound is played. 
+        if (this.fuel <= this.HALF_FUEL_REMAINING) {
+            this.displayLowFuelMessageAndPlaySound();
+        }
+    }
+
+    resetFuelSparePartAndSystemsState() {
+        this.setFuel(this.MAXIMUM_FUEL);
+        this.setSpareParts(this.MAXIMUM_SPARE_PARTS);
+        this.playerSystemsManager.resetSystems();
+    }
+
+    setFuel(newFuelValue) {
+        if (newFuelValue > this.MAXIMUM_FUEL) {
             this.fuel = this.MAXIMUM_FUEL;
-        } else if (this.fuel <= 0) {
+        } else if (newFuelValue <= 0) {
             this.fuel = 0;
+        } else {
+            this.fuel = newFuelValue;
         }
 
         this.updateDocumentFuel();
+    }
+
+    updateFuel(fuelChange) {
+        this.setFuel(this.fuel + fuelChange);
     }
 
     updateDocumentFuel() {
@@ -275,16 +311,25 @@ export class PlayerShip extends InteractableGameObject {
         DocumentManager.updateFuelBar(this.fuel / this.MAXIMUM_FUEL * 100);
     }
 
-    updateSpareParts(sparePartsChange) {
-        this.spareParts += sparePartsChange;
+    displayLowFuelMessageAndPlaySound() {
+        GameServiceManager.displayMessage("LOW FUEL", 60 * 4.5);
+        MediaManager.Audio.LowFuel.play();
+    }
 
-        if (this.spareParts > this.MAXIMUM_SPARE_PARTS) {
+    setSpareParts(newSparePartsValue) {
+        if (this.newSparePartsValue > this.MAXIMUM_SPARE_PARTS) {
             this.spareParts = this.MAXIMUM_SPARE_PARTS;
-        } else if (this.spareParts < 0) {
+        } else if (this.newSparePartsValue < 0) {
             this.spareParts = 0;
+        } else {
+            this.spareParts = newSparePartsValue;
         }
 
         this.updateDocumentSpareParts();
+    }
+
+    updateSpareParts(sparePartsChange) {
+        this.setSpareParts(this.spareParts + sparePartsChange);
     }
 
     updateDocumentSpareParts() {
@@ -297,15 +342,22 @@ export class PlayerShip extends InteractableGameObject {
             // Hitting sludger mines does not make any collision sound, the only sound comes from the sludger mine death
             return;
         } else if (this.isInvulnerable()) {
-            NewMediaManager.Audio.InvincibleCollision.play();
+            MediaManager.Audio.InvincibleCollision.play();
+        } else if (otherObject.layer === Layer.HAMMERHEAD_WEAPON) {
+            MediaManager.Audio.HammerheadAttack.play();
+        } else if (otherObject.layer === Layer.SLICER) {
+            MediaManager.Audio.SlicerAttack.play();
+        } else if (otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE) {
+            MediaManager.Audio.CollisionQuad.play();
         } else {
-            NewMediaManager.Audio.CollisionGeneral.play();
+            MediaManager.Audio.CollisionGeneral.play();
         }
     }
 
     handleCollision(otherObject) {
-        if (otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE) {
+        if (otherObject.layer === Layer.QUAD_BLASTER_PROJECTILE || otherObject.layer === Layer.PUFFER_PROJECTILE || otherObject.layer === Layer.HAMMERHEAD_WEAPON || otherObject.layer === Layer.ENEMY_BASE_PHOTON) {
             this.log("Player was hit by projectile: " + otherObject.getClassName());
+            super.handleCollision(otherObject);
             this.playCollisionSound(otherObject);
             if (!this.isInvulnerable()) {
                 this.damageShip(otherObject.damage);
@@ -333,10 +385,10 @@ export class PlayerShip extends InteractableGameObject {
             if (this.velocityX == 0 && this.velocityY == 0 && Math.abs(baseX - this.x) < threshold && Math.abs(baseY - this.y) < threshold) {
                 //The player ship is stopped at the base
                 
-                if (this.numFramesSince.repair >= 60 && (!this.playerSystemsManager.isShipAtFullOpeartingCapacity() || this.fuel < this.MAXIMUM_FUEL)) {
+                if (this.numFramesSince.repair >= 60 && (!this.playerSystemsManager.isShipAtFullOpeartingCapacity() || this.fuel < this.MAXIMUM_FUEL || this.spareParts < this.MAXIMUM_SPARE_PARTS)) {
                     //Repair ship
                     this.numFramesSince.repair = 0;
-                    NewMediaManager.Audio.BaseRepair.play();
+                    MediaManager.Audio.BaseRepair.play();
                     if (!this.playerSystemsManager.isShipAtFullOpeartingCapacity()) {
                         this.repairShip(12);
                     }
@@ -360,7 +412,7 @@ export class PlayerShip extends InteractableGameObject {
                 }
                 
                 //let dampeningFactor = Math.sqrt(playerShipVelocity.Magnitude()/this.MaxSpeed)*0.09+.9;
-                let dampeningFactor = playerShipVelocity.magnitude()/this.MAX_SPEED*0.09+.9;
+                let dampeningFactor = playerShipVelocity.magnitude()/PlayerShip.MAX_SPEED*0.09+.9;
                 
                 let mag = playerShipVelocity.magnitude();
                 if (mag < .5) {
@@ -399,7 +451,7 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     die() {
-        NewMediaManager.Audio.PlayerDeath.play();
+        MediaManager.Audio.PlayerDeath.play();
 
         this.velocityX = 0;
         this.velocityY = 0;
@@ -412,17 +464,15 @@ export class PlayerShip extends InteractableGameObject {
             GameServiceManager.endGame();
         } else {
             if (this.lives === 1) {
-                GameServiceManager.displayMessage("1 life left", 60 * 5)
+                GameServiceManager.displayMessage("1 LIFE LEFT", 60 * 5)
             } else {
-                GameServiceManager.displayMessage(this.lives + " lives left", 60 * 5)
+                GameServiceManager.displayMessage(this.lives + " LIVES LEFT", 60 * 5)
             }
             GameServiceManager.movePlayerShipTo(Math.random() * (GameBound.RIGHT - GameBound.LEFT + 1) + GameBound.LEFT, Math.random() * (GameBound.BOTTOM - GameBound.TOP + 1) + GameBound.TOP);
 
             // reset ship systems and fuel and spare parts to full
             this.log("Setting ship back to max system operating percentages/fuel/spare parts");
-            this.playerSystemsManager.resetSystems();
-            this.updateFuel(this.MAXIMUM_FUEL);
-            this.updateSpareParts(this.MAXIMUM_SPARE_PARTS);
+            this.resetFuelSparePartAndSystemsState();
 
             // deactivate all active powerups
             this.powerupStateManager.deactivateAllActivePowerups();
@@ -443,23 +493,23 @@ export class PlayerShip extends InteractableGameObject {
     }
 
     updateState() {
-        // FUTURE TODO: When levels are added in it will not be possible to "conquer the fringe", so just leave this here for now and remove it when levels are implemented.
-        if (GameServiceManager.enemiesRemaining() === 0) {
-            GameServiceManager.displayMessage("You conquered the fringe with a score of " + this.score, 99999999);
-            this.velocityX = 0;
-            this.velocityY = 0;
-            ObjectManager.removeObject(this);
-        }
-
         // update the power up state
         this.powerupStateManager.updatePowerupState();
 
-        // Handle playing the initial low fuel sound
-        if (this.fuel < this.FEUL_SOUND_THRESHOLD && !this.isLowFuel) {
-            NewMediaManager.Audio.LowFuel.play();
-            this.isLowFuel = true;
-        } else if (this.fuel > this.FEUL_SOUND_THRESHOLD && this.isLowFuel) {
-            this.isLowFuel = false;
+        // Handle fuel sounds
+        if (this.fuel <= this.HALF_FUEL_REMAINING && !this.isLowFuelHalfLeft) {
+            this.displayLowFuelMessageAndPlaySound();
+            this.isLowFuelHalfLeft = true;
+        } else if (this.fuel > this.HALF_FUEL_REMAINING && this.isLowFuelHalfLeft) {
+            this.isLowFuelHalfLeft = false;
+        }
+        
+        
+        if (this.fuel < this.QUARTER_FUEL_REMAINING && !this.isLowFuelQuarterLeft) {
+            this.displayLowFuelMessageAndPlaySound();
+            this.isLowFuelQuarterLeft = true;
+        } else if (this.fuel > this.QUARTER_FUEL_REMAINING && this.isLowFuelQuarterLeft) {
+            this.isLowFuelQuarterLeft = false;
         }
 
         // Handle healing from spare parts if not at player base

@@ -1,9 +1,26 @@
+import { CollisionManager } from "./CollisionManager.js";
+
 export class ObjectManager {
+    static nextId = 1;
+
     static objects = [];
     static collidables = [];
 
+    // TODO: Use maps for all objects in game for faster deleting and easier management?
+    static projectileObjects = {};
+    static nonProjectileObjects = {};
+
     static addObject(object, collidable = true) {
+        const nextId = this.getNextObjectId();
+        object.objectId = nextId;
         this.objects.push(object);
+
+        if (CollisionManager.isProjectileLayer(object.layer)) {
+            this.projectileObjects[nextId] = object;
+        } else {
+            this.nonProjectileObjects[nextId] = object;
+        }
+
         if (collidable) {
             this.collidables.push(object);
         }
@@ -23,5 +40,12 @@ export class ObjectManager {
                 break;
             }
         }
+
+        delete this.projectileObjects[object.objectId];
+        delete this.nonProjectileObjects[object.objectId];
+    }
+
+    static getNextObjectId() {
+        return this.nextId++;
     }
 }

@@ -1,5 +1,5 @@
 import { InteractableGameObject } from "../InteractableGameObject.js";
-import { NewMediaManager } from "../managers/MediaManager.js";
+import { MediaManager } from "../managers/MediaManager.js";
 import { ObjectManager } from "../managers/ObjectManager.js";
 
 export class Powerup extends InteractableGameObject {
@@ -13,9 +13,13 @@ export class Powerup extends InteractableGameObject {
         this.log(this.getClassName() + " created at: (" + this.x + "," + this.y + ")");
     }
 
+    playPowerupGainedSound() {
+        MediaManager.Audio.PowerupWow.play();
+    }
+
     handleCollision(otherObject) {
         this.log(this.getClassName() + " obtained by " + otherObject.getClassName());
-        NewMediaManager.Audio.PowerupWow.play();
+        this.playPowerupGainedSound();
         ObjectManager.removeObject(this);
     }
 

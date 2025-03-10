@@ -1,4 +1,4 @@
-export class NewMediaManager {
+export class MediaManager {
     static Sprites = {};
     static Audio = {};
 
@@ -32,6 +32,7 @@ export class NewMediaManager {
     static init() {
         this.LoadSprite("Base", "images/Base.png");
         this.LoadSprite("EnemyBase", "images/EnemyBase.png");
+        this.LoadSprite("EnemyBasePhoton", "images/EnemyBasePhoton.png");
         this.LoadSprite("Pebbles", "images/Pebbles.png");
         this.LoadSprite("PhotonQuad", "images/PhotonQuad.png");
         this.LoadSprite("PhotonSmall", "images/PhotonSmall.png");
@@ -39,6 +40,8 @@ export class NewMediaManager {
         this.LoadSprite("PhotonLarge", "images/PhotonLarge.png");
         this.LoadSprite("PlayerShip", "images/PlayerShip.png");
         this.LoadSprite("PlayerShipInvulnerable", "images/PlayerShipInvulnerable.png");
+        this.LoadSprite("Hammerhead", "images/HammerheadShip.png");
+        this.LoadSprite("HammerheadWeapon", "images/HammerheadWeapon.png");
         this.LoadSprite("Puffer", "images/Puffer.png");
         this.LoadSprite("QuadBlaster", "images/Quadblaster.png");
         this.LoadSprite("Rocko", "images/Rocko.png");
@@ -61,7 +64,7 @@ export class NewMediaManager {
         this.LoadAudio("PhotonSmall", "audio/PhotonSmall");
         this.LoadAudio("PhotonBig", "audio/PhotonBig")
         this.LoadAudio("PhotonSpread", "audio/PhotonSpread");
-        this.LoadAudio("StartUp", "audio/StartUp");
+        this.LoadAudio("SpawnAndUpgradeExpired", "audio/SpawnAndUpgradeExpired");
         this.LoadAudio("SludgerMinePop", "audio/SludgerMinePop");
         this.LoadAudio("PlayerDeath", "audio/PlayerDeath");
         this.LoadAudio("SludgerDeath", "audio/SludgerDeath");
@@ -73,6 +76,7 @@ export class NewMediaManager {
         this.LoadAudio("NewLevel", "audio/newlevel");
         this.LoadAudio("RepairOrFuelPowerup", "audio/repair_fuel");
         this.LoadAudio("SlicerAttack", "audio/Slicer_attack");
+        this.LoadAudio("HammerheadAttack", "audio/Hammerhead_attack");
     }
 
     static percentageLoaded() {

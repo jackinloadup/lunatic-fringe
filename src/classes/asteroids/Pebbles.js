@@ -1,4 +1,4 @@
-import { NewMediaManager } from "../managers/MediaManager.js";
+import { MediaManager } from "../managers/MediaManager.js";
 import { Asteroid } from "./Asteroid.js";
 
 export class Pebbles extends Asteroid {
@@ -6,6 +6,6 @@ export class Pebbles extends Asteroid {
         /**
          * The width, height, angle (which doesn't really apply), sprite, collisionRadius, and mass are always the same for a Pebbles.
          */
-        super(xLocation, yLocation, 25, 26, 0, NewMediaManager.Sprites.Pebbles, velocityX, velocityY, 13, 100, 120);
+        super(xLocation, yLocation, 25, 26, 0, MediaManager.Sprites.Pebbles, velocityX, velocityY, 13, 100, 120);
     }
 }

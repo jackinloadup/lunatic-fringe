@@ -12,6 +12,10 @@ body * {
 #game-container {
     display: flex;
     flex-direction: row;
+    /* TODO: This never used to be necessary, but now without this scrollbars
+       are appearing on the side and bottom of the window, so something must be
+       hanging off of the page by a pixel or two. Look into this further. */
+    overflow: hidden;
 
     background-color: black;
 
@@ -23,6 +27,18 @@ body * {
 
 #scanner {
     flex: 1;
+}
+
+#scannerCanvas {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+#scannerCanvasProjectiles {
+    position: absolute;
+    top: 0px;
+    left: 0px;
 }
 
 #hud {
@@ -43,7 +59,7 @@ body * {
 }
 
 .info-panel-line, .info-panel-line-dots, .info-panel-line-text, .info-panel-line-lives {
-    margin-top: 5px;
+    margin-top: 1px;
     margin-left: 15px;
     margin-right: 15px;
 }
@@ -143,3 +159,19 @@ body * {
 
     background: linear-gradient(to right, blue 0% 100%);
 }
+
+body {
+    font-family: 'EspySansRevivedNineBold', sans-serif;
+    font-size: 11px;
+    color: #bfbebe;
+  }
+
+  @font-face {
+    font-family: 'EspySansRevivedNineBold';
+    src: url('fonts/EspySansRevivedNine-Bold.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'digital-dream';
+    src: url('fonts/digital-dream.regular.ttf') format('truetype');
+  }

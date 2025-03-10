@@ -1,18 +1,35 @@
 import { Vector } from "../../utility/Vector.js";
 import { KillableAiGameObject } from "../KillableAiGameObject.js";
 import { Layer } from "../managers/Layer.js";
-import { NewMediaManager } from "../managers/MediaManager.js";
+import { MediaManager } from "../managers/MediaManager.js";
 
 export class Slicer extends KillableAiGameObject {
-    constructor(xLocation, yLocation, velocityX, velocityY, playerShip) {
-        super(xLocation, yLocation, Layer.SLICER, 50, 50, 0, NewMediaManager.Sprites.Slicer, velocityX, velocityY, 14, 50, playerShip, 100, 400, 100);
+    static MAX_SPEED = 10;
+
+    constructor(xLocation, yLocation, velocityX, velocityY, angle, playerShip) {
+        super(xLocation, yLocation, Layer.SLICER, 50, 50, angle, MediaManager.Sprites.Slicer, velocityX, velocityY, 14, 50, playerShip, 100, 400, 100);
 
         this.TURN_ABILITY = 0.3;
-        this.MAX_SPEED = 10;
         this.ACCELERATION = 0.175;
 
         this.NUMBER_OF_ANIMATION_FRAMES = 26;
         this.ROTATION_AMOUNT = (2 * Math.PI) / this.NUMBER_OF_ANIMATION_FRAMES;
+
+        // set the initial sprite x offset based on the angle given
+        this.setSpriteXOffsetForAngle();
+    }
+
+    setSpriteXOffsetForAngle() {
+        // Calculate which frame of the sprite. Note the following reasons for each part of the calculation:
+        // +(Math.PI / 2): The sprite for the Puffer starts straight up, so an angle offset of Math.PI/2 (a quarter rotation of a circle) is needed for this calculation so that the correct frame is chosen since an angle of 0 is pointing to the right not straight up.
+        // +(this.ROTATION_AMOUNT / 2): Adding half of the rotation amount here so that each frame is centered around the angles that it applies to.
+        // +this.angle: The angle the ship is currently pointing.
+        // % (2 * Math.PI): Takes whatever the result of the calculation with the above values is and makes it between 0 (inclusive) and 2 * Math.PI (exclusive).
+        // FUTURE TODO: Due to the isometric sprite view there are some instances where the angles don't line up great with the sprite (barely). So in the future might want to look into how to make the angles match up with the sprite a little better.
+        let frameAngle = ((Math.PI / 2) + this.ROTATION_AMOUNT / 2 + this.angle) % (2 * Math.PI);
+        let frame = Math.floor(frameAngle/this.ROTATION_AMOUNT);
+
+        this.spriteXOffset = this.width * frame;
     }
 
     updateState() {
@@ -49,21 +66,7 @@ export class Slicer extends KillableAiGameObject {
             this.error(`Slicer angle ${this.angle} was outside of the expected range`);
         }
 
-        // Calculate which frame of the sprite. Note the following reasons for each part of the calculation:
-        // +(Math.PI / 2): The sprite for the Slicer starts straight up, so an angle offset of Math.PI/2 (a quarter rotation of a circle) is needed for this calculation so that the correct frame is chosen since an angle of 0 is pointing to the right not straight up.
-        // +(this.ROTATION_AMOUNT / 2): Adding half of the rotation amount here so that each frame is centered around the angles that it applies to.
-        // +this.angle: The angle the ship is currently pointing.
-        // % (2 * Math.PI): Takes whatever the result of the calculation with the above values is and makes it between 0 (inclusive) and 2 * Math.PI (exclusive).
-        // FUTURE TODO: Due to the isometric sprite view there are some instances where the angles don't line up great with the sprite (barely). So in the future might want to look into how to make the angles match up with the sprite a little better.
-        // Note that there are also not the same number of frames for each quadrant of the slicer, which leads to futher complexity getting correct angles.
-        let frameAngle = ((Math.PI / 2) + this.ROTATION_AMOUNT / 2 + this.angle) % (2 * Math.PI);
-        let frame = Math.floor(frameAngle/this.ROTATION_AMOUNT);
-
-        if (frame < 0) {
-            frame += this.NUMBER_OF_ANIMATION_FRAMES;
-        }
-
-        this.spriteXOffset = this.width * frame;
+        this.setSpriteXOffsetForAngle();
 
         // Only accellerate if we close enough to pointing at what we are targeting
         if (angleDiff > -0.1 && angleDiff < 0.1) {

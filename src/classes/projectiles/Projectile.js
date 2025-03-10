@@ -13,7 +13,8 @@ export class Projectile extends InteractableGameObject {
     updateState() {
         this.tickCountSinceCreation += 1;
 
-        if (this.tickCountSinceCreation >= this.lifetime) {
+        // an undefined lifetime means that the projectile should last indefinitely
+        if (this.lifetime !== undefined && this.tickCountSinceCreation >= this.lifetime) {
             ObjectManager.removeObject(this);
         } else {
             this.x += this.velocityX;
